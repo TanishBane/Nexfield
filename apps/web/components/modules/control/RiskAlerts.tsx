@@ -49,6 +49,7 @@ export function RiskAlerts({ visibleAlerts, dismissAlert }: RiskAlertsProps) {
                   onClick={() => dismissAlert(alert.id)}
                   className="h-5 w-5 text-[#637C6E] hover:text-[#E2ECE5] absolute top-2.5 right-2.5"
                   title="Dismiss alert"
+                  aria-label="Dismiss alert"
                 >
                   <X className="h-3 w-3" />
                 </Button>

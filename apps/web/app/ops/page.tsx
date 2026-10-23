@@ -500,6 +500,7 @@ export default function OpsPage() {
                 size="icon"
                 onClick={() => setIsNewTaskModalOpen(false)}
                 className="h-6 w-6 text-[#7F998B]"
+                aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -599,6 +600,7 @@ export default function OpsPage() {
                 size="icon"
                 onClick={() => setIsNewTransactionModalOpen(false)}
                 className="h-6 w-6 text-[#7F998B]"
+                aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
               </Button>
