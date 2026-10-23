@@ -26,6 +26,7 @@ export interface DemoState {
   cropVariety: string;
   sowingDaysAgo: number;
   growthStage: string;
+  isFixture: boolean;
 
   // Real-time Biophysical Telemetry
   soilMoisture: number;
@@ -67,6 +68,7 @@ const INITIAL_DEMO_STATE = {
   cropVariety: 'Abhinav F1 Hybrid (Semi-Determinate)',
   sowingDaysAgo: 48,
   growthStage: 'Flowering & Early Fruit Set (BBCH 65)',
+  isFixture: true,
 
   soilMoisture: 41.4,
   soilTemperature: 23.2,

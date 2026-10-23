@@ -20,6 +20,8 @@ from .ops import router as ops_router
 from .intelligence import router as intelligence_router
 from .markets import router as markets_router
 from .import_data import router as import_router
+from .insights import router as insights_router
+from .harvest_quality import router as harvest_quality_router
 
 
 @asynccontextmanager
@@ -100,3 +102,5 @@ app.include_router(ops_router)
 app.include_router(intelligence_router)
 app.include_router(markets_router)
 app.include_router(import_router)
+app.include_router(insights_router)
+app.include_router(harvest_quality_router)

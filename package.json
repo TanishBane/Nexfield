@@ -8,8 +8,8 @@
     "build": "pnpm --filter @nexfield/contracts build && pnpm --filter @nexfield/ui build && pnpm --filter web build",
     "lint": "pnpm --filter web lint",
     "type-check": "pnpm --filter @nexfield/contracts type-check && pnpm --filter @nexfield/ui type-check && pnpm --filter web type-check",
-    "test:e2e": "echo \"e2e tests scaffolded in tests/e2e\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "node tests/e2e-smoke.js"
   },
   "devDependencies": {
     "playwright": "^1.64.1",
