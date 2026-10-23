@@ -39,6 +39,7 @@ from .schemas import (
     ExpenseCategory,
     HarvestSaleCreate,
     HarvestSaleRead,
+    OpsFinancialSummaryRead,
     TaskPriority,
     TaskStatus,
 )
@@ -229,6 +230,99 @@ async def list_harvest_sales(
         data=[HarvestSaleRead.model_validate(sale_payload(sale)) for sale in sales],
         meta=metadata(request),
     )
+
+
+@router.get(
+    "/financial-summary",
+    response_model=ApiResponse[OpsFinancialSummaryRead],
+    response_model_exclude_none=True,
+)
+async def financial_summary(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[OpsFinancialSummaryRead]:
+    await owned_farm(session, farm_id, user)
+
+    expense_rows = await session.execute(
+        select(FarmExpense.category, func.sum(FarmExpense.amount_inr))
+        .where(FarmExpense.farm_id == farm_id)
+        .group_by(FarmExpense.category)
+    )
+    expense_breakdown = {
+        category: float(amount or 0)
+        for category, amount in expense_rows.all()
+    }
+    total_expenses = sum(expense_breakdown.values())
+
+    realized_revenue = await session.scalar(
+        select(func.coalesce(func.sum(HarvestSale.total_amount_inr), 0)).where(
+            HarvestSale.farm_id == farm_id
+        )
+    )
+    sold_by_batch = (
+        select(
+            HarvestSale.batch_id.label("batch_id"),
+            func.sum(HarvestSale.quantity_kg).label("sold_quantity_kg"),
+        )
+        .where(HarvestSale.farm_id == farm_id)
+        .group_by(HarvestSale.batch_id)
+        .subquery()
+    )
+    projected_remaining = await session.scalar(
+        select(
+            func.coalesce(
+                func.sum(
+                    (
+                        HarvestBatch.total_quantity_kg
+                        - func.coalesce(sold_by_batch.c.sold_quantity_kg, 0)
+                    )
+                    / 100
+                    * HarvestBatch.target_mandi_price_inr_per_quintal
+                ),
+                0,
+            )
+        )
+        .outerjoin(sold_by_batch, sold_by_batch.c.batch_id == HarvestBatch.id)
+        .where(
+            HarvestBatch.farm_id == farm_id,
+            HarvestBatch.target_mandi_price_inr_per_quintal.is_not(None),
+        )
+    )
+    projected_revenue = float(realized_revenue or 0) + float(projected_remaining or 0)
+
+    inventory_rows = await session.execute(
+        select(
+            InventoryTransaction.item_name,
+            InventoryTransaction.unit,
+            func.sum(
+                case(
+                    (
+                        InventoryTransaction.transaction_type.in_(["purchase", "return"]),
+                        InventoryTransaction.quantity,
+                    ),
+                    else_=-InventoryTransaction.quantity,
+                )
+            ).label("balance_quantity"),
+            func.max(InventoryTransaction.unit_price_inr).label("unit_price_inr"),
+        )
+        .where(InventoryTransaction.farm_id == farm_id)
+        .group_by(InventoryTransaction.item_name, InventoryTransaction.unit)
+    )
+    inventory_valuation = sum(
+        max(float(row.balance_quantity or 0), 0) * float(row.unit_price_inr or 0)
+        for row in inventory_rows
+    )
+    summary = OpsFinancialSummaryRead(
+        farm_id=farm_id,
+        current_season_total_expenses_inr=total_expenses,
+        projected_revenue_inr=projected_revenue,
+        estimated_net_profit_inr=projected_revenue - total_expenses,
+        expense_breakdown=expense_breakdown,
+        inventory_valuation_inr=inventory_valuation,
+    )
+    return ApiResponse(data=summary, meta=metadata(request))
 
 
 async def validate_expense_scope(

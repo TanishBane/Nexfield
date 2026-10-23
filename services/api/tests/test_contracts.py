@@ -282,6 +282,26 @@ def test_sale_routes_are_registered():
     assert "/api/v1/ops/sales" in app.openapi()["paths"]
 
 
+def test_financial_summary_matches_ops_contract():
+    from services.api.schemas import OpsFinancialSummaryRead
+
+    summary = OpsFinancialSummaryRead(
+        farmId="11111111-1111-1111-1111-111111111111",
+        currentSeasonTotalExpensesInr=1250,
+        projectedRevenueInr=5000,
+        estimatedNetProfitInr=3750,
+        expenseBreakdown={"fertilizer": 1250},
+        inventoryValuationInr=300,
+    )
+    assert summary.model_dump(by_alias=True)["estimatedNetProfitInr"] == 3750
+
+
+def test_financial_summary_route_is_registered():
+    from services.api.main import app
+
+    assert "/api/v1/ops/financial-summary" in app.openapi()["paths"]
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),

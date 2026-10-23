@@ -509,6 +509,15 @@ class HarvestSaleRead(ContractModel):
     created_at: AwareDatetime
 
 
+class OpsFinancialSummaryRead(ContractModel):
+    farm_id: UUID
+    current_season_total_expenses_inr: float
+    projected_revenue_inr: float
+    estimated_net_profit_inr: float
+    expense_breakdown: dict[str, float]
+    inventory_valuation_inr: float
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)
