@@ -121,6 +121,7 @@ async def import_data(
                 await session.flush()
                 await session.refresh(default_field)
 
+            obs_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     dt = parse_datetime(row.get("timestamp") or row.get("date") or row.get("observed_at"))
@@ -140,17 +141,20 @@ async def import_data(
                         metrics=metrics,
                         notes=str(row.get("notes") or f"Ingested from Data Center batch row #{idx + 1}"),
                     )
-                    session.add(obs)
+                    obs_to_add.append(obs)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+            if obs_to_add:
+                session.add_all(obs_to_add)
 
         elif body.category == "expenses":
             valid_categories = {
                 "labor", "seeds", "fertilizer", "pesticide", "irrigation",
                 "equipment", "fuel", "transport", "storage", "land_rent", "other"
             }
+            expenses_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     raw_cat = str(row.get("category", "other")).lower().strip().replace(" ", "_")
@@ -176,11 +180,13 @@ async def import_data(
                         expense_date=exp_date,
                         idempotency_key=idem_key,
                     )
-                    session.add(expense)
+                    expenses_to_add.append(expense)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+            if expenses_to_add:
+                session.add_all(expenses_to_add)
 
         elif body.category == "tasks":
             valid_categories = {
@@ -188,6 +194,7 @@ async def import_data(
                 "crop_scouting", "harvesting", "equipment_maintenance", "soil_testing"
             }
             valid_priorities = {"low", "medium", "high", "urgent"}
+            tasks_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     title = str(row.get("title") or row.get("name") or f"Imported Task #{idx + 1}").strip()
@@ -207,13 +214,16 @@ async def import_data(
                         status="todo",
                         due_date=due,
                     )
-                    session.add(task)
+                    tasks_to_add.append(task)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+            if tasks_to_add:
+                session.add_all(tasks_to_add)
 
         elif body.category == "fields":
+            fields_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     name = str(row.get("name") or row.get("field_name") or f"Field {len(existing_fields) + idx + 1}").strip()
@@ -242,11 +252,14 @@ async def import_data(
                         },
                         polygon_coordinates=coords if isinstance(coords, list) else None,
                     )
-                    session.add(field)
+                    fields_to_add.append(field)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+
+            if fields_to_add:
+                session.add_all(fields_to_add)
 
         await session.flush()
 
