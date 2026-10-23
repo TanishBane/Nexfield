@@ -51,6 +51,8 @@ import {
 import { TwinScenarioCharts } from '@/components/modules/twin/TwinScenarioCharts';
 import { ModelAssumptionsModal } from '@/components/modules/twin/ModelAssumptionsModal';
 import { ConvertToTaskModal } from '@/components/modules/twin/ConvertToTaskModal';
+import { OutcomeStatCards } from '@/components/modules/twin/OutcomeStatCards';
+import { ParameterConfigurationPanel } from '@/components/modules/twin/ParameterConfigurationPanel';
 
 // Dynamically import 3D Canvas without SSR to avoid window/WebGL hydration issues
 const TwinCanvas = dynamic(
@@ -316,206 +318,18 @@ export default function TwinPage() {
           </Card>
 
           {/* Outcome Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard
-              label="Simulated Yield Outcome"
-              value={current.projectedOutcomes.estimatedYieldMtPerHa.toFixed(2)}
-              unit="MT/ha"
-              subValue={`Baseline: ${current.projectedOutcomes.baselineYieldMtPerHa.toFixed(2)} MT/ha`}
-              trend="up"
-              trendValue={`+${current.projectedOutcomes.yieldDeltaPercent.toFixed(1)}%`}
-              variant="emerald"
-            />
-            <StatCard
-              label="Water Use Efficiency (WUE)"
-              value={current.projectedOutcomes.waterUseEfficiencyScore.toFixed(1)}
-              unit="/ 100"
-              subValue="Low sub-surface leaching"
-              trend="up"
-              trendValue="High Efficiency"
-              variant="sky"
-            />
-            <StatCard
-              label="Net Economic Advantage"
-              value={`+₹${current.projectedOutcomes.economicBenefitInrPerHa.toLocaleString('en-IN')}`}
-              unit="/ ha"
-              subValue="Fertilizer & diesel savings"
-              trend="up"
-              trendValue="Optimal Arbitrage"
-              variant="amber"
-            />
-          </div>
+          <OutcomeStatCards current={current} />
         </div>
 
         {/* Right Column (5 cols): Parameter Configuration Panel */}
         <div className="lg:col-span-5 space-y-4">
-          <Card className="border-[#273B2F]">
-            <CardHeader className="pb-3 border-b border-[#1E2E25]">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Sliders className="h-4 w-4 text-emerald-400" />
-                  Scenario Parameter Configuration
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={resetParams}
-                  className="h-6 text-[11px] text-[#7B9586] hover:text-[#E2ECE5]"
-                  title="Reset to agronomic baseline"
-                >
-                  <RotateCcw className="h-3 w-3 mr-1" />
-                  Reset
-                </Button>
-              </div>
-              <CardDescription>
-                Tune inputs to simulate stress conditions and yield sensitivity.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-              {/* Irrigation Volume */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-                    <Droplets className="h-3.5 w-3.5 text-sky-400" />
-                    Target Irrigation Volume
-                  </span>
-                  <span className="font-mono text-sky-300 font-semibold">
-                    {params.irrigationVolumeM3PerHa} m³/ha
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="150"
-                  max="600"
-                  step="10"
-                  value={params.irrigationVolumeM3PerHa}
-                  onChange={(e) => updateParams({ irrigationVolumeM3PerHa: Number(e.target.value) })}
-                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-
-              {/* Irrigation Efficiency */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#A2B6AA] font-medium">Irrigation Delivery Efficiency</span>
-                  <span className="font-mono text-emerald-300 font-semibold">
-                    {params.irrigationEfficiencyPercent}% (Drip System)
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="50"
-                  max="98"
-                  step="2"
-                  value={params.irrigationEfficiencyPercent}
-                  onChange={(e) =>
-                    updateParams({ irrigationEfficiencyPercent: Number(e.target.value) })
-                  }
-                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-
-              {/* Projected Rainfall */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-                    <CloudRain className="h-3.5 w-3.5 text-sky-400" />
-                    10-Day Forecast Rainfall
-                  </span>
-                  <span className="font-mono text-sky-300 font-semibold">
-                    {params.projectedRainfallMm} mm
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="80"
-                  step="2"
-                  value={params.projectedRainfallMm}
-                  onChange={(e) => updateParams({ projectedRainfallMm: Number(e.target.value) })}
-                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-
-              {/* Temperature Scenario Delta */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-                    <Flame className="h-3.5 w-3.5 text-amber-400" />
-                    Temperature Scenario Delta
-                  </span>
-                  <span className="font-mono text-amber-300 font-semibold">
-                    {params.temperatureScenarioDeltaC >= 0 ? '+' : ''}
-                    {params.temperatureScenarioDeltaC}°C Stress
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="-2"
-                  max="5"
-                  step="1"
-                  value={params.temperatureScenarioDeltaC}
-                  onChange={(e) =>
-                    updateParams({ temperatureScenarioDeltaC: Number(e.target.value) })
-                  }
-                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-
-              {/* Nitrogen Top Dressing */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-                    <Leaf className="h-3.5 w-3.5 text-emerald-400" />
-                    Nitrogen Top Dressing
-                  </span>
-                  <span className="font-mono text-emerald-300 font-semibold">
-                    {params.nitrogenTopDressingKgPerHa} kg N/ha
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="90"
-                  step="5"
-                  value={params.nitrogenTopDressingKgPerHa}
-                  onChange={(e) =>
-                    updateParams({ nitrogenTopDressingKgPerHa: Number(e.target.value) })
-                  }
-                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
-                />
-              </div>
-
-              {/* Biostimulant Toggle */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-[#E1ECE5]">
-                    Amino-Acid Biostimulant Spray
-                  </span>
-                  <span className="text-[11px] text-[#71897C]">
-                    Protects chlorophyll against terminal heat shock
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={params.biostimulantApplied}
-                  onChange={(e) => updateParams({ biostimulantApplied: e.target.checked })}
-                  className="h-4 w-4 rounded border-emerald-600 text-emerald-600 focus:ring-emerald-500 bg-[#16221B] cursor-pointer"
-                />
-              </div>
-
-              {/* Run Simulation Action */}
-              <Button
-                variant="primary"
-                onClick={() => runSimulationMutation.mutate()}
-                isLoading={runSimulationMutation.isPending}
-                className="w-full gap-2 font-semibold shadow-md shadow-emerald-950/60"
-              >
-                <Play className="h-4 w-4" />
-                Run Biophysical Simulation
-              </Button>
-            </CardContent>
-          </Card>
+          <ParameterConfigurationPanel
+            params={params}
+            updateParams={updateParams}
+            resetParams={resetParams}
+            onRunSimulation={() => runSimulationMutation.mutate()}
+            isSimulating={runSimulationMutation.isPending}
+          />
         </div>
       </div>
 
