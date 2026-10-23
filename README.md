@@ -12,7 +12,7 @@
 [![Frontend CI](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml)
 [![Backend CI](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml)
 [![Backend Tests](https://img.shields.io/badge/Pytest-76%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
-[![E2E Smoke](https://img.shields.io/badge/E2E%20Smoke-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
+[![System Smoke Suite](https://img.shields.io/badge/Smoke%20Suite-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -74,7 +74,7 @@ NEXFIELD bridges these silos into a **single, unified, biophysically grounded op
 > [!IMPORTANT]
 > **Scientific Integrity & Capability Transparency**  
 > NEXFIELD clearly distinguishes genuine machine learning from biophysical physics and synthetic demonstration baselines:
-> - **Real Machine Learning:** FieldSight foliar pathology uses a CPU-optimized ONNX model (`fieldsight_foliar_v1.onnx`) with 5.13 ms latency and true spatial Class Activation Maps (CAM) computed from Conv3 activations.
+> - **Machine Learning Pipeline:** FieldSight foliar pathology uses a CPU-optimized ONNX model (`fieldsight_foliar_v1.onnx`) with 5.13 ms CPU latency and spatial Class Activation Maps (CAM) computed from Conv3 activations (weights are initialized and calibrated on synthetic feature signatures; clinical field fine-tuning planned for production rollout).
 > - **Biophysical Agronomy:** Digital Twin calculations adhere strictly to FAO-56 Penman-Monteith physics and physical water conservation ($1\text{ mm} = 10\text{ m}^3/\text{ha}$).
 > - **Food Quality Intelligence:** Post-harvest storage risk engine evaluates ICAR and FAO Bulletin 149 criteria (Tomato chilling injury $<10^\circ\text{C}$, Wheat Aspergillus mold $>14\%$, Rice fissuring $>14.5\%$).
 > - **Synthetic Fixture Demarcation:** In local offline mode, the frontend loads synthetic fixtures with a persistent indicator `"Development Mode: Synthetic Agronomic Fixtures"`. See [Capability Matrix](docs/architecture/CAPABILITY_MATRIX.md), [Model Card](ml/model_cards/FIELDSIGHT_MODEL_CARD.md), and [Judge Defense](docs/demo/JUDGE_PRESENTATION.md).

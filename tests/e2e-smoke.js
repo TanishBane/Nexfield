@@ -1,7 +1,11 @@
 /**
- * NEXFIELD E2E Smoke & Validation Suite
+ * NEXFIELD Smoke & Architectural Invariant Validation Suite
  * 
- * Executes 10 end-to-end assertions covering:
+ * Static, contract, schema, and biophysical invariant validation.
+ * Note: These assertions verify source integrity, API contracts, isolation,
+ * and ML pipeline structure without requiring a headless browser runtime.
+ * 
+ * Verifies 10 core system dimensions:
  * 1. Landing page route & identity
  * 2. Demo mode with synthetic indicator
  * 3. Six core routes accessibility & contracts
@@ -20,7 +24,8 @@ const assert = require('assert');
 const ROOT_DIR = path.resolve(__dirname, '..');
 
 console.log('\n================================================================');
-console.log('       NEXFIELD E2E SMOKE & QUALITY ASSURANCE TEST SUITE        ');
+console.log('    NEXFIELD SYSTEM SMOKE & INVARIANT VALIDATION SUITE          ');
+console.log('        (Static, Contract & Pipeline Assertions)                ');
 console.log('================================================================\n');
 
 let passedTests = 0;
@@ -225,6 +230,6 @@ runTest(10, 'FieldSight Real AI Inference & Grad-CAM Heatmap Pipeline', () => {
 });
 
 console.log('\n================================================================');
-console.log(`  ALL ${passedTests}/${totalTests} END-TO-END SMOKE TESTS PASSED SUCCESSFULLY! `);
+console.log(`  ALL ${passedTests}/${totalTests} SYSTEM INVARIANT SMOKE ASSERTIONS PASSED! `);
 console.log('================================================================\n');
 process.exit(0);

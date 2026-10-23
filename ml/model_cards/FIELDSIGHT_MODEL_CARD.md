@@ -108,6 +108,10 @@ Tomato Healthy          [   0       1        0       3       0       0       0  
 
 ## 5. Agronomic Disclaimers & Limitations
 
+> [!CAUTION]
+> **Weight Calibration & Scientific Disclaimer:**  
+> The convolutional backbone weights (`w_conv1`, `w_conv2`, `w_conv3`, `w_fc`) are initialized with He/Kaiming normal initialization and calibrated against synthetic morphological foliar feature signatures. While the complete inference pipeline, ONNX graph execution, tensor transforms, and spatial Conv3 Class Activation Maps operate genuinely with 5.13 ms CPU latency, the model weights have **not** been fine-tuned on clinical in-field agricultural datasets (e.g. PlantVillage/ICAR repos). Model outputs demonstrate functional machine learning infrastructure, but must not be used as clinical disease guarantees without agronomist ground scouting.
+
 - **Not a Standalone Chemical Prescription:** The model output represents probabilistic feature matching. Under ICAR and CIBRC agricultural safety standards, chemical pesticide or fungicide applications must be verified against field canopy density, humidity, and stage-specific spray windows.
 - **Microclimate Interaction:** Stripe Rust development requires free foliar moisture (dew or light precipitation) and temperatures between $10^\circ\text{C}$ and $20^\circ\text{C}$. FieldSight findings should always be cross-referenced with NEXFIELD Control's agro-weather telemetry.
 
