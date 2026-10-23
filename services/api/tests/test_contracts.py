@@ -207,6 +207,32 @@ def test_task_routes_are_registered():
     assert "/api/v1/ops/tasks/{task_id}" in paths
 
 
+def test_harvest_batch_contract_validates_units_and_status():
+    from services.api.schemas import HarvestBatchCreate, HarvestBatchPatch
+
+    batch = HarvestBatchCreate(
+        fieldId="11111111-1111-1111-1111-111111111111",
+        cycleId="22222222-2222-2222-2222-222222222222",
+        batchCode="WHEAT-001",
+        harvestDate="2026-10-24",
+        totalQuantityKg=1250.5,
+        qualityGrade="Grade_A_Export",
+        moistureContentPercent=12.5,
+        foreignMatterPercent=1.0,
+        storageWarehouse="North Warehouse",
+    )
+    assert batch.total_quantity_kg == 1250.5
+    assert HarvestBatchPatch(dispatchStatus="consignment_booked").dispatch_status == "consignment_booked"
+
+
+def test_harvest_batch_routes_are_registered():
+    from services.api.main import app
+
+    paths = app.openapi()["paths"]
+    assert "/api/v1/ops/harvest-batches" in paths
+    assert "/api/v1/ops/harvest-batches/{batch_id}" in paths
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),

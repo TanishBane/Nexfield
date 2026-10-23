@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .auth import Principal, get_principal
 from .database import get_session
 from .errors import ApiProblem
-from .models import Farm, FarmTask, Field, InventoryTransaction
+from .models import CropCycle, Farm, FarmTask, Field, HarvestBatch, InventoryTransaction
 from .schemas import (
     ApiMeta,
     ApiResponse,
@@ -21,6 +21,10 @@ from .schemas import (
     FarmTaskCreate,
     FarmTaskPatch,
     FarmTaskRead,
+    HarvestBatchCreate,
+    HarvestBatchPatch,
+    HarvestBatchRead,
+    DispatchStatus,
     TaskPriority,
     TaskStatus,
 )
@@ -77,6 +81,160 @@ def task_payload(task: FarmTask) -> dict:
         "created_at": task.created_at,
         "updated_at": task.updated_at,
     }
+
+
+def harvest_payload(batch: HarvestBatch) -> dict:
+    return {
+        "id": batch.id,
+        "farm_id": batch.farm_id,
+        "field_id": batch.field_id,
+        "cycle_id": batch.cycle_id,
+        "batch_code": batch.batch_code,
+        "crop_name": batch.crop_name,
+        "variety": batch.variety,
+        "harvest_date": batch.harvest_date,
+        "total_quantity_kg": batch.total_quantity_kg,
+        "quality_grade": batch.quality_grade,
+        "moisture_content_percent": batch.moisture_content_percent,
+        "foreign_matter_percent": batch.foreign_matter_percent,
+        "storage_warehouse": batch.storage_warehouse,
+        "dispatch_status": batch.dispatch_status,
+        "target_mandi_price_inr_per_quintal": batch.target_mandi_price_inr_per_quintal,
+        "sold_price_inr_per_quintal": batch.sold_price_inr_per_quintal,
+        "buyer_entity": batch.buyer_entity,
+        "created_at": batch.created_at,
+        "updated_at": batch.updated_at,
+    }
+
+
+async def owned_cycle_for_harvest(
+    session: AsyncSession,
+    farm_id: UUID,
+    field_id: UUID,
+    cycle_id: UUID,
+    user: Principal,
+) -> CropCycle:
+    cycle = await session.scalar(
+        select(CropCycle)
+        .join(Field, Field.id == CropCycle.field_id)
+        .join(Farm, Farm.id == Field.farm_id)
+        .where(
+            CropCycle.id == cycle_id,
+            CropCycle.field_id == field_id,
+            Field.farm_id == farm_id,
+            Farm.owner_id == user.user_id,
+            Farm.archived_at.is_(None),
+        )
+    )
+    if cycle is None:
+        raise ApiProblem(404, "CROP_CYCLE_NOT_FOUND", "Crop cycle not found")
+    return cycle
+
+
+@router.post(
+    "/harvest-batches",
+    status_code=201,
+    response_model=ApiResponse[HarvestBatchRead],
+    response_model_exclude_none=True,
+)
+async def create_harvest_batch(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    body: HarvestBatchCreate,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[HarvestBatchRead]:
+    async with session.begin():
+        await owned_farm(session, farm_id, user)
+        cycle = await owned_cycle_for_harvest(session, farm_id, body.field_id, body.cycle_id, user)
+        existing = await session.scalar(
+            select(HarvestBatch).where(
+                HarvestBatch.farm_id == farm_id,
+                HarvestBatch.batch_code == body.batch_code,
+            )
+        )
+        if existing is not None:
+            raise ApiProblem(409, "DUPLICATE_BATCH_CODE", "This harvest batch code already exists")
+        batch = HarvestBatch(
+            farm_id=farm_id,
+            crop_name=cycle.crop_name,
+            variety=cycle.variety,
+            **body.model_dump(mode="python"),
+        )
+        session.add(batch)
+        await session.flush()
+        await session.refresh(batch)
+        result = HarvestBatchRead.model_validate(harvest_payload(batch))
+    return ApiResponse(data=result, meta=metadata(request))
+
+
+@router.get(
+    "/harvest-batches",
+    response_model=ApiResponse[list[HarvestBatchRead]],
+    response_model_exclude_none=True,
+)
+async def list_harvest_batches(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+    dispatch_status: DispatchStatus | None = Query(default=None, alias="dispatchStatus"),
+) -> ApiResponse[list[HarvestBatchRead]]:
+    await owned_farm(session, farm_id, user)
+    statement = select(HarvestBatch).where(HarvestBatch.farm_id == farm_id)
+    if dispatch_status is not None:
+        statement = statement.where(HarvestBatch.dispatch_status == dispatch_status)
+    batches = await session.scalars(statement.order_by(HarvestBatch.harvest_date.desc(), HarvestBatch.id))
+    return ApiResponse(
+        data=[HarvestBatchRead.model_validate(harvest_payload(batch)) for batch in batches],
+        meta=metadata(request),
+    )
+
+
+@router.patch(
+    "/harvest-batches/{batch_id}",
+    response_model=ApiResponse[HarvestBatchRead],
+    response_model_exclude_none=True,
+)
+async def update_harvest_batch(
+    batch_id: UUID,
+    body: HarvestBatchPatch,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[HarvestBatchRead]:
+    async with session.begin():
+        batch = await session.scalar(
+            select(HarvestBatch)
+            .join(Farm, Farm.id == HarvestBatch.farm_id)
+            .where(
+                HarvestBatch.id == batch_id,
+                Farm.owner_id == user.user_id,
+                Farm.archived_at.is_(None),
+            )
+            .with_for_update()
+        )
+        if batch is None:
+            raise ApiProblem(404, "HARVEST_BATCH_NOT_FOUND", "Harvest batch not found")
+        if body.dispatch_status is not None:
+            allowed = {
+                "in_warehouse_storage": {"consignment_booked"},
+                "consignment_booked": {"in_transit"},
+                "in_transit": {"settled_at_mandi"},
+                "settled_at_mandi": set(),
+            }
+            if body.dispatch_status != batch.dispatch_status and body.dispatch_status not in allowed[batch.dispatch_status]:
+                raise ApiProblem(409, "INVALID_DISPATCH_TRANSITION", "Dispatch status transition is not allowed")
+        if body.sold_price_inr_per_quintal is not None and batch.dispatch_status != "settled_at_mandi" and body.dispatch_status != "settled_at_mandi":
+            raise ApiProblem(409, "BATCH_NOT_SETTLED", "Sold price can only be recorded after settlement at the mandi")
+        if body.buyer_entity is not None and batch.dispatch_status != "settled_at_mandi" and body.dispatch_status != "settled_at_mandi":
+            raise ApiProblem(409, "BATCH_NOT_SETTLED", "Buyer can only be recorded after settlement at the mandi")
+        for key, value in body.model_dump(mode="python", exclude_unset=True).items():
+            setattr(batch, key, value)
+        await session.flush()
+        await session.refresh(batch)
+        result = HarvestBatchRead.model_validate(harvest_payload(batch))
+    return ApiResponse(data=result, meta=metadata(request))
 
 
 @router.post(

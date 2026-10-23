@@ -387,6 +387,66 @@ class FarmTaskRead(RecordTimestamps):
     actual_cost_inr: float | None = Field(default=None, ge=0)
 
 
+QualityGrade = Literal[
+    "Grade_A_Export",
+    "Grade_B_Domestic_Premium",
+    "Grade_C_Standard_Mandi",
+    "Grade_D_Processing_Feed",
+]
+DispatchStatus = Literal[
+    "in_warehouse_storage",
+    "consignment_booked",
+    "in_transit",
+    "settled_at_mandi",
+]
+
+
+class HarvestBatchCreate(ContractModel):
+    field_id: UUID
+    cycle_id: UUID
+    batch_code: Annotated[StrictStr, Field(min_length=4, max_length=100)]
+    harvest_date: date
+    total_quantity_kg: Annotated[float, Field(gt=0, strict=True)]
+    quality_grade: QualityGrade
+    moisture_content_percent: Annotated[float, Field(ge=0, le=40, strict=True)]
+    foreign_matter_percent: Annotated[float, Field(ge=0, le=20, strict=True)]
+    storage_warehouse: Annotated[StrictStr, Field(min_length=1, max_length=200)]
+    target_mandi_price_inr_per_quintal: Annotated[float, Field(gt=0, strict=True)] | None = None
+
+
+class HarvestBatchPatch(ContractModel):
+    storage_warehouse: Annotated[StrictStr, Field(min_length=1, max_length=200)] | None = None
+    dispatch_status: DispatchStatus | None = None
+    sold_price_inr_per_quintal: Annotated[float, Field(gt=0, strict=True)] | None = None
+    buyer_entity: Annotated[StrictStr, Field(max_length=200)] | None = None
+
+    @model_validator(mode="after")
+    def valid_patch(self) -> "HarvestBatchPatch":
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one writable harvest-batch field")
+        return self
+
+
+class HarvestBatchRead(RecordTimestamps):
+    id: UUID
+    farm_id: UUID
+    field_id: UUID
+    cycle_id: UUID
+    batch_code: str = Field(min_length=4)
+    crop_name: str = Field(min_length=2)
+    variety: str = Field(min_length=1)
+    harvest_date: date
+    total_quantity_kg: float = Field(gt=0)
+    quality_grade: QualityGrade
+    moisture_content_percent: float = Field(ge=0, le=40)
+    foreign_matter_percent: float = Field(ge=0, le=20)
+    storage_warehouse: str
+    dispatch_status: DispatchStatus
+    target_mandi_price_inr_per_quintal: float | None = Field(default=None, gt=0)
+    sold_price_inr_per_quintal: float | None = Field(default=None, gt=0)
+    buyer_entity: str | None = None
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)
