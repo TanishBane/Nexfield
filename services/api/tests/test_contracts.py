@@ -186,6 +186,27 @@ def test_inventory_routes_are_registered():
     assert "/api/v1/ops/inventory/transactions" in paths
 
 
+def test_task_status_transition_contract_is_represented():
+    from services.api.schemas import FarmTaskCreate, FarmTaskPatch
+
+    task = FarmTaskCreate(
+        title="Irrigate north field",
+        category="irrigation",
+        priority="high",
+        dueDate="2026-10-25",
+    )
+    assert task.due_date.isoformat() == "2026-10-25"
+    assert FarmTaskPatch(status="completed").status == "completed"
+
+
+def test_task_routes_are_registered():
+    from services.api.main import app
+
+    paths = app.openapi()["paths"]
+    assert "/api/v1/ops/tasks" in paths
+    assert "/api/v1/ops/tasks/{task_id}" in paths
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),

@@ -165,3 +165,47 @@ class InventoryTransaction(Base):
     transaction_date: Mapped[date] = mapped_column(Date)
     idempotency_key: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class FarmTask(Base):
+    __tablename__ = "farm_tasks"
+    __table_args__ = (
+        CheckConstraint(
+            "category IN ('irrigation','fertilization','spraying_pest_control','crop_scouting',"
+            "'harvesting','equipment_maintenance','soil_testing')",
+            name="ck_farm_tasks_category",
+        ),
+        CheckConstraint(
+            "priority IN ('low','medium','high','urgent')",
+            name="ck_farm_tasks_priority",
+        ),
+        CheckConstraint(
+            "status IN ('todo','in_progress','completed','cancelled')",
+            name="ck_farm_tasks_status",
+        ),
+        CheckConstraint(
+            "cost_estimate_inr IS NULL OR cost_estimate_inr >= 0",
+            name="ck_farm_tasks_estimated_cost",
+        ),
+        CheckConstraint(
+            "actual_cost_inr IS NULL OR actual_cost_inr >= 0",
+            name="ck_farm_tasks_actual_cost",
+        ),
+        Index("ix_farm_tasks_farm_status_due", "farm_id", "status", "due_date"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    farm_id: Mapped[UUID] = mapped_column(ForeignKey("farms.id", ondelete="RESTRICT"), index=True)
+    field_id: Mapped[UUID | None] = mapped_column(ForeignKey("fields.id", ondelete="RESTRICT"))
+    title: Mapped[str] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(String)
+    category: Mapped[str] = mapped_column(String)
+    priority: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, server_default="todo")
+    assigned_to_user_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    assigned_to_name: Mapped[str | None] = mapped_column(String)
+    due_date: Mapped[date] = mapped_column(Date)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    cost_estimate_inr: Mapped[float | None] = mapped_column(Float)
+    actual_cost_inr: Mapped[float | None] = mapped_column(Float)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

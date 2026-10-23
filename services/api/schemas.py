@@ -328,6 +328,65 @@ class InventoryBalanceRead(ContractModel):
     last_transaction_date: date
 
 
+TaskCategory = Literal[
+    "irrigation",
+    "fertilization",
+    "spraying_pest_control",
+    "crop_scouting",
+    "harvesting",
+    "equipment_maintenance",
+    "soil_testing",
+]
+TaskPriority = Literal["low", "medium", "high", "urgent"]
+TaskStatus = Literal["todo", "in_progress", "completed", "cancelled"]
+
+
+class FarmTaskCreate(ContractModel):
+    field_id: UUID | None = None
+    title: Annotated[StrictStr, Field(min_length=3, max_length=200)]
+    description: Annotated[StrictStr, Field(max_length=5000)] | None = None
+    category: TaskCategory
+    priority: TaskPriority
+    assigned_to_user_id: UUID | None = None
+    assigned_to_name: Annotated[StrictStr, Field(max_length=200)] | None = None
+    due_date: date
+    cost_estimate_inr: Annotated[float, Field(ge=0, strict=True)] | None = None
+
+
+class FarmTaskPatch(ContractModel):
+    title: Annotated[StrictStr, Field(min_length=3, max_length=200)] | None = None
+    description: Annotated[StrictStr, Field(max_length=5000)] | None = None
+    priority: TaskPriority | None = None
+    status: TaskStatus | None = None
+    assigned_to_user_id: UUID | None = None
+    assigned_to_name: Annotated[StrictStr, Field(max_length=200)] | None = None
+    due_date: date | None = None
+    actual_cost_inr: Annotated[float, Field(ge=0, strict=True)] | None = None
+
+    @model_validator(mode="after")
+    def valid_patch(self) -> "FarmTaskPatch":
+        if not self.model_fields_set:
+            raise ValueError("Provide at least one writable task field")
+        return self
+
+
+class FarmTaskRead(RecordTimestamps):
+    id: UUID
+    farm_id: UUID
+    field_id: UUID | None = None
+    title: str = Field(min_length=3)
+    description: str | None = None
+    category: TaskCategory
+    priority: TaskPriority
+    status: TaskStatus
+    assigned_to_user_id: UUID | None = None
+    assigned_to_name: str | None = None
+    due_date: date
+    completed_at: AwareDatetime | None = None
+    cost_estimate_inr: float | None = Field(default=None, ge=0)
+    actual_cost_inr: float | None = Field(default=None, ge=0)
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)

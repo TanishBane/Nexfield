@@ -3,13 +3,14 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, Request
+from datetime import datetime, timezone
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth import Principal, get_principal
 from .database import get_session
 from .errors import ApiProblem
-from .models import Farm, Field, InventoryTransaction
+from .models import Farm, FarmTask, Field, InventoryTransaction
 from .schemas import (
     ApiMeta,
     ApiResponse,
@@ -17,6 +18,11 @@ from .schemas import (
     InventoryBalanceRead,
     InventoryTransactionCreate,
     InventoryTransactionRead,
+    FarmTaskCreate,
+    FarmTaskPatch,
+    FarmTaskRead,
+    TaskPriority,
+    TaskStatus,
 )
 
 router = APIRouter(
@@ -50,6 +56,128 @@ async def owned_farm(
 
 def metadata(request: Request) -> ApiMeta:
     return ApiMeta(request_id=request.state.request_id)
+
+
+def task_payload(task: FarmTask) -> dict:
+    return {
+        "id": task.id,
+        "farm_id": task.farm_id,
+        "field_id": task.field_id,
+        "title": task.title,
+        "description": task.description,
+        "category": task.category,
+        "priority": task.priority,
+        "status": task.status,
+        "assigned_to_user_id": task.assigned_to_user_id,
+        "assigned_to_name": task.assigned_to_name,
+        "due_date": task.due_date,
+        "completed_at": task.completed_at,
+        "cost_estimate_inr": task.cost_estimate_inr,
+        "actual_cost_inr": task.actual_cost_inr,
+        "created_at": task.created_at,
+        "updated_at": task.updated_at,
+    }
+
+
+@router.post(
+    "/tasks",
+    status_code=201,
+    response_model=ApiResponse[FarmTaskRead],
+    response_model_exclude_none=True,
+)
+async def create_task(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    body: FarmTaskCreate,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[FarmTaskRead]:
+    async with session.begin():
+        await owned_farm(session, farm_id, user)
+        if body.field_id is not None:
+            field = await session.scalar(
+                select(Field).where(Field.id == body.field_id, Field.farm_id == farm_id)
+            )
+            if field is None:
+                raise ApiProblem(404, "FIELD_NOT_FOUND", "Field not found")
+        task = FarmTask(farm_id=farm_id, **body.model_dump(mode="python"))
+        session.add(task)
+        await session.flush()
+        await session.refresh(task)
+        result = FarmTaskRead.model_validate(task_payload(task))
+    return ApiResponse(data=result, meta=metadata(request))
+
+
+@router.get(
+    "/tasks",
+    response_model=ApiResponse[list[FarmTaskRead]],
+    response_model_exclude_none=True,
+)
+async def list_tasks(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+    status: TaskStatus | None = None,
+    priority: TaskPriority | None = None,
+) -> ApiResponse[list[FarmTaskRead]]:
+    await owned_farm(session, farm_id, user)
+    statement = select(FarmTask).where(FarmTask.farm_id == farm_id)
+    if status is not None:
+        statement = statement.where(FarmTask.status == status)
+    if priority is not None:
+        statement = statement.where(FarmTask.priority == priority)
+    tasks = await session.scalars(statement.order_by(FarmTask.due_date, FarmTask.id))
+    return ApiResponse(
+        data=[FarmTaskRead.model_validate(task_payload(task)) for task in tasks],
+        meta=metadata(request),
+    )
+
+
+@router.patch(
+    "/tasks/{task_id}",
+    response_model=ApiResponse[FarmTaskRead],
+    response_model_exclude_none=True,
+)
+async def update_task(
+    task_id: UUID,
+    body: FarmTaskPatch,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[FarmTaskRead]:
+    async with session.begin():
+        task = await session.scalar(
+            select(FarmTask)
+            .join(Farm, Farm.id == FarmTask.farm_id)
+            .where(
+                FarmTask.id == task_id,
+                Farm.owner_id == user.user_id,
+                Farm.archived_at.is_(None),
+            )
+            .with_for_update()
+        )
+        if task is None:
+            raise ApiProblem(404, "TASK_NOT_FOUND", "Task not found")
+        if body.status is not None:
+            allowed = {
+                "todo": {"in_progress", "cancelled"},
+                "in_progress": {"completed", "cancelled"},
+                "completed": set(),
+                "cancelled": set(),
+            }
+            if body.status != task.status and body.status not in allowed[task.status]:
+                raise ApiProblem(409, "INVALID_TASK_TRANSITION", "Task status transition is not allowed")
+        for key, value in body.model_dump(mode="python", exclude_unset=True).items():
+            setattr(task, key, value)
+        if body.status == "completed":
+            task.completed_at = datetime.now(timezone.utc)
+        elif body.status is not None and body.status != "completed":
+            task.completed_at = None
+        await session.flush()
+        await session.refresh(task)
+        result = FarmTaskRead.model_validate(task_payload(task))
+    return ApiResponse(data=result, meta=metadata(request))
 
 
 @router.post(
