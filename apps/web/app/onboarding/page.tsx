@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -29,6 +29,7 @@ import {
 import { NexfieldLogo } from '@/components/branding/NexfieldLogo';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { apiClient } from '@/lib/api';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -102,40 +103,85 @@ export default function OnboardingPage() {
     setErrorMessage(null);
 
     try {
-      const generatedFarmId = `farm-${Date.now()}`;
-
+      // 1. Verify user authentication session if Supabase is configured
       if (isSupabaseConfigured()) {
         const supabase = createClient();
-        const { data: userData } = await supabase.auth.getUser();
-
-        if (userData?.user) {
-          // Attempt insert to Supabase farms table if exists
-          await supabase.from('farms').insert({
-            name: formData.farmName,
-            total_area_hectares: formData.totalAreaHectares,
-            soil_type: formData.soilType,
-            primary_irrigation: formData.primaryIrrigation,
-            owner_id: userData.user.id,
-            location: {
-              state: formData.state,
-              district: formData.district,
-              pinCode: formData.pinCode,
-            },
-          });
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData?.session?.user) {
+          router.push('/login?redirect=/onboarding');
+          return;
         }
       }
 
-      // Update active farm in Zustand store
-      setSelectedFarmId(generatedFarmId);
+      // 2. Persist Farm to Backend REST API
+      const farmRes = await apiClient.createFarm({
+        name: formData.farmName.trim(),
+        location: {
+          latitude: 20.0059,
+          longitude: 73.7901,
+          address: `${formData.district}, ${formData.state}`,
+          state: formData.state,
+          district: formData.district,
+          pinCode: formData.pinCode,
+        },
+        totalAreaHectares: Number(formData.totalAreaHectares),
+        soilType: formData.soilType,
+        primaryIrrigation: formData.primaryIrrigation,
+      });
 
-      // Brief delay to allow feedback animation
+      const farmId = farmRes.data?.id;
+      if (!farmId) {
+        throw new Error('Farm creation did not return a valid identifier from backend.');
+      }
+
+      // 3. Persist Initial Field Parcel
+      const fieldRes = await apiClient.createField(farmId, {
+        name: formData.fieldName.trim(),
+        code: formData.fieldCode.trim() || 'F-101',
+        areaHectares: Math.min(Number(formData.fieldAreaHectares), Number(formData.totalAreaHectares)),
+        soilMetrics: {
+          ph: Number(formData.soilPh),
+          organicCarbonPercent: Number(formData.organicCarbonPercent),
+          nitrogenKgPerHa: Number(formData.nitrogenPpm),
+          phosphorusKgPerHa: Number(formData.phosphorusPpm),
+          potassiumKgPerHa: Number(formData.potassiumPpm),
+          electricalConductivityDsM: 0.45,
+          moisturePercent: Number(formData.baselineMoisturePercent),
+          lastSampledDate: new Date().toISOString(),
+        },
+      });
+
+      const fieldId = fieldRes.data?.id;
+
+      // 4. Register Initial Active Crop Cycle
+      if (fieldId) {
+        const sowing = formData.sowingDate || new Date().toISOString().split('T')[0];
+        const harvestDate = new Date(Date.parse(sowing) + 105 * 86400000).toISOString().split('T')[0];
+        await apiClient.createCropCycle(fieldId, {
+          cropName: formData.cropName || 'Tomato',
+          variety: formData.cropVariety || 'Abhinav Hybrid F1',
+          season: 'kharif',
+          sowingDate: sowing,
+          expectedHarvestDate: harvestDate,
+          status: 'active',
+          targetYieldMetricTons: Math.round(Number(formData.fieldAreaHectares) * 12.5 * 10) / 10,
+          currentGrowthStage: 'vegetative_growth',
+          healthIndexScore: 90,
+        });
+      }
+
+      // 5. Update active farm in Zustand store
+      setSelectedFarmId(farmId);
+
+      // Brief animation feedback before opening workspace
       await new Promise((r) => setTimeout(r, 600));
 
       router.push('/control');
     } catch (err: any) {
-      console.warn('Error saving farm onboarding:', err);
-      // Even if network or Supabase fails, allow fallback so the farmer is not stuck
-      router.push('/control');
+      console.error('Error during onboarding farm provisioning:', err);
+      setErrorMessage(
+        err.message || 'Failed to complete farm registration. Please verify your inputs and backend connection.'
+      );
     } finally {
       setIsSubmitting(false);
     }
