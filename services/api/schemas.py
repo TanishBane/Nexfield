@@ -275,6 +275,59 @@ class WaterRequirementEstimate(ContractModel):
     assumption: str
 
 
+InventoryItemType = Literal[
+    "seed",
+    "chemical_fertilizer",
+    "organic_fertilizer",
+    "pesticide_fungicide",
+    "fuel_diesel",
+    "machinery_spares",
+]
+InventoryTransactionType = Literal["purchase", "usage", "return", "wastage_adjustment"]
+InventoryUnit = Literal["kg", "liter", "bag_50kg", "unit", "meter"]
+
+
+class InventoryTransactionCreate(ContractModel):
+    field_id: UUID | None = None
+    item_type: InventoryItemType
+    item_name: Annotated[StrictStr, Field(min_length=2, max_length=200)]
+    batch_number: Annotated[StrictStr, Field(max_length=100)] | None = None
+    transaction_type: InventoryTransactionType
+    quantity: Annotated[float, Field(gt=0, strict=True)]
+    unit: InventoryUnit
+    unit_price_inr: Annotated[float, Field(gt=0, strict=True)]
+    supplier_or_vendor: Annotated[StrictStr, Field(max_length=200)] | None = None
+    date: date
+    idempotency_key: Annotated[StrictStr, Field(min_length=8, max_length=100)]
+
+
+class InventoryTransactionRead(ContractModel):
+    id: UUID
+    farm_id: UUID
+    field_id: UUID | None = None
+    item_type: InventoryItemType
+    item_name: str
+    batch_number: str | None = None
+    transaction_type: InventoryTransactionType
+    quantity: float = Field(gt=0)
+    unit: InventoryUnit
+    unit_price_inr: float = Field(gt=0)
+    total_amount_inr: float = Field(gt=0)
+    balance_after_quantity: float = Field(ge=0)
+    supplier_or_vendor: str | None = None
+    date: date
+    created_at: AwareDatetime
+
+
+class InventoryBalanceRead(ContractModel):
+    item_type: InventoryItemType
+    item_name: str
+    unit: InventoryUnit
+    balance_quantity: float = Field(ge=0)
+    total_purchased_amount_inr: float = Field(ge=0)
+    last_transaction_date: date
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)

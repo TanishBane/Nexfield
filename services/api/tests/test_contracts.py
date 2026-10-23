@@ -162,6 +162,30 @@ def test_twin_water_requirement_route_is_registered():
     assert "/api/v1/twin/water-requirement" in app.openapi()["paths"]
 
 
+def test_inventory_rejects_non_positive_quantity_and_uses_inr_fields():
+    from services.api.schemas import InventoryTransactionCreate
+
+    with pytest.raises(ValidationError):
+        InventoryTransactionCreate(
+            itemType="seed",
+            itemName="Wheat seed",
+            transactionType="purchase",
+            quantity=0,
+            unit="kg",
+            unitPriceInr=45,
+            date="2026-10-24",
+            idempotencyKey="purchase-0001",
+        )
+
+
+def test_inventory_routes_are_registered():
+    from services.api.main import app
+
+    paths = app.openapi()["paths"]
+    assert "/api/v1/ops/inventory" in paths
+    assert "/api/v1/ops/inventory/transactions" in paths
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),

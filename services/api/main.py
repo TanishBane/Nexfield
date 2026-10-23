@@ -16,6 +16,7 @@ from .fields import router as fields_router
 from .agriculture import router as agriculture_router
 from .control import router as control_router
 from .twin import router as twin_router
+from .ops import router as ops_router
 
 
 @asynccontextmanager
@@ -92,3 +93,4 @@ app.include_router(fieldsight_router)
 app.include_router(agriculture_router)
 app.include_router(control_router)
 app.include_router(twin_router)
+app.include_router(ops_router)

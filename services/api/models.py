@@ -126,3 +126,42 @@ class Observation(Base):
     geo_tag: Mapped[dict[str, float] | None] = mapped_column(JSONB)
     media_urls: Mapped[list[str] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class InventoryTransaction(Base):
+    __tablename__ = "inventory_transactions"
+    __table_args__ = (
+        CheckConstraint(
+            "item_type IN ('seed','chemical_fertilizer','organic_fertilizer','pesticide_fungicide',"
+            "'fuel_diesel','machinery_spares')",
+            name="ck_inventory_item_type",
+        ),
+        CheckConstraint(
+            "transaction_type IN ('purchase','usage','return','wastage_adjustment')",
+            name="ck_inventory_transaction_type",
+        ),
+        CheckConstraint("quantity > 0 AND quantity < 'Infinity'::float8", name="ck_inventory_quantity"),
+        CheckConstraint("unit_price_inr > 0 AND unit_price_inr < 'Infinity'::float8", name="ck_inventory_unit_price"),
+        CheckConstraint(
+            "unit IN ('kg','liter','bag_50kg','unit','meter')",
+            name="ck_inventory_unit",
+        ),
+        UniqueConstraint("farm_id", "idempotency_key", name="uq_inventory_idempotency"),
+        Index("ix_inventory_farm_item_date", "farm_id", "item_name", "transaction_date"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    farm_id: Mapped[UUID] = mapped_column(ForeignKey("farms.id", ondelete="RESTRICT"), index=True)
+    field_id: Mapped[UUID | None] = mapped_column(ForeignKey("fields.id", ondelete="RESTRICT"))
+    item_type: Mapped[str] = mapped_column(String)
+    item_name: Mapped[str] = mapped_column(String)
+    batch_number: Mapped[str | None] = mapped_column(String)
+    transaction_type: Mapped[str] = mapped_column(String)
+    quantity: Mapped[float] = mapped_column(Float)
+    unit: Mapped[str] = mapped_column(String)
+    unit_price_inr: Mapped[float] = mapped_column(Float)
+    total_amount_inr: Mapped[float] = mapped_column(Float)
+    balance_after_quantity: Mapped[float] = mapped_column(Float)
+    supplier_or_vendor: Mapped[str | None] = mapped_column(String)
+    transaction_date: Mapped[date] = mapped_column(Date)
+    idempotency_key: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
