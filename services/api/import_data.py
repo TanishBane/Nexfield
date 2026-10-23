@@ -121,6 +121,7 @@ async def import_data(
                 await session.flush()
                 await session.refresh(default_field)
 
+            observations_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     dt = parse_datetime(row.get("timestamp") or row.get("date") or row.get("observed_at"))
@@ -140,17 +141,21 @@ async def import_data(
                         metrics=metrics,
                         notes=str(row.get("notes") or f"Ingested from Data Center batch row #{idx + 1}"),
                     )
-                    session.add(obs)
+                    observations_to_add.append(obs)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+
+            if observations_to_add:
+                session.add_all(observations_to_add)
 
         elif body.category == "expenses":
             valid_categories = {
                 "labor", "seeds", "fertilizer", "pesticide", "irrigation",
                 "equipment", "fuel", "transport", "storage", "land_rent", "other"
             }
+            expenses_to_add = []
             for idx, row in enumerate(body.records):
                 try:
                     raw_cat = str(row.get("category", "other")).lower().strip().replace(" ", "_")
@@ -176,11 +181,14 @@ async def import_data(
                         expense_date=exp_date,
                         idempotency_key=idem_key,
                     )
-                    session.add(expense)
+                    expenses_to_add.append(expense)
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
+
+            if expenses_to_add:
+                session.add_all(expenses_to_add)
 
         elif body.category == "tasks":
             valid_categories = {
