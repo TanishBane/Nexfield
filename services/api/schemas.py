@@ -245,6 +245,14 @@ class ObservationRead(ContractModel):
         return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+class FarmOverviewRead(ContractModel):
+    farm: FarmRead
+    fields: list[FieldRead]
+    active_crop_cycles: list[CropCycleRead]
+    recent_observations: list[ObservationRead]
+    unavailable_sources: list[Literal["weather", "alerts", "tasks"]] = Field(default_factory=list)
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)

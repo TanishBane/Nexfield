@@ -123,6 +123,13 @@ def test_control_timeframe_contract_is_bounded():
     assert parameter["schema"]["enum"] == ["24h", "7d", "30d"]
 
 
+def test_control_overview_exposes_unavailable_sources_explicitly():
+    from services.api.main import app
+
+    schema = app.openapi()["components"]["schemas"]["FarmOverviewRead"]
+    assert "unavailableSources" in schema["properties"]
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),
