@@ -256,3 +256,28 @@ class HarvestBatch(Base):
     buyer_entity: Mapped[str | None] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class FarmExpense(Base):
+    __tablename__ = "farm_expenses"
+    __table_args__ = (
+        CheckConstraint(
+            "category IN ('labor','seeds','fertilizer','pesticide','irrigation','equipment',"
+            "'fuel','transport','storage','land_rent','other')",
+            name="ck_farm_expenses_category",
+        ),
+        CheckConstraint("amount_inr > 0 AND amount_inr < 'Infinity'::float8", name="ck_farm_expenses_amount"),
+        UniqueConstraint("farm_id", "idempotency_key", name="uq_farm_expenses_idempotency"),
+        Index("ix_farm_expenses_farm_date", "farm_id", "expense_date"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    farm_id: Mapped[UUID] = mapped_column(ForeignKey("farms.id", ondelete="RESTRICT"), index=True)
+    field_id: Mapped[UUID | None] = mapped_column(ForeignKey("fields.id", ondelete="RESTRICT"))
+    cycle_id: Mapped[UUID | None] = mapped_column(ForeignKey("crop_cycles.id", ondelete="RESTRICT"))
+    category: Mapped[str] = mapped_column(String)
+    description: Mapped[str] = mapped_column(String)
+    amount_inr: Mapped[float] = mapped_column(Float)
+    vendor: Mapped[str | None] = mapped_column(String)
+    expense_date: Mapped[date] = mapped_column(Date)
+    idempotency_key: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .auth import Principal, get_principal
 from .database import get_session
 from .errors import ApiProblem
-from .models import CropCycle, Farm, FarmTask, Field, HarvestBatch, InventoryTransaction
+from .models import CropCycle, Farm, FarmExpense, FarmTask, Field, HarvestBatch, InventoryTransaction
 from .schemas import (
     ApiMeta,
     ApiResponse,
@@ -25,6 +25,9 @@ from .schemas import (
     HarvestBatchPatch,
     HarvestBatchRead,
     DispatchStatus,
+    FarmExpenseCreate,
+    FarmExpenseRead,
+    ExpenseCategory,
     TaskPriority,
     TaskStatus,
 )
@@ -105,6 +108,120 @@ def harvest_payload(batch: HarvestBatch) -> dict:
         "created_at": batch.created_at,
         "updated_at": batch.updated_at,
     }
+
+
+def expense_payload(expense: FarmExpense) -> dict:
+    return {
+        "id": expense.id,
+        "farm_id": expense.farm_id,
+        "field_id": expense.field_id,
+        "cycle_id": expense.cycle_id,
+        "category": expense.category,
+        "description": expense.description,
+        "amount_inr": expense.amount_inr,
+        "vendor": expense.vendor,
+        "date": expense.expense_date,
+        "idempotency_key": expense.idempotency_key,
+        "created_at": expense.created_at,
+    }
+
+
+async def validate_expense_scope(
+    session: AsyncSession,
+    farm_id: UUID,
+    field_id: UUID | None,
+    cycle_id: UUID | None,
+    user: Principal,
+) -> None:
+    if field_id is None and cycle_id is not None:
+        raise ApiProblem(422, "INVALID_EXPENSE_SCOPE", "cycleId requires fieldId")
+    if field_id is not None:
+        field = await session.scalar(
+            select(Field)
+            .join(Farm, Farm.id == Field.farm_id)
+            .where(
+                Field.id == field_id,
+                Field.farm_id == farm_id,
+                Farm.owner_id == user.user_id,
+                Farm.archived_at.is_(None),
+            )
+        )
+        if field is None:
+            raise ApiProblem(404, "FIELD_NOT_FOUND", "Field not found")
+    if cycle_id is not None:
+        cycle = await session.scalar(
+            select(CropCycle)
+            .join(Field, Field.id == CropCycle.field_id)
+            .join(Farm, Farm.id == Field.farm_id)
+            .where(
+                CropCycle.id == cycle_id,
+                CropCycle.field_id == field_id,
+                Field.farm_id == farm_id,
+                Farm.owner_id == user.user_id,
+                Farm.archived_at.is_(None),
+            )
+        )
+        if cycle is None:
+            raise ApiProblem(404, "CROP_CYCLE_NOT_FOUND", "Crop cycle not found")
+
+
+@router.post(
+    "/expenses",
+    status_code=201,
+    response_model=ApiResponse[FarmExpenseRead],
+    response_model_exclude_none=True,
+)
+async def create_expense(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    body: FarmExpenseCreate,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[FarmExpenseRead]:
+    async with session.begin():
+        await owned_farm(session, farm_id, user)
+        await validate_expense_scope(session, farm_id, body.field_id, body.cycle_id, user)
+        existing = await session.scalar(
+            select(FarmExpense).where(
+                FarmExpense.farm_id == farm_id,
+                FarmExpense.idempotency_key == body.idempotency_key,
+            )
+        )
+        if existing is not None:
+            raise ApiProblem(409, "DUPLICATE_EXPENSE", "This expense was already recorded")
+        expense = FarmExpense(
+            farm_id=farm_id,
+            expense_date=body.date,
+            **body.model_dump(mode="python", exclude={"date"}),
+        )
+        session.add(expense)
+        await session.flush()
+        await session.refresh(expense)
+        result = FarmExpenseRead.model_validate(expense_payload(expense))
+    return ApiResponse(data=result, meta=metadata(request))
+
+
+@router.get(
+    "/expenses",
+    response_model=ApiResponse[list[FarmExpenseRead]],
+    response_model_exclude_none=True,
+)
+async def list_expenses(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+    category: ExpenseCategory | None = None,
+) -> ApiResponse[list[FarmExpenseRead]]:
+    await owned_farm(session, farm_id, user)
+    statement = select(FarmExpense).where(FarmExpense.farm_id == farm_id)
+    if category is not None:
+        statement = statement.where(FarmExpense.category == category)
+    expenses = await session.scalars(statement.order_by(FarmExpense.expense_date.desc(), FarmExpense.id))
+    return ApiResponse(
+        data=[FarmExpenseRead.model_validate(expense_payload(expense)) for expense in expenses],
+        meta=metadata(request),
+    )
 
 
 async def owned_cycle_for_harvest(

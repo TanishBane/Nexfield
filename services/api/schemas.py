@@ -447,6 +447,46 @@ class HarvestBatchRead(RecordTimestamps):
     buyer_entity: str | None = None
 
 
+ExpenseCategory = Literal[
+    "labor",
+    "seeds",
+    "fertilizer",
+    "pesticide",
+    "irrigation",
+    "equipment",
+    "fuel",
+    "transport",
+    "storage",
+    "land_rent",
+    "other",
+]
+
+
+class FarmExpenseCreate(ContractModel):
+    field_id: UUID | None = None
+    cycle_id: UUID | None = None
+    category: ExpenseCategory
+    description: Annotated[StrictStr, Field(min_length=2, max_length=500)]
+    amount_inr: Annotated[float, Field(gt=0, strict=True)]
+    vendor: Annotated[StrictStr, Field(max_length=200)] | None = None
+    date: date
+    idempotency_key: Annotated[StrictStr, Field(min_length=8, max_length=100)]
+
+
+class FarmExpenseRead(ContractModel):
+    id: UUID
+    farm_id: UUID
+    field_id: UUID | None = None
+    cycle_id: UUID | None = None
+    category: ExpenseCategory
+    description: str
+    amount_inr: float = Field(gt=0)
+    vendor: str | None = None
+    date: date
+    idempotency_key: str
+    created_at: AwareDatetime
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)

@@ -233,6 +233,34 @@ def test_harvest_batch_routes_are_registered():
     assert "/api/v1/ops/harvest-batches/{batch_id}" in paths
 
 
+def test_expense_contract_requires_positive_inr_and_idempotency_key():
+    from services.api.schemas import FarmExpenseCreate
+
+    expense = FarmExpenseCreate(
+        category="fertilizer",
+        description="Nitrogen application",
+        amountInr=1250.0,
+        date="2026-10-24",
+        idempotencyKey="expense-0001",
+    )
+    assert expense.amount_inr == 1250.0
+    with pytest.raises(ValidationError):
+        FarmExpenseCreate(
+            category="fertilizer",
+            description="Nitrogen application",
+            amountInr=0,
+            date="2026-10-24",
+            idempotencyKey="expense-0002",
+        )
+
+
+def test_expense_routes_are_registered():
+    from services.api.main import app
+
+    paths = app.openapi()["paths"]
+    assert "/api/v1/ops/expenses" in paths
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),
