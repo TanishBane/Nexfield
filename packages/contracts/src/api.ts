@@ -59,7 +59,22 @@ export const FarmControlOverviewSchema = z.object({
     rainProbabilityPercent: z.number(),
     condition: z.string(),
     forecastText: z.string(),
+    referenceEToMmPerDay: z.number().optional().default(4.2),
   }),
+  forecastDays: z
+    .array(
+      z.object({
+        day: z.string(),
+        date: z.string(),
+        tempMinC: z.number(),
+        tempMaxC: z.number(),
+        rainProbPercent: z.number(),
+        condition: z.string(),
+        etoMm: z.number(),
+      })
+    )
+    .optional()
+    .default([]),
   soilTelemetrySummary: z.object({
     avgMoisturePercent: z.number(),
     avgPh: z.number(),
@@ -80,6 +95,62 @@ export const FarmControlOverviewSchema = z.object({
   ),
   activeCycles: z.array(CropCycleSchema),
   recentTasks: z.array(FarmTaskSchema),
+  activityTimeline: z
+    .array(
+      z.object({
+        id: z.string(),
+        timestamp: z.string(),
+        category: z.string(),
+        title: z.string(),
+        description: z.string(),
+        fieldName: z.string().optional(),
+        operatorName: z.string().optional(),
+      })
+    )
+    .optional()
+    .default([]),
+  inventorySummary: z
+    .object({
+      seedStockKg: z.number(),
+      fertilizerStockBags: z.number(),
+      agrochemicalLiters: z.number(),
+      dieselLiters: z.number(),
+      lowStockAlerts: z.array(z.string()),
+    })
+    .optional()
+    .default({
+      seedStockKg: 1200,
+      fertilizerStockBags: 45,
+      agrochemicalLiters: 20,
+      dieselLiters: 380,
+      lowStockAlerts: ['Tilt Propiconazole reserve below 25L threshold'],
+    }),
+  harvestSummary: z
+    .object({
+      totalHarvestedKg: z.number(),
+      batchesInStorage: z.number(),
+      primaryGrade: z.string(),
+      avgMoisturePercent: z.number(),
+    })
+    .optional()
+    .default({
+      totalHarvestedKg: 24800,
+      batchesInStorage: 1,
+      primaryGrade: 'Grade_A_Export',
+      avgMoisturePercent: 12.8,
+    }),
+  relevantMandiPrices: z
+    .array(
+      z.object({
+        commodity: z.string(),
+        marketName: z.string(),
+        modalPricePerQuintalInr: z.number(),
+        dailyChangeInr: z.number(),
+        reportedDate: z.string(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 export type FarmControlOverview = z.infer<typeof FarmControlOverviewSchema>;
 

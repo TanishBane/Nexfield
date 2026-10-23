@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
   Layers,
@@ -9,12 +10,21 @@ import {
   Sparkles,
   Droplets,
   Sprout,
-  TrendingUp,
-  Percent,
   Sliders,
   DollarSign,
   Leaf,
   Compass,
+  Eye,
+  Camera,
+  Sun,
+  CloudRain,
+  Flame,
+  Info,
+  Save,
+  CheckCircle2,
+  ClipboardCheck,
+  ChevronDown,
+  ArrowRight,
 } from 'lucide-react';
 import {
   Card,
@@ -32,34 +42,75 @@ import {
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
 import { useFarmStore } from '@/lib/store/useFarmStore';
-import type { SimulationScenario } from '@nexfield/contracts';
+import {
+  useSimulationStore,
+  CameraViewMode,
+  VisualOverlayMode,
+  WeatherSimMode,
+} from '@/lib/store/useSimulationStore';
+import { TwinScenarioCharts } from '@/components/modules/twin/TwinScenarioCharts';
+import { ModelAssumptionsModal } from '@/components/modules/twin/ModelAssumptionsModal';
+import { ConvertToTaskModal } from '@/components/modules/twin/ConvertToTaskModal';
+
+// Dynamically import 3D Canvas without SSR to avoid window/WebGL hydration issues
+const TwinCanvas = dynamic(
+  () => import('@/components/modules/twin/TwinCanvas').then((mod) => mod.TwinCanvas),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full min-h-[420px] rounded-xl bg-[#090E0B] border border-[#1A2920] flex flex-col items-center justify-center space-y-3">
+        <div className="h-8 w-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+        <span className="text-xs text-[#7B9586] font-mono">
+          Initializing WebGL agricultural mesh buffer...
+        </span>
+      </div>
+    ),
+  }
+);
 
 export default function TwinPage() {
-  const { selectedFieldId } = useFarmStore();
+  const { selectedFieldId, selectedFarmId } = useFarmStore();
+  const {
+    cameraMode,
+    setCameraMode,
+    overlayMode,
+    setOverlayMode,
+    weatherSimMode,
+    setWeatherSimMode,
+    selectedPlotId,
+    setSelectedPlotId,
+    isIrrigationRunning,
+    setIsIrrigationRunning,
+    params,
+    updateParams,
+    resetParams,
+    activeScenario,
+    setActiveScenario,
+    savedScenarios,
+    saveCurrentScenario,
+  } = useSimulationStore();
 
-  // Scenario Simulator Inputs
-  const [irrigationVolume, setIrrigationVolume] = useState<number>(340);
-  const [nitrogenKg, setNitrogenKg] = useState<number>(45);
-  const [applyBiostimulant, setApplyBiostimulant] = useState<boolean>(true);
+  const [isAssumptionsOpen, setIsAssumptionsOpen] = useState(false);
+  const [isConvertToTaskOpen, setIsConvertToTaskOpen] = useState(false);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState(false);
 
+  // Load scenarios from API or fixtures
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['simulations', selectedFieldId],
-    queryFn: () => apiClient.getSimulationScenarios(selectedFieldId || undefined),
+    queryKey: ['simulations', selectedPlotId],
+    queryFn: () => apiClient.getSimulationScenarios(selectedPlotId),
   });
-
-  const [activeScenario, setActiveScenario] = useState<SimulationScenario | null>(null);
 
   const runSimulationMutation = useMutation({
     mutationFn: () =>
       apiClient.runSimulation({
-        fieldId: selectedFieldId || 'd1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c',
+        fieldId: selectedPlotId,
         cycleId: 'c3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a',
-        title: `Intervention Run (${irrigationVolume}m³ Water / ${nitrogenKg}kg N)`,
+        title: `Intervention (${params.irrigationVolumeM3PerHa} m³ Water / ${params.nitrogenTopDressingKgPerHa} kg N / ${params.projectedRainfallMm} mm Rain)`,
         interventions: {
           irrigationScheduleDays: [3, 7, 12, 18],
-          irrigationVolumeM3PerHa: irrigationVolume,
-          nitrogenTopDressingKgPerHa: nitrogenKg,
-          biostimulantApplied: applyBiostimulant,
+          irrigationVolumeM3PerHa: params.irrigationVolumeM3PerHa,
+          nitrogenTopDressingKgPerHa: params.nitrogenTopDressingKgPerHa,
+          biostimulantApplied: params.biostimulantApplied,
         },
       }),
     onSuccess: (res) => {
@@ -67,6 +118,13 @@ export default function TwinPage() {
       refetch();
     },
   });
+
+  const handleSaveScenario = () => {
+    if (!current) return;
+    saveCurrentScenario(current);
+    setSaveSuccessMessage(true);
+    setTimeout(() => setSaveSuccessMessage(false), 2000);
+  };
 
   if (isLoading) {
     return <ModuleLoadingState message="Loading field topography, soil hydrology meshes, and scenario parameters..." />;
@@ -87,105 +145,180 @@ export default function TwinPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
+      {/* Top Banner / Digital Twin Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#F1F6F3] flex items-center gap-2">
               <Layers className="h-6 w-6 text-emerald-400" />
-              NEXFIELD Twin — Agricultural Digital Twin & Scenario Simulator
+              NEXFIELD Twin — Flagship Agricultural Digital Twin
             </h1>
+            <Badge variant="outline" size="sm" className="font-mono text-emerald-400 border-emerald-800/40">
+              WebGL 3D
+            </Badge>
           </div>
-          <p className="text-xs md:text-sm text-[#8DA295] mt-0.5">
-            Parametric biophysical modeling: optimize irrigation volumes, nitrogen top-dressing, and harvest yield outcomes.
+          <p className="text-xs md:text-sm text-[#8DA295] mt-1">
+            Interactive spatial plot geometry, canopy NDVI stratification, and biophysical scenario simulations.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Global Twin Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsAssumptionsOpen(true)}
+            className="h-8 text-xs gap-1.5 text-[#9CB1A3] hover:text-[#F1F6F3]"
+          >
+            <Info className="h-3.5 w-3.5 text-emerald-400" />
+            Model Assumptions
+          </Button>
+
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleSaveScenario}
+            className="h-8 text-xs gap-1.5"
+          >
+            <Save className="h-3.5 w-3.5" />
+            {saveSuccessMessage ? 'Saved!' : 'Save Scenario'}
+          </Button>
+
           <Button
             variant="primary"
             size="sm"
-            onClick={() => runSimulationMutation.mutate()}
-            isLoading={runSimulationMutation.isPending}
-            className="gap-2"
+            onClick={() => setIsConvertToTaskOpen(true)}
+            className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-500"
           >
-            <Play className="h-4 w-4" />
-            Run Simulation
+            <ClipboardCheck className="h-3.5 w-3.5" />
+            Convert to Farm Task
           </Button>
         </div>
       </div>
 
-      {/* Main Grid: 3D Twin Viewport & Intervention Controller */}
+      {/* Main Grid: 3D Viewport & Simulation Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (7 cols): Digital Twin Geospatial & Mesh Representation */}
-        <div className="lg:col-span-7 space-y-6">
+        {/* Left Column (7 cols): 3D Viewport & Visual HUD Controls */}
+        <div className="lg:col-span-7 space-y-4">
           <Card className="overflow-hidden border-[#23352A]">
-            <CardHeader className="pb-3 border-b border-[#1C2921]">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Compass className="h-4 w-4 text-emerald-400" />
-                  Twin 3D Field Topography & Moisture Stratification
-                </CardTitle>
-                <Badge variant="outline" size="sm" className="font-mono text-[11px]">
-                  Mesh: 8.4 ha Delineated
-                </Badge>
+            {/* Viewport Control Bar */}
+            <CardHeader className="p-3 border-b border-[#1C2921] bg-[#0E1511]">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                {/* Camera Mode Toggle */}
+                <div className="flex items-center gap-1 bg-[#131D17] border border-[#203126] rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setCameraMode('isometric')}
+                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      cameraMode === 'isometric'
+                        ? 'bg-[#1C2C22] text-[#F1F6F3] font-semibold'
+                        : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                    }`}
+                  >
+                    Isometric 3D
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCameraMode('top-down')}
+                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                      cameraMode === 'top-down'
+                        ? 'bg-[#1C2C22] text-[#F1F6F3] font-semibold'
+                        : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                    }`}
+                  >
+                    Top-Down Plan
+                  </button>
+                </div>
+
+                {/* Environmental Overlays */}
+                <div className="flex items-center gap-1 bg-[#131D17] border border-[#203126] rounded-lg p-0.5">
+                  {(['moisture', 'ndvi', 'irrigation'] as VisualOverlayMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => setOverlayMode(mode)}
+                      className={`px-2 py-1 rounded text-[11px] capitalize font-medium transition-all ${
+                        overlayMode === mode
+                          ? 'bg-[#1C2C22] text-emerald-400 font-semibold'
+                          : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                      }`}
+                    >
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Weather Sim Lighting */}
+                <div className="flex items-center gap-1 bg-[#131D17] border border-[#203126] rounded-lg p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setWeatherSimMode('current')}
+                    title="Normal Daylight"
+                    className={`p-1 rounded ${weatherSimMode === 'current' ? 'bg-[#1C2C22] text-amber-400' : 'text-[#7D998B]'}`}
+                  >
+                    <Sun className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWeatherSimMode('heavy_rain')}
+                    title="Simulate Rain Precipitation"
+                    className={`p-1 rounded ${weatherSimMode === 'heavy_rain' ? 'bg-[#1C2C22] text-sky-400' : 'text-[#7D998B]'}`}
+                  >
+                    <CloudRain className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWeatherSimMode('heatwave')}
+                    title="Simulate Heatwave Atmospheric Stress"
+                    className={`p-1 rounded ${weatherSimMode === 'heatwave' ? 'bg-[#1C2C22] text-rose-400' : 'text-[#7D998B]'}`}
+                  >
+                    <Flame className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Irrigation Live Pulse Toggle */}
+                <Button
+                  variant={isIrrigationRunning ? 'primary' : 'outline'}
+                  size="sm"
+                  onClick={() => setIsIrrigationRunning(!isIrrigationRunning)}
+                  className="h-7 text-xs px-2.5 gap-1.5"
+                >
+                  <Droplets className="h-3 w-3" />
+                  {isIrrigationRunning ? 'Pumping (Live)' : 'Trigger Pulse'}
+                </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-4">
-              {/* Synthetic Digital Twin 3D Perspective Graphic */}
-              <div className="relative aspect-[16/9] w-full rounded-lg bg-[#0A100D] border border-[#1E2E25] overflow-hidden flex flex-col justify-between p-4">
-                {/* 3D Wireframe Grids */}
-                <div className="absolute inset-0 opacity-20 bg-[linear-gradient(to_right,#10B981_1px,transparent_1px),linear-gradient(to_bottom,#10B981_1px,transparent_1px)] bg-[size:28px_28px] [transform:perspective(600px)_rotateX(45deg)]" />
 
-                {/* Tactical HUD Telemetry Badges */}
-                <div className="relative z-10 flex justify-between items-start">
-                  <div className="bg-[#09110D]/90 border border-[#1E2E25] rounded px-2.5 py-1 text-[11px] font-mono text-[#8EA396] space-y-0.5">
-                    <div>PARCEL: FLD-N01 (North Sector Alpha)</div>
-                    <div>COORDINATES: 30.7046° N, 76.7179° E</div>
-                    <div className="text-emerald-400">HYDROLOGY: Capillary Saturated</div>
-                  </div>
+            {/* 3D WebGL Canvas */}
+            <CardContent className="p-3">
+              <div className="h-[430px] w-full">
+                <TwinCanvas />
+              </div>
 
-                  <div className="bg-emerald-950/80 border border-emerald-600/40 rounded px-2.5 py-1 text-xs font-mono text-emerald-300">
-                    STATUS: ACTIVE TWIN SYNC
-                  </div>
-                </div>
-
-                {/* Center Biomass Elevation Rendering */}
-                <div className="relative z-10 flex flex-col items-center justify-center py-6 text-center">
-                  <div className="h-16 w-16 rounded-full border border-emerald-400/40 flex items-center justify-center bg-emerald-950/40 animate-pulse">
-                    <Sprout className="h-8 w-8 text-emerald-400" />
-                  </div>
-                  <span className="font-mono text-sm text-[#F1F6F3] font-bold mt-2">
-                    Predicted Anthesis Biomass: 5.88 MT/ha
-                  </span>
-                  <span className="text-xs text-[#7F998B]">
-                    Model Confidence: 91.2% (95% CI: 5.64 - 6.12 MT/ha)
+              {/* Legend & Parcel Details */}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#8EA295] bg-[#0E1511] p-2.5 rounded-lg border border-[#1E2E25]">
+                <div className="flex items-center gap-3">
+                  <span className="text-[#658172]">SELECTED:</span>
+                  <span className="font-bold text-[#F1F6F3]">
+                    {selectedPlotId === 'd1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c'
+                      ? 'North Sector Alpha (8.4 ha • Wheat HD-3086)'
+                      : 'East Terraced Basin (12.1 ha • Basmati Rice PB-1121)'}
                   </span>
                 </div>
-
-                {/* Subsurface Sensor Strata */}
-                <div className="relative z-10 grid grid-cols-3 gap-2 bg-[#09110D]/90 border border-[#1E2E25] rounded p-2 text-[11px] font-mono">
-                  <div className="text-center">
-                    <span className="text-[#647C6E] block text-[10px]">0-15cm MOISTURE</span>
-                    <span className="text-sky-300 font-semibold">44.2%</span>
-                  </div>
-                  <div className="text-center border-x border-[#1E2E25]">
-                    <span className="text-[#647C6E] block text-[10px]">15-45cm ROOTZONE</span>
-                    <span className="text-emerald-300 font-semibold">39.8%</span>
-                  </div>
-                  <div className="text-center">
-                    <span className="text-[#647C6E] block text-[10px]">SUB-SURFACE EC</span>
-                    <span className="text-amber-300 font-semibold">0.36 dS/m</span>
-                  </div>
+                <div className="flex items-center gap-2 text-[11px]">
+                  <span className="text-[#658172]">OVERLAY:</span>
+                  <Badge variant="outline" size="sm" className="capitalize text-emerald-300">
+                    {overlayMode}
+                  </Badge>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Outcomes Stat Cards */}
+          {/* Outcome Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
-              label="Simulated Yield"
+              label="Simulated Yield Outcome"
               value={current.projectedOutcomes.estimatedYieldMtPerHa.toFixed(2)}
               unit="MT/ha"
               subValue={`Baseline: ${current.projectedOutcomes.baselineYieldMtPerHa.toFixed(2)} MT/ha`}
@@ -194,19 +327,19 @@ export default function TwinPage() {
               variant="emerald"
             />
             <StatCard
-              label="Water Use Efficiency"
+              label="Water Use Efficiency (WUE)"
               value={current.projectedOutcomes.waterUseEfficiencyScore.toFixed(1)}
               unit="/ 100"
-              subValue="Low runoff transpiration"
+              subValue="Low sub-surface leaching"
               trend="up"
               trendValue="High Efficiency"
               variant="sky"
             />
             <StatCard
-              label="Economic Profit Delta"
+              label="Net Economic Advantage"
               value={`+₹${current.projectedOutcomes.economicBenefitInrPerHa.toLocaleString('en-IN')}`}
               unit="/ ha"
-              subValue="Net fertilizer & diesel savings"
+              subValue="Fertilizer & diesel savings"
               trend="up"
               trendValue="Optimal Arbitrage"
               variant="amber"
@@ -214,123 +347,191 @@ export default function TwinPage() {
           </div>
         </div>
 
-        {/* Right Column (5 cols): Parameter Controls & Scenarios */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Right Column (5 cols): Parameter Configuration Panel */}
+        <div className="lg:col-span-5 space-y-4">
           <Card className="border-[#273B2F]">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Sliders className="h-4 w-4 text-emerald-400" />
-                Intervention Parameter Tuner
-              </CardTitle>
+            <CardHeader className="pb-3 border-b border-[#1E2E25]">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Sliders className="h-4 w-4 text-emerald-400" />
+                  Scenario Parameter Configuration
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={resetParams}
+                  className="h-6 text-[11px] text-[#7B9586] hover:text-[#E2ECE5]"
+                  title="Reset to agronomic baseline"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Reset
+                </Button>
+              </div>
               <CardDescription>
-                Adjust input variables to test stress resilience and yield deltas.
+                Tune inputs to simulate stress conditions and yield sensitivity.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Irrigation Volume Slider */}
-              <div className="space-y-1.5">
+            <CardContent className="space-y-4 pt-4">
+              {/* Irrigation Volume */}
+              <div className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
                     <Droplets className="h-3.5 w-3.5 text-sky-400" />
                     Target Irrigation Volume
                   </span>
-                  <span className="font-mono text-sky-300 font-semibold">{irrigationVolume} m³/ha</span>
+                  <span className="font-mono text-sky-300 font-semibold">
+                    {params.irrigationVolumeM3PerHa} m³/ha
+                  </span>
                 </div>
                 <input
                   type="range"
                   min="150"
                   max="600"
                   step="10"
-                  value={irrigationVolume}
-                  onChange={(e) => setIrrigationVolume(Number(e.target.value))}
+                  value={params.irrigationVolumeM3PerHa}
+                  onChange={(e) => updateParams({ irrigationVolumeM3PerHa: Number(e.target.value) })}
                   className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
                 />
-                <span className="text-[11px] text-[#698173] block">
-                  Deficit pulse window: 3-stage drip cycle over 18 days
-                </span>
               </div>
 
-              {/* Nitrogen Top Dressing Slider */}
-              <div className="space-y-1.5">
+              {/* Irrigation Efficiency */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#A2B6AA] font-medium">Irrigation Delivery Efficiency</span>
+                  <span className="font-mono text-emerald-300 font-semibold">
+                    {params.irrigationEfficiencyPercent}% (Drip System)
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="50"
+                  max="98"
+                  step="2"
+                  value={params.irrigationEfficiencyPercent}
+                  onChange={(e) =>
+                    updateParams({ irrigationEfficiencyPercent: Number(e.target.value) })
+                  }
+                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                />
+              </div>
+
+              {/* Projected Rainfall */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
+                    <CloudRain className="h-3.5 w-3.5 text-sky-400" />
+                    10-Day Forecast Rainfall
+                  </span>
+                  <span className="font-mono text-sky-300 font-semibold">
+                    {params.projectedRainfallMm} mm
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="80"
+                  step="2"
+                  value={params.projectedRainfallMm}
+                  onChange={(e) => updateParams({ projectedRainfallMm: Number(e.target.value) })}
+                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                />
+              </div>
+
+              {/* Temperature Scenario Delta */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
+                    <Flame className="h-3.5 w-3.5 text-amber-400" />
+                    Temperature Scenario Delta
+                  </span>
+                  <span className="font-mono text-amber-300 font-semibold">
+                    {params.temperatureScenarioDeltaC >= 0 ? '+' : ''}
+                    {params.temperatureScenarioDeltaC}°C Stress
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="-2"
+                  max="5"
+                  step="1"
+                  value={params.temperatureScenarioDeltaC}
+                  onChange={(e) =>
+                    updateParams({ temperatureScenarioDeltaC: Number(e.target.value) })
+                  }
+                  className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                />
+              </div>
+
+              {/* Nitrogen Top Dressing */}
+              <div className="space-y-1">
                 <div className="flex justify-between text-xs">
                   <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
                     <Leaf className="h-3.5 w-3.5 text-emerald-400" />
                     Nitrogen Top Dressing
                   </span>
-                  <span className="font-mono text-emerald-300 font-semibold">{nitrogenKg} kg/ha</span>
+                  <span className="font-mono text-emerald-300 font-semibold">
+                    {params.nitrogenTopDressingKgPerHa} kg N/ha
+                  </span>
                 </div>
                 <input
                   type="range"
                   min="0"
-                  max="100"
+                  max="90"
                   step="5"
-                  value={nitrogenKg}
-                  onChange={(e) => setNitrogenKg(Number(e.target.value))}
+                  value={params.nitrogenTopDressingKgPerHa}
+                  onChange={(e) =>
+                    updateParams({ nitrogenTopDressingKgPerHa: Number(e.target.value) })
+                  }
                   className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
                 />
-                <span className="text-[11px] text-[#698173] block">
-                  Split urea application aligned with panicle initiation
-                </span>
               </div>
 
               {/* Biostimulant Toggle */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-[#E1ECE5]">
-                    Amino-Acid Biostimulant Foliar Spray
+                    Amino-Acid Biostimulant Spray
                   </span>
                   <span className="text-[11px] text-[#71897C]">
-                    Enhances chlorophyll synthesis under heat stress
+                    Protects chlorophyll against terminal heat shock
                   </span>
                 </div>
                 <input
                   type="checkbox"
-                  checked={applyBiostimulant}
-                  onChange={(e) => setApplyBiostimulant(e.target.checked)}
+                  checked={params.biostimulantApplied}
+                  onChange={(e) => updateParams({ biostimulantApplied: e.target.checked })}
                   className="h-4 w-4 rounded border-emerald-600 text-emerald-600 focus:ring-emerald-500 bg-[#16221B] cursor-pointer"
                 />
               </div>
 
+              {/* Run Simulation Action */}
               <Button
                 variant="primary"
                 onClick={() => runSimulationMutation.mutate()}
                 isLoading={runSimulationMutation.isPending}
-                className="w-full gap-2 mt-2"
+                className="w-full gap-2 font-semibold shadow-md shadow-emerald-950/60"
               >
                 <Play className="h-4 w-4" />
-                Recalculate Yield Curves
+                Run Biophysical Simulation
               </Button>
-            </CardContent>
-          </Card>
-
-          {/* Scenario History */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold">Simulated Scenarios Log</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2.5">
-              {scenarios.map((s) => (
-                <div
-                  key={s.id}
-                  className="rounded-lg bg-[#0E1511] border border-[#1E2E25] p-3 text-xs space-y-1.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-[#E2ECE5]">{s.title}</span>
-                    <span className="font-mono text-emerald-400 font-bold">
-                      +{s.projectedOutcomes.yieldDeltaPercent.toFixed(1)}% Yield
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#7C9385] leading-relaxed">{s.description}</p>
-                  <div className="flex items-center justify-between pt-1 text-[10px] font-mono text-[#627A6E]">
-                    <span>WUE: {s.projectedOutcomes.waterUseEfficiencyScore}%</span>
-                    <span>Risk: {s.projectedOutcomes.riskIndex} (Low)</span>
-                  </div>
-                </div>
-              ))}
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Apache ECharts Comparison Section (Baseline vs Alternative) */}
+      <TwinScenarioCharts />
+
+      {/* Modals */}
+      <ModelAssumptionsModal
+        isOpen={isAssumptionsOpen}
+        onClose={() => setIsAssumptionsOpen(false)}
+      />
+
+      <ConvertToTaskModal
+        isOpen={isConvertToTaskOpen}
+        onClose={() => setIsConvertToTaskOpen(false)}
+      />
     </div>
   );
 }

@@ -14,6 +14,9 @@ import {
   Sparkles,
   BarChart3,
   Landmark,
+  Search,
+  CheckCircle,
+  RefreshCw,
 } from 'lucide-react';
 import {
   Card,
@@ -30,20 +33,27 @@ import {
   ErrorDisplay,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
+import { MarketTrendChart } from '@/components/modules/markets/MarketTrendChart';
+import { TransportCalculator } from '@/components/modules/markets/TransportCalculator';
+import type { MarketObservation } from '@nexfield/contracts';
 
 export default function MarketsPage() {
-  const [selectedCommodity, setSelectedCommodity] = useState<string>('All');
+  const [selectedCommodity, setSelectedCommodity] = useState<string>('Wheat');
+  const [selectedState, setSelectedState] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [activeObservation, setActiveObservation] = useState<MarketObservation | null>(null);
 
   const pricesQuery = useQuery({
-    queryKey: ['marketPrices', selectedCommodity],
+    queryKey: ['marketPrices', selectedCommodity, selectedState],
     queryFn: () =>
-      apiClient.getMarketObservations(
-        selectedCommodity === 'All' ? undefined : { commodity: selectedCommodity }
-      ),
+      apiClient.getMarketObservations({
+        commodity: selectedCommodity === 'All' ? undefined : selectedCommodity,
+        state: selectedState === 'All' ? undefined : selectedState,
+      }),
   });
 
   const comparisonQuery = useQuery({
-    queryKey: ['marketComparison'],
+    queryKey: ['marketComparison', selectedCommodity],
     queryFn: () => apiClient.getMarketComparison(),
   });
 
@@ -54,25 +64,54 @@ export default function MarketsPage() {
   const prices = pricesQuery.data?.data || [];
   const comparison = comparisonQuery.data?.data;
 
+  // Filter prices by search query
+  const filteredPrices = prices.filter((m) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      m.marketName.toLowerCase().includes(query) ||
+      m.district.toLowerCase().includes(query) ||
+      m.state.toLowerCase().includes(query) ||
+      m.commodity.toLowerCase().includes(query)
+    );
+  });
+
+  const currentObservation = activeObservation || filteredPrices[0] || prices[0];
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
+      {/* Top Banner & Freshness */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#F1F6F3] flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
               NEXFIELD Markets — Mandi Price Intelligence & Spatial Arbitrage
             </h1>
+            <Badge variant="outline" size="sm" className="font-mono text-emerald-400 border-emerald-800/40">
+              Agmarknet Telemetry
+            </Badge>
           </div>
-          <p className="text-xs md:text-sm text-[#8DA295] mt-0.5">
-            Real APMC market arrival volumes, official modal prices, and automated transport arbitrage calculations.
+          <p className="text-xs md:text-sm text-[#8DA295] mt-1">
+            Real APMC terminal prices, commodity arrival tonnages, transport expense models, and net realization arbitrage.
           </p>
         </div>
 
-        {/* Commodity Quick Filter */}
-        <div className="flex items-center gap-2">
-          {['All', 'Wheat', 'Basmati', 'Soybean'].map((crop) => (
+        {/* Provenance & Freshness Badge */}
+        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[#849F90]">
+            Adapter: <strong className="text-emerald-300 font-medium">Jules Mandi Scraper v1.2</strong>
+          </span>
+          <span className="text-[#516E5E]">• Data Freshness: 10:45 AM Today (Fixture)</span>
+        </div>
+      </div>
+
+      {/* Commodity & Geography Filter Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#0C120F] border border-[#1E2E25]">
+        {/* Commodity Selection Buttons */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {['Wheat', 'Basmati Rice', 'Soybean', 'All'].map((crop) => (
             <Button
               key={crop}
               variant={selectedCommodity === crop ? 'primary' : 'secondary'}
@@ -84,9 +123,38 @@ export default function MarketsPage() {
             </Button>
           ))}
         </div>
+
+        {/* State Filter & Search */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-[#121B16] border border-[#203227] rounded-lg px-2.5 py-1 text-xs">
+            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-[#718D7E]">State:</span>
+            <select
+              value={selectedState}
+              onChange={(e) => setSelectedState(e.target.value)}
+              className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none cursor-pointer"
+            >
+              <option value="All" className="bg-[#121B16] text-[#E1ECE5]">All States</option>
+              <option value="Punjab" className="bg-[#121B16] text-[#E1ECE5]">Punjab</option>
+              <option value="Haryana" className="bg-[#121B16] text-[#E1ECE5]">Haryana</option>
+              <option value="Maharashtra" className="bg-[#121B16] text-[#E1ECE5]">Maharashtra</option>
+              <option value="Madhya Pradesh" className="bg-[#121B16] text-[#E1ECE5]">Madhya Pradesh</option>
+            </select>
+          </div>
+
+          <div className="relative">
+            <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-[#5D796A]" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search mandi or district..."
+              className="h-8 pl-8 w-44 md:w-56 text-xs bg-[#121B16]"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Spatial Arbitrage Decision Engine Card (Hero Feature) */}
+      {/* Spatial Arbitrage Engine Hero Card */}
       {comparison ? (
         <Card className="border-emerald-700/50 bg-gradient-to-br from-[#121E17] via-[#0E1712] to-[#0A100D] shadow-xl">
           <CardHeader className="pb-3">
@@ -182,7 +250,21 @@ export default function MarketsPage() {
         </Card>
       ) : null}
 
-      {/* APMC Mandi Ticker Feed Table */}
+      {/* Historical Trend Chart & Transport Calculator */}
+      {currentObservation ? (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MarketTrendChart
+            commodity={currentObservation.commodity}
+            marketName={currentObservation.marketName}
+          />
+          <TransportCalculator
+            selectedMandiName={currentObservation.marketName}
+            modalPrice={currentObservation.modalPricePerQuintalInr}
+          />
+        </div>
+      ) : null}
+
+      {/* Detailed APMC Mandi Commodity Arrival & Price Table */}
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -192,11 +274,11 @@ export default function MarketsPage() {
                 Live APMC Mandi Commodity Arrivals & Prices
               </CardTitle>
               <CardDescription>
-                Synchronized with official Agmarknet telemetry feeds across northern and central corridors.
+                Official modal price observations and arrival volumes. Click any row to analyze freight haulage and 30-day trends.
               </CardDescription>
             </div>
             <Badge variant="outline" size="sm" className="font-mono text-[11px]">
-              {prices.length} Markets Tracked
+              {filteredPrices.length} Markets
             </Badge>
           </div>
         </CardHeader>
@@ -212,55 +294,72 @@ export default function MarketsPage() {
                   <th className="pb-2.5">Max Price</th>
                   <th className="pb-2.5">Modal Price</th>
                   <th className="pb-2.5">24h Trend</th>
+                  <th className="pb-2.5">Reported Date</th>
                   <th className="pb-2.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#18261F] text-[#D8E6DE]">
-                {prices.map((m) => (
-                  <tr key={m.id} className="hover:bg-[#121B16] transition-colors">
-                    <td className="py-3">
-                      <span className="font-semibold text-[#F1F6F3] block">{m.marketName}</span>
-                      <span className="text-[11px] text-[#718A7D]">
-                        {m.district}, {m.state}
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      <span className="font-medium text-emerald-300">{m.commodity}</span>
-                      <span className="text-[11px] text-[#799485] block">{m.variety}</span>
-                    </td>
-                    <td className="py-3 font-mono">
-                      {m.arrivalQuantityTons.toLocaleString()} MT
-                    </td>
-                    <td className="py-3 font-mono text-[#8CA395]">
-                      ₹{m.minPricePerQuintalInr}
-                    </td>
-                    <td className="py-3 font-mono text-[#8CA395]">
-                      ₹{m.maxPricePerQuintalInr}
-                    </td>
-                    <td className="py-3 font-mono font-bold text-sm text-[#F1F6F3]">
-                      ₹{m.modalPricePerQuintalInr}
-                    </td>
-                    <td className="py-3 font-mono">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
-                          m.dailyChangeInr > 0
-                            ? 'text-emerald-400 bg-emerald-950/60 border border-emerald-900/40'
-                            : m.dailyChangeInr < 0
-                            ? 'text-rose-400 bg-rose-950/60 border border-rose-900/40'
-                            : 'text-[#8BA194] bg-[#16221B]'
-                        }`}
-                      >
-                        {m.dailyChangeInr > 0 ? '+' : ''}
-                        {m.dailyChangeInr} ₹/q
-                      </span>
-                    </td>
-                    <td className="py-3 text-right">
-                      <Button variant="outline" size="sm" className="h-7 text-xs px-2.5">
-                        Log Freight
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
+                {filteredPrices.map((m) => {
+                  const isSelected = currentObservation?.id === m.id;
+                  return (
+                    <tr
+                      key={m.id}
+                      onClick={() => setActiveObservation(m)}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected ? 'bg-[#15251C]' : 'hover:bg-[#121B16]'
+                      }`}
+                    >
+                      <td className="py-3">
+                        <span className="font-semibold text-[#F1F6F3] block">{m.marketName}</span>
+                        <span className="text-[11px] text-[#718A7D]">
+                          {m.district}, {m.state}
+                        </span>
+                      </td>
+                      <td className="py-3">
+                        <span className="font-medium text-emerald-300">{m.commodity}</span>
+                        <span className="text-[11px] text-[#799485] block">{m.variety}</span>
+                      </td>
+                      <td className="py-3 font-mono">
+                        {m.arrivalQuantityTons.toLocaleString()} MT
+                      </td>
+                      <td className="py-3 font-mono text-[#8CA395]">
+                        ₹{m.minPricePerQuintalInr}
+                      </td>
+                      <td className="py-3 font-mono text-[#8CA395]">
+                        ₹{m.maxPricePerQuintalInr}
+                      </td>
+                      <td className="py-3 font-mono font-bold text-sm text-[#F1F6F3]">
+                        ₹{m.modalPricePerQuintalInr}
+                      </td>
+                      <td className="py-3 font-mono">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                            m.dailyChangeInr > 0
+                              ? 'text-emerald-400 bg-emerald-950/60 border border-emerald-900/40'
+                              : m.dailyChangeInr < 0
+                              ? 'text-rose-400 bg-rose-950/60 border border-rose-900/40'
+                              : 'text-[#8BA194] bg-[#16221B]'
+                          }`}
+                        >
+                          {m.dailyChangeInr > 0 ? '+' : ''}
+                          {m.dailyChangeInr} ₹/q
+                        </span>
+                      </td>
+                      <td className="py-3 text-[11px] font-mono text-[#789383]">
+                        {m.reportedDate}
+                      </td>
+                      <td className="py-3 text-right">
+                        <Button
+                          variant={isSelected ? 'primary' : 'outline'}
+                          size="sm"
+                          className="h-7 text-xs px-2.5"
+                        >
+                          {isSelected ? 'Selected' : 'Analyze'}
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
