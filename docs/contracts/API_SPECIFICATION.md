@@ -83,6 +83,7 @@
 - `POST /api/v1/intelligence/chat`
   - Request body: `{ farmId, fieldId?, userQuery, conversationHistory? }`
   - Returns: streaming or JSON LLM response grounded in real farm telemetry, with citations and actionable next steps.
+  - Current backend status: returns `503 LLM_UNAVAILABLE` until a configured provider is available.
 
 ### Module 5: NEXFIELD Ops (Farm Operations & Harvests)
 - `GET /api/v1/ops/tasks?farmId={uuid}&status={status}&priority={priority}`
@@ -93,9 +94,20 @@
   - Returns: stock levels, burn rate, valuation.
 - `GET /api/v1/ops/harvest-batches?farmId={uuid}`
   - Returns: harvest lots, grading, warehouse allocation.
+- `POST /api/v1/ops/expenses?farmId={uuid}`
+  - Records an owner-scoped farm expense with INR amount and idempotency key.
+- `GET /api/v1/ops/expenses?farmId={uuid}&category={category}`
+  - Returns persisted farm expenses, optionally filtered by category.
+- `POST /api/v1/ops/sales?farmId={uuid}`
+  - Records a sale against a settled harvest batch and prevents overselling.
+- `GET /api/v1/ops/sales?farmId={uuid}`
+  - Returns persisted harvest sale records.
+- `GET /api/v1/ops/financial-summary?farmId={uuid}`
+  - Returns expense totals, persisted sale revenue, explicit target-price projections, estimated net profit, and inventory valuation.
 
 ### Module 6: NEXFIELD Markets (Mandi Intelligence & Arbitrage)
 - `GET /api/v1/markets/prices?commodity={string}&state={string}&district={string}`
   - Returns: real mandi observations, modal price trends, and arrival volumes.
 - `GET /api/v1/markets/arbitrage?commodity={string}&originMandi={string}`
   - Returns: spatial price comparison across neighboring mandis minus freight and mandi cess, identifying net profitable arbitrage opportunities.
+  - Current backend status: returns `503 MARKET_DATA_UNAVAILABLE` until a verified market adapter is available.

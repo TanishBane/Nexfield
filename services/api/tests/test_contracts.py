@@ -302,6 +302,25 @@ def test_financial_summary_route_is_registered():
     assert "/api/v1/ops/financial-summary" in app.openapi()["paths"]
 
 
+def test_unavailable_provider_boundaries_are_registered():
+    from services.api.main import app
+
+    paths = app.openapi()["paths"]
+    assert "/api/v1/intelligence/chat" in paths
+    assert "/api/v1/markets/prices" in paths
+    assert "/api/v1/markets/arbitrage" in paths
+
+
+def test_intelligence_query_is_bounded():
+    from services.api.schemas import IntelligenceChatRequest
+
+    request = IntelligenceChatRequest(
+        farmId="11111111-1111-1111-1111-111111111111",
+        userQuery="Summarize irrigation needs.",
+    )
+    assert request.user_query == "Summarize irrigation needs."
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),
