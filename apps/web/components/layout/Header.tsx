@@ -20,14 +20,18 @@ import { useFarmStore } from '@/lib/store/useFarmStore';
 import { NAVIGATION_ITEMS } from './Sidebar';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
+import { useDemoStore } from '@/lib/store/useDemoStore';
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const isDemo = pathname.startsWith('/demo');
   const { toggleSidebar, selectedFarmId, setSelectedFarmId } = useFarmStore();
+  const demoStore = useDemoStore();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isSupabaseConfigured()) {
+    if (isSupabaseConfigured() && !isDemo) {
       const supabase = createClient();
       supabase.auth.getUser().then(({ data }) => {
         if (data.user?.email) {
@@ -42,10 +46,12 @@ export function Header() {
       return () => {
         authListener.subscription.unsubscribe();
       };
+    } else if (isDemo) {
+      setUserEmail(null);
     } else {
-      setUserEmail('demo@nexfield.ag');
+      setUserEmail('operator@nexfield.ag');
     }
-  }, []);
+  }, [isDemo]);
 
   const handleSignOut = async () => {
     if (isSupabaseConfigured()) {
@@ -58,7 +64,9 @@ export function Header() {
   };
 
   const currentModule =
-    NAVIGATION_ITEMS.find((item) => pathname.startsWith(item.href)) || NAVIGATION_ITEMS[0];
+    NAVIGATION_ITEMS.find((item) =>
+      isDemo ? pathname.startsWith(`/demo${item.href}`) : pathname.startsWith(item.href)
+    ) || NAVIGATION_ITEMS[0];
 
   return (
     <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[#1B2921] bg-[#0A0F0D]/95 px-4 backdrop-blur-md select-none">
@@ -90,43 +98,52 @@ export function Header() {
       {/* Center / Right: Farm Selector & Telemetry HUD Bar */}
       <div className="flex items-center gap-2 md:gap-3">
         {/* Farm Switcher */}
-        <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
-          <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-          <select
-            value={selectedFarmId}
-            onChange={(e) => setSelectedFarmId(e.target.value)}
-            className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none cursor-pointer pr-1"
-          >
-            <option value="f47ac10b-58cc-4372-a567-0e02b2c3d479" className="bg-[#111A15] text-[#E1ECE5]">
-              Punjab Agrohub (Khanna)
-            </option>
-            <option value="e83b2a19-47dc-4921-b830-2f91a0c84102" className="bg-[#111A15] text-[#E1ECE5]">
-              Maharashtra Precision Estate (Amravati)
-            </option>
-          </select>
-        </div>
+        {isDemo ? (
+          <div className="flex items-center gap-2 rounded-lg bg-[#14231A] border border-emerald-600/40 px-2.5 py-1 text-xs">
+            <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <span className="text-emerald-300 font-semibold truncate max-w-[180px] sm:max-w-[240px]">
+              {demoStore.farmName}
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
+            <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+            <select
+              value={selectedFarmId}
+              onChange={(e) => setSelectedFarmId(e.target.value)}
+              className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="f47ac10b-58cc-4372-a567-0e02b2c3d479" className="bg-[#111A15] text-[#E1ECE5]">
+                Punjab Agrohub (Khanna)
+              </option>
+              <option value="e83b2a19-47dc-4921-b830-2f91a0c84102" className="bg-[#111A15] text-[#E1ECE5]">
+                Maharashtra Precision Estate (Amravati)
+              </option>
+            </select>
+          </div>
+        )}
 
         {/* Ambient Telemetry Chips (Constant Width / No Wrapping) */}
         <div className="hidden xl:flex items-center gap-2 text-xs text-[#8BA093] font-mono tabular-nums">
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <CloudSun className="h-3.5 w-3.5 text-amber-400" />
-            <span>27.8°C</span>
+            <span>{isDemo ? `${demoStore.ambientTemperature}°C` : '27.8°C'}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <Droplets className="h-3.5 w-3.5 text-sky-400" />
-            <span>41.4%</span>
+            <span>{isDemo ? `${demoStore.soilMoisture}%` : '41.4%'}</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <Activity className="h-3.5 w-3.5 text-emerald-400" />
-            <span>NDVI 0.74</span>
+            <span>NDVI {isDemo ? demoStore.canopyNdvi : '0.74'}</span>
           </div>
         </div>
 
-        {/* Development Fixture Mode Indicator */}
+        {/* Status Indicator */}
         <StatusIndicator
-          status="fixture"
-          label="Fixtures"
-          pulse={false}
+          status={isDemo ? 'fixture' : 'online'}
+          label={isDemo ? 'Demo Sim' : 'Live Sync'}
+          pulse={!isDemo}
           className="hidden sm:inline-flex"
         />
 

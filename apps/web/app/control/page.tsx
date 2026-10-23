@@ -76,11 +76,38 @@ export default function ControlPage() {
 
   if (error || !data?.data) {
     return (
-      <ErrorDisplay
-        title="Failed to load Farm Command Center"
-        message="Could not retrieve farm telemetry. Verify your local backend or fixture configuration."
-        onRetry={() => refetch()}
-      />
+      <div className="py-16 px-4 max-w-2xl mx-auto text-center space-y-6">
+        <div className="inline-flex p-4 rounded-2xl bg-emerald-950/60 border border-emerald-600/40 text-emerald-400">
+          <Sprout className="h-10 w-10" />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight text-[#F1F6F3]">
+            No Farm Workspace Configured Yet
+          </h2>
+          <p className="text-xs text-[#8EA698] leading-relaxed max-w-md mx-auto">
+            Welcome to NEXFIELD! You have not added a farm property yet. Launch our setup wizard, import telemetry records, or explore our pre-configured Nashik Tomato demonstration farm.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <Link href="/onboarding" className="w-full sm:w-auto">
+            <Button className="w-full bg-[#10B981] text-[#070B09] hover:bg-[#34D399] font-bold text-xs gap-1.5 px-5">
+              <span>Start Farm Setup Wizard</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+          <Link href="/data-center" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-full text-xs text-[#E1ECE5] border-[#22352A] hover:bg-[#121B16]">
+              Import Data (CSV/GeoJSON)
+            </Button>
+          </Link>
+          <Link href="/demo/control" className="w-full sm:w-auto">
+            <Button variant="ghost" className="w-full text-xs text-emerald-400 hover:bg-emerald-950/40">
+              Explore Demo Farm →
+            </Button>
+          </Link>
+        </div>
+      </div>
     );
   }
 

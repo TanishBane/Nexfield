@@ -7,22 +7,28 @@ import { Header } from './Header';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { cn } from '@nexfield/ui';
 
+import { DemoBanner } from '@/components/demo/DemoBanner';
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isSidebarOpen } = useFarmStore();
 
-  const isAuthPage = pathname === '/login';
+  const isStandalonePage =
+    pathname === '/' || pathname === '/login' || pathname === '/onboarding';
 
-  if (isAuthPage) {
+  if (isStandalonePage) {
     return (
-      <div className="min-h-screen bg-[#090D0B] text-[#F1F6F3]">
+      <div className="min-h-screen bg-[#070B09] text-[#F1F6F3]">
         <main className="w-full">{children}</main>
       </div>
     );
   }
 
+  const isDemo = pathname.startsWith('/demo');
+
   return (
     <div className="min-h-screen bg-[#090D0B] text-[#F1F6F3]">
+      {isDemo && <DemoBanner />}
       <Sidebar />
       <div
         className={cn(

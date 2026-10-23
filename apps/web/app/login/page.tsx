@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, StatusIndicator } from '@nexfield/ui';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { NexfieldLogo } from '@/components/branding/NexfieldLogo';
 
 function LoginForm() {
   const router = useRouter();
@@ -131,20 +132,19 @@ function LoginForm() {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 shadow-md shadow-emerald-950/50">
-            <Sprout className="h-6 w-6" />
+        {/* Brand Header with Official Logo */}
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <NexfieldLogo size="xl" showWordmark={true} href="/" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#F1F6F3]">NEXFIELD</h1>
           <p className="text-xs text-[#7B9587]">
-            Agricultural Intelligence Operating System — Operator Access
+            Operator Access & Tenant Workspace Authentication
           </p>
 
           <div className="flex items-center justify-center gap-2 pt-1">
             <StatusIndicator
               status={isLiveConfig ? 'online' : 'fixture'}
-              label={isLiveConfig ? 'Supabase Auth Online' : 'Development Fixtures Mode'}
+              label={isLiveConfig ? 'Supabase Auth Online' : 'Local Auth Ready'}
               pulse={isLiveConfig}
             />
           </div>
@@ -299,15 +299,15 @@ function LoginForm() {
                 className="text-xs text-emerald-400 hover:underline flex items-center gap-1"
               >
                 <Sparkles className="h-3 w-3" />
-                Fill Demo Credentials
+                Fill Test Credentials
               </button>
 
               <button
                 type="button"
-                onClick={() => router.push(redirectTo)}
-                className="text-xs text-[#6E887A] hover:text-[#BDD1C6]"
+                onClick={() => router.push('/demo/control')}
+                className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
               >
-                Skip to Dashboard →
+                Explore Interactive Demo →
               </button>
             </div>
           </CardContent>

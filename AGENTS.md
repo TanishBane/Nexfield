@@ -9,7 +9,7 @@
 
 ## 1. Team Roles & Ownership Matrix
 
-### Developer Z (Frontend Lead)
+### Tanish Bane (@TanishBane) — Frontend Lead & Product Architect
 - **Primary AI Agents:** Google Antigravity (Interactive Product & UX) + Google Jules (Cloud Tasks & External Adapters)
 - **Exclusive Directory Ownership:**
   - `apps/web/**`: Next.js App Router, layout shells, client stores, visual components
@@ -17,7 +17,7 @@
   - Digital Twin 3D visualizations, interactive telemetry HUDs, and client-side scenario controllers
 - **Delegated to Jules:** Assigned external cloud adapter directories and integration testing suites
 
-### Developer Y (Backend Lead)
+### Rohan Panchal (@panchalrohan44) — Backend Lead & ML Systems Architect
 - **Primary AI Agents:** OpenAI Codex (Architecture, ORM, Simulation) + GitHub Copilot (Code suggestions, tests)
 - **Exclusive Directory Ownership:**
   - `services/api/**`: FastAPI routing, Pydantic v2 validation, model inference
@@ -25,7 +25,7 @@
   - Core AI/ML serving pipelines (PyTorch / ONNX Runtime) and Mandi scraping pipelines
   - Agricultural biophysical simulation logic
 
-### Shared Architecture Council (Developer Z + Developer Y)
+### Shared Architecture Council (Tanish Bane + Rohan Panchal)
 - **Co-Owned Paths:**
   - `packages/contracts/**`: Shared TypeScript Zod schemas, DTOs, and entity definitions
   - `docs/contracts/**`: API specifications, Markdown endpoints documentation
@@ -39,22 +39,22 @@
 
 | Path | Exclusive Owner | Authorized Agents | Prohibited Actions |
 |---|---|---|---|
-| `apps/web/**` | Developer Z | Google Antigravity | Developer Y must NOT modify frontend code, layouts, or client state without assignment. |
-| `packages/ui/**` | Developer Z | Google Antigravity | Must not be altered without adhering to the shared design system tokens and APCA contrast rules. |
-| `services/api/**` | Developer Y | OpenAI Codex / GitHub Copilot | Developer Z must NOT write backend database queries or Python route handlers. |
-| `services/api/alembic/**` | Developer Y | OpenAI Codex | NO migrations may be committed by Developer Z or Jules. |
-| `data/fixtures/**` | Developer Z & Jules | Antigravity, Jules | Must contain realistic, domain-accurate synthetic data clearly marked `isFixture: true`. Never pretend to be live sensor feeds. |
+| `apps/web/**` | Tanish Bane | Google Antigravity | Rohan Panchal must NOT modify frontend code, layouts, or client state without assignment. |
+| `packages/ui/**` | Tanish Bane | Google Antigravity | Must not be altered without adhering to the shared design system tokens and APCA contrast rules. |
+| `services/api/**` | Rohan Panchal | OpenAI Codex / GitHub Copilot | Tanish Bane must NOT write backend database queries or Python route handlers. |
+| `services/api/alembic/**` | Rohan Panchal | OpenAI Codex | NO migrations may be committed by Tanish Bane or Jules. |
+| `data/fixtures/**` | Tanish Bane & Jules | Antigravity, Jules | Must contain realistic, domain-accurate synthetic data clearly marked `isFixture: true`. Never pretend to be live sensor feeds. |
 | `packages/contracts/**` | Shared Council | All Agents (by consensus) | Neither agent may unilaterally change schemas or payload field names. |
 | `docs/contracts/**` | Shared Council | All Agents | Must strictly reflect `packages/contracts`. |
-| `.github/workflows/**` | Developer Z & Developer Y | Antigravity, Codex | CI workflows must test real code; no fabricated test passes. |
+| `.github/workflows/**` | Tanish Bane & Rohan Panchal | Antigravity, Codex | CI workflows must test real code; no fabricated test passes. |
 
 ---
 
 ## 3. Invariant Collaboration Laws
 
 1. **Law of Autonomous Boundaries:**
-   - Developer Z implements user experience, 3D field visualizations, charts, client caching, forms, and responsive mobile-first UI.
-   - Developer Y implements FastAPI routing, SQLAlchemy ORM models, PostGIS spatial queries, ONNX/PyTorch model-serving, and Mandi scraping pipelines.
+   - Tanish Bane implements user experience, 3D field visualizations, charts, client caching, forms, and responsive mobile-first UI.
+   - Rohan Panchal implements FastAPI routing, SQLAlchemy ORM models, PostGIS spatial queries, ONNX/PyTorch model-serving, and Mandi scraping pipelines.
    - No agent may cross directory boundaries without an explicit multi-agent synchronization task.
 
 2. **Law of Contract Truth:**
@@ -72,15 +72,15 @@
    - Nested radii invariant: child radius must be $\le$ parent radius (`child_r = parent_r - padding`).
 
 5. **Deployment & Git Safety:**
-   - Both developers work on dedicated feature branches (`feature/z-frontend`, `feature/y-backend`).
+   - Both developers work on dedicated feature branches (`feature/tanish-frontend`, `feature/z-backend`).
    - No agent may push, merge, or deploy to production without explicit user authorization.
 
 ---
 
 ## 4. Communication Protocol for Shared Work
 
-When Developer Y updates a backend endpoint:
-1. Developer Y verifies against `packages/contracts`.
-2. Developer Y runs backend unit tests in `services/api`.
-3. Developer Y documents the payload schema change in `docs/contracts/API_SPECIFICATION.md`.
-4. Developer Z reviews and updates the client hook in `apps/web/lib/api`.
+When Rohan Panchal updates a backend endpoint:
+1. Rohan Panchal verifies against `packages/contracts`.
+2. Rohan Panchal runs backend unit tests in `services/api`.
+3. Rohan Panchal documents the payload schema change in `docs/contracts/API_SPECIFICATION.md`.
+4. Tanish Bane reviews and updates the client hook in `apps/web/lib/api`.

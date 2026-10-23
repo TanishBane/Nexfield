@@ -10,12 +10,14 @@ import {
   Sparkles,
   ClipboardList,
   TrendingUp,
-  Sprout,
   ChevronRight,
   ShieldCheck,
+  UploadCloud,
+  PlusCircle,
 } from 'lucide-react';
 import { cn } from '@nexfield/ui';
 import { useFarmStore } from '@/lib/store/useFarmStore';
+import { NexfieldLogo } from '@/components/branding/NexfieldLogo';
 
 export const NAVIGATION_ITEMS = [
   {
@@ -65,6 +67,7 @@ export const NAVIGATION_ITEMS = [
 export function Sidebar() {
   const pathname = usePathname();
   const { isSidebarOpen } = useFarmStore();
+  const isDemo = pathname.startsWith('/demo');
 
   return (
     <aside
@@ -73,24 +76,14 @@ export function Sidebar() {
         isSidebarOpen ? 'w-64' : 'w-20'
       )}
     >
-      {/* Brand Header — Fixed Height: 56px */}
-      <div className="flex h-14 items-center gap-3 border-b border-[#1B2921] px-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-950/80 border border-emerald-600/40 text-emerald-400 shadow-sm shadow-emerald-950">
-          <Sprout className="h-5 w-5" />
-        </div>
-        {isSidebarOpen ? (
-          <div className="flex flex-col overflow-hidden">
-            <span className="font-sans font-bold tracking-wider text-[#F1F6F3] text-sm flex items-center gap-1.5">
-              NEXFIELD
-              <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40">
-                v1.0
-              </span>
-            </span>
-            <span className="text-[11px] text-[#768F80] truncate">
-              Agricultural Intelligence OS
-            </span>
-          </div>
-        ) : null}
+      {/* Brand Header — Fixed Height: 56px with Official Logo */}
+      <div className="flex h-14 items-center border-b border-[#1B2921] px-4 overflow-hidden">
+        <NexfieldLogo
+          size={isSidebarOpen ? 'md' : 'sm'}
+          showWordmark={isSidebarOpen}
+          href={isDemo ? '/demo/control' : '/control'}
+          subtitle={isDemo ? 'Demo Mode' : 'Agri-Intelligence OS'}
+        />
       </div>
 
       {/* Navigation Links */}
@@ -98,7 +91,7 @@ export function Sidebar() {
         <div className="px-3 pb-2">
           {isSidebarOpen ? (
             <span className="text-[10px] font-semibold tracking-wider text-[#5A7365] uppercase">
-              Core Modules
+              {isDemo ? 'Demo Modules' : 'Core Modules'}
             </span>
           ) : (
             <div className="h-px bg-[#18261E] my-1" />
@@ -106,13 +99,14 @@ export function Sidebar() {
         </div>
 
         {NAVIGATION_ITEMS.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const targetHref = isDemo ? `/demo${item.href}` : item.href;
+          const isActive = pathname === targetHref || pathname.startsWith(targetHref + '/');
           const Icon = item.icon;
 
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={targetHref}
               className={cn(
                 'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-colors',
                 isActive
@@ -144,6 +138,69 @@ export function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Data & Farm Management Section */}
+        <div className="pt-3 pb-1 px-3">
+          {isSidebarOpen ? (
+            <span className="text-[10px] font-semibold tracking-wider text-[#5A7365] uppercase">
+              Management
+            </span>
+          ) : (
+            <div className="h-px bg-[#18261E] my-1" />
+          )}
+        </div>
+
+        <Link
+          href="/data-center"
+          className={cn(
+            'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
+            pathname === '/data-center'
+              ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] font-semibold'
+              : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
+          )}
+          title={!isSidebarOpen ? 'Data Ingestion Center' : undefined}
+        >
+          <UploadCloud
+            className={cn(
+              'h-4 w-4 shrink-0 transition-colors',
+              pathname === '/data-center' ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
+            )}
+          />
+          {isSidebarOpen ? (
+            <div className="flex flex-col truncate">
+              <span className="truncate">Data Ingestion</span>
+              <span className="text-[10px] text-[#5C7467] font-normal truncate">
+                CSV / XLSX / GeoJSON
+              </span>
+            </div>
+          ) : null}
+        </Link>
+
+        <Link
+          href="/onboarding"
+          className={cn(
+            'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
+            pathname === '/onboarding'
+              ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] font-semibold'
+              : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
+          )}
+          title={!isSidebarOpen ? 'Register New Farm' : undefined}
+        >
+          <PlusCircle
+            className={cn(
+              'h-4 w-4 shrink-0 transition-colors',
+              pathname === '/onboarding' ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
+            )}
+          />
+          {isSidebarOpen ? (
+            <div className="flex flex-col truncate">
+              <span className="truncate">Add New Farm</span>
+              <span className="text-[10px] text-[#5C7467] font-normal truncate">
+                Onboarding Wizard
+              </span>
+            </div>
+          ) : null}
+        </Link>
       </div>
 
       {/* Footer System Status — Fixed Chrome */}

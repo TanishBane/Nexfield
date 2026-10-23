@@ -47,12 +47,23 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // Protected application routes
-  const protectedPrefixes = ['/control', '/twin', '/fieldsight', '/markets', '/ops', '/intelligence'];
+  // Protected application routes (Real farmer workspace)
+  const protectedPrefixes = [
+    '/control',
+    '/twin',
+    '/fieldsight',
+    '/markets',
+    '/ops',
+    '/intelligence',
+    '/data-center',
+  ];
   const isProtectedRoute = protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
 
+  // /demo routes and landing page (/) are always public
+  const isDemoRoute = pathname.startsWith('/demo');
+
   // If unauthenticated user tries to access a protected route
-  if (!user && isProtectedRoute) {
+  if (!user && isProtectedRoute && !isDemoRoute) {
     // If running in development fixture mode without live Supabase, allow browsing
     if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true' && !request.cookies.get('sb-enforce-auth')) {
       return supabaseResponse;
