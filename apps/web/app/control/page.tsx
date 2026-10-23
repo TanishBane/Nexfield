@@ -119,7 +119,8 @@ export default function ControlPage() {
   });
 
   // Filter alerts
-  const visibleAlerts = activeAlerts.filter((a) => !dismissedAlertIds.includes(a.id));
+  const dismissedAlertsSet = new Set(dismissedAlertIds);
+  const visibleAlerts = activeAlerts.filter((a) => !dismissedAlertsSet.has(a.id));
 
   const toggleTaskCompletion = (taskId: string) => {
     setCompletedTaskIds((prev) =>
