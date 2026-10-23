@@ -43,7 +43,7 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
             if [ -d tests ]; then
-              PYTHONPATH=. pytest -v --maxfail=5
+              PYTHONPATH=../.. pytest -v --maxfail=5
             else
               echo "Backend tests directory not yet populated by Developer B. Skipping pytest execution."
             fi
