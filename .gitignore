@@ -21,6 +21,9 @@ dist/
 .env.test.local
 .env.production.local
 !.env.example
+!apps/web/.env.example
+!services/api/.env.example
+.vercel/
 
 # Python & Virtualenv
 __pycache__/
@@ -32,14 +35,10 @@ env/
 venv/
 .venv/
 ENV/
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -47,6 +46,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+!apps/web/lib/
 
 # Testing & Coverage
 .coverage
