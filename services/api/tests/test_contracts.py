@@ -112,6 +112,17 @@ def test_observation_requires_timezone_aware_timestamp_and_typed_metrics():
     assert observation.timestamp.tzinfo is not None
 
 
+def test_control_timeframe_contract_is_bounded():
+    from services.api.main import app
+
+    parameter = next(
+        item
+        for item in app.openapi()["paths"]["/api/v1/control/telemetry"]["get"]["parameters"]
+        if item["name"] == "timeframe"
+    )
+    assert parameter["schema"]["enum"] == ["24h", "7d", "30d"]
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),
