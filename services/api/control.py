@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .app.integrations.open_meteo import OpenMeteoAdapter
 from .agriculture import observation_payload, owned_field
 from .auth import Principal, get_principal
 from .database import get_session
@@ -118,3 +119,33 @@ async def telemetry(
         data=[ObservationRead.model_validate(observation_payload(item)) for item in observations],
         meta=ApiMeta(request_id=request.state.request_id),
     )
+
+
+@router.get("/weather", response_model=ApiResponse[dict])
+async def farm_weather(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[dict]:
+    farm = await session.scalar(
+        select(Farm).where(
+            Farm.id == farm_id,
+            Farm.owner_id == user.user_id,
+            Farm.archived_at.is_(None),
+        )
+    )
+    if farm is None:
+        raise ApiProblem(404, "FARM_NOT_FOUND", "Farm not found")
+
+    lat = farm.location.get("latitude") or 20.0059
+    lon = farm.location.get("longitude") or 73.7901
+    try:
+        adapter = OpenMeteoAdapter()
+        forecast = await adapter.get_forecast(lat=float(lat), lon=float(lon), days=7)
+        return ApiResponse(
+            data=forecast.model_dump(mode="json"),
+            meta=ApiMeta(request_id=request.state.request_id),
+        )
+    except Exception as exc:
+        raise ApiProblem(503, "WEATHER_UNAVAILABLE", f"Weather service unavailable: {exc}")

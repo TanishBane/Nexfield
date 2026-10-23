@@ -131,6 +131,17 @@ export default function IntelligencePage() {
 
       setMessages((prev) => [...prev, extendedReply]);
     },
+    onError: (err: any) => {
+      const offlineReply: ExtendedMessage = {
+        id: `err-${Date.now()}`,
+        role: 'assistant',
+        content: `**Intelligence Engine Notice**: The external LLM provider is currently unconfigured or unreachable on this server.
+
+In offline development mode without external API keys configured, automated reasoning is suspended. You can directly inspect live agronomic telemetry across **FieldSight**, **Twin**, **Ops**, and **Markets**.`,
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, offlineReply]);
+    },
   });
 
   const handleSendMessage = (textToSend?: string) => {

@@ -194,6 +194,15 @@ export default function FieldSightPage() {
         </div>
       </div>
 
+      {diagnoseMutation.isError && (
+        <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-600/50 text-xs text-amber-200 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+          <span>
+            <strong>Inference Engine Status:</strong> Deep neural network weights (.onnx) are not configured on this server. Active model inference was suspended to avoid generating fake diagnoses. Historical pathology records and ICAR mitigation protocols remain fully accessible below.
+          </span>
+        </div>
+      )}
+
       {/* Drag & Drop Dropzone */}
       <div
         onDragOver={(e) => {

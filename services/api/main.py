@@ -19,6 +19,7 @@ from .twin import router as twin_router
 from .ops import router as ops_router
 from .intelligence import router as intelligence_router
 from .markets import router as markets_router
+from .import_data import router as import_router
 
 
 @asynccontextmanager
@@ -98,3 +99,4 @@ app.include_router(twin_router)
 app.include_router(ops_router)
 app.include_router(intelligence_router)
 app.include_router(markets_router)
+app.include_router(import_router)
