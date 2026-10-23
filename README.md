@@ -87,7 +87,6 @@ pnpm build
 ## 🤝 Multi-Agent Collaboration Governance
 
 Review `AGENTS.md` and `.github/copilot-instructions.md` before making architectural modifications:
-- **Developer A (Google Antigravity):** Leads frontend, layouts, and design system in `apps/web` and `packages/ui`.
-- **Developer B (OpenAI Codex / Copilot):** Leads backend architecture, PostGIS, ORM models, and ML serving in `services/api`.
-- **Google Jules:** Cloud adapters and external data integration pipelines.
+- **Developer Z (Google Antigravity + Jules):** Leads frontend, layouts, Digital Twin visualizations, and design system in `apps/web` and `packages/ui`.
+- **Developer Y (OpenAI Codex / GitHub Copilot):** Leads backend architecture, PostGIS database models, ORM, and ML serving in `services/api`.
 - **Shared Contracts:** Governed under `packages/contracts` and `docs/contracts`.

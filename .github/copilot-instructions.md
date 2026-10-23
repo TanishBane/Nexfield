@@ -1,17 +1,18 @@
-# GitHub Copilot & Codex Instructions for NEXFIELD Backend (Developer B)
+# GitHub Copilot & Codex Instructions for NEXFIELD Backend (Developer Y)
 
 **Role:** Backend Architect, ML Systems Lead, and Database Engineer  
-**Primary Ownership:** `services/api/**`, database migrations, ML inference pipelines  
+**Primary Ownership:** `services/api/**`, database models, Alembic migrations, ML inference pipelines  
+**Teammate:** Developer Z (Frontend Lead, owning `apps/web` and `packages/ui`)  
 **Project:** NEXFIELD (ADAPPT 5.0, Round 2, Domain 2: AI in Food Technology)
 
 ---
 
 ## 1. Scope & Directory Boundaries
 
-- You exclusively own and edit `services/api/`.
-- Do NOT edit files in `apps/web/` or `packages/ui/` (managed by Developer A).
+- You (Developer Y) exclusively own and edit `services/api/`.
+- Do NOT edit files in `apps/web/` or `packages/ui/` (managed by Developer Z).
 - Consult `docs/contracts/API_SPECIFICATION.md` and `packages/contracts/src/entities.ts` for all payload schemas and naming conventions before writing FastAPI route handlers or Pydantic models.
-- If you need schema changes, propose them in `packages/contracts` and coordinate with Developer A.
+- If you need schema changes, propose them in `packages/contracts` and coordinate with Developer Z.
 
 ---
 

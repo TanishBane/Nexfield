@@ -7,26 +7,54 @@
 
 ---
 
-## 1. Directory Ownership & Responsibility Matrix
+## 1. Team Roles & Ownership Matrix
 
-| Path | Exclusive Owner | Authorized Agents | Prohibited Actions |
-|---|---|---|---|
-| `apps/web/**` | Developer A (Frontend Lead) | Google Antigravity | Developer B & Jules must NOT modify frontend code, layouts, or client state without assignment. |
-| `packages/ui/**` | Developer A (Design System Lead) | Google Antigravity | Must not be altered without adhering to the shared design system tokens and APCA contrast rules. |
-| `services/api/**` | Developer B (Backend Lead) | OpenAI Codex / GitHub Copilot | Developer A must NOT write backend database queries or Python route handlers. |
-| `services/api/alembic/**` | Developer B (Database Architect) | OpenAI Codex | NO migrations may be committed by Developer A or Jules. |
-| `data/fixtures/**` | Developer A & Jules | Antigravity, Jules | Must contain realistic, domain-accurate synthetic data clearly marked `isFixture: true`. Never pretend to be live sensor feeds. |
-| `packages/contracts/**` | Shared Architecture Council | All Agents (by consensus) | Neither agent may unilaterally change schemas or payload field names. |
-| `docs/contracts/**` | Shared Architecture Council | All Agents | Must strictly reflect `packages/contracts`. |
-| `.github/workflows/**` | Developer A & Developer B | Antigravity, Codex | CI workflows must test real code; no fabricated test passes. |
+### Developer Z (Frontend Lead)
+- **Primary AI Agents:** Google Antigravity (Interactive Product & UX) + Google Jules (Cloud Tasks & External Adapters)
+- **Exclusive Directory Ownership:**
+  - `apps/web/**`: Next.js App Router, layout shells, client stores, visual components
+  - `packages/ui/**`: Design system tokens, reusable UI primitives, APCA-compliant elements
+  - Digital Twin 3D visualizations, interactive telemetry HUDs, and client-side scenario controllers
+- **Delegated to Jules:** Assigned external cloud adapter directories and integration testing suites
+
+### Developer Y (Backend Lead)
+- **Primary AI Agents:** OpenAI Codex (Architecture, ORM, Simulation) + GitHub Copilot (Code suggestions, tests)
+- **Exclusive Directory Ownership:**
+  - `services/api/**`: FastAPI routing, Pydantic v2 validation, model inference
+  - `services/api/alembic/**`: SQLAlchemy database models and PostGIS migrations
+  - Core AI/ML serving pipelines (PyTorch / ONNX Runtime) and Mandi scraping pipelines
+  - Agricultural biophysical simulation logic
+
+### Shared Architecture Council (Developer Z + Developer Y)
+- **Co-Owned Paths:**
+  - `packages/contracts/**`: Shared TypeScript Zod schemas, DTOs, and entity definitions
+  - `docs/contracts/**`: API specifications, Markdown endpoints documentation
+  - `data/fixtures/**`: Domain-accurate synthetic agronomic datasets marked `isFixture: true`
+  - `.github/workflows/**`: CI/CD pipelines testing real code
+- **Governance:** Neither developer may unilaterally alter schemas, database columns, or payload structures without consensus.
 
 ---
 
-## 2. Invariant Collaboration Laws
+## 2. Directory Responsibility Matrix
+
+| Path | Exclusive Owner | Authorized Agents | Prohibited Actions |
+|---|---|---|---|
+| `apps/web/**` | Developer Z | Google Antigravity | Developer Y must NOT modify frontend code, layouts, or client state without assignment. |
+| `packages/ui/**` | Developer Z | Google Antigravity | Must not be altered without adhering to the shared design system tokens and APCA contrast rules. |
+| `services/api/**` | Developer Y | OpenAI Codex / GitHub Copilot | Developer Z must NOT write backend database queries or Python route handlers. |
+| `services/api/alembic/**` | Developer Y | OpenAI Codex | NO migrations may be committed by Developer Z or Jules. |
+| `data/fixtures/**` | Developer Z & Jules | Antigravity, Jules | Must contain realistic, domain-accurate synthetic data clearly marked `isFixture: true`. Never pretend to be live sensor feeds. |
+| `packages/contracts/**` | Shared Council | All Agents (by consensus) | Neither agent may unilaterally change schemas or payload field names. |
+| `docs/contracts/**` | Shared Council | All Agents | Must strictly reflect `packages/contracts`. |
+| `.github/workflows/**` | Developer Z & Developer Y | Antigravity, Codex | CI workflows must test real code; no fabricated test passes. |
+
+---
+
+## 3. Invariant Collaboration Laws
 
 1. **Law of Autonomous Boundaries:**
-   - Developer A implements user experience, 3D field visualizations, charts, client caching, forms, and responsive mobile-first UI.
-   - Developer B implements FastAPI routing, SQLAlchemy ORM models, PostGIS spatial queries, ONNX/PyTorch model-serving, and Mandi scraping pipelines.
+   - Developer Z implements user experience, 3D field visualizations, charts, client caching, forms, and responsive mobile-first UI.
+   - Developer Y implements FastAPI routing, SQLAlchemy ORM models, PostGIS spatial queries, ONNX/PyTorch model-serving, and Mandi scraping pipelines.
    - No agent may cross directory boundaries without an explicit multi-agent synchronization task.
 
 2. **Law of Contract Truth:**
@@ -44,14 +72,15 @@
    - Nested radii invariant: child radius must be $\le$ parent radius (`child_r = parent_r - padding`).
 
 5. **Deployment & Git Safety:**
+   - Both developers work on dedicated feature branches (`feature/z-frontend`, `feature/y-backend`).
    - No agent may push, merge, or deploy to production without explicit user authorization.
 
 ---
 
-## 3. Communication Protocol for Shared Work
+## 4. Communication Protocol for Shared Work
 
-When Developer B updates a backend endpoint:
-1. Developer B verifies against `packages/contracts`.
-2. Developer B runs backend unit tests in `services/api`.
-3. Developer B documents the payload schema change in `docs/contracts/API_SPECIFICATION.md`.
-4. Developer A reviews and updates the client hook in `apps/web/lib/api`.
+When Developer Y updates a backend endpoint:
+1. Developer Y verifies against `packages/contracts`.
+2. Developer Y runs backend unit tests in `services/api`.
+3. Developer Y documents the payload schema change in `docs/contracts/API_SPECIFICATION.md`.
+4. Developer Z reviews and updates the client hook in `apps/web/lib/api`.

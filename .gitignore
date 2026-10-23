@@ -11,6 +11,8 @@ pnpm-debug.log*
 out/
 build/
 dist/
+*.tsbuildinfo
+.turbo/
 
 # Environment Variables
 .env
