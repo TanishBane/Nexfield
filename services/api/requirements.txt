@@ -15,6 +15,6 @@ python-multipart>=0.0.17
 httpx>=0.28.0
 pytest>=8.3.0
 pytest-asyncio>=1.4.0
-respx>=0.21.0
+respx>=0.23.1
 pillow>=10.2.0
 onnxruntime
