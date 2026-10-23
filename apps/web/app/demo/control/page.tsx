@@ -89,7 +89,8 @@ export default function DemoControlPage() {
     },
   ];
 
-  const visibleAlerts = alerts.filter((a) => !dismissedAlerts.includes(a.id));
+  const dismissedAlertsSet = new Set(dismissedAlerts);
+  const visibleAlerts = alerts.filter((a) => !dismissedAlertsSet.has(a.id));
 
   return (
     <div className="space-y-6">
