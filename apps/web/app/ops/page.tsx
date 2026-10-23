@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ClipboardList,
   Boxes,
@@ -13,6 +13,12 @@ import {
   Truck,
   IndianRupee,
   Layers,
+  Filter,
+  Check,
+  TrendingUp,
+  Receipt,
+  FileSpreadsheet,
+  X,
 } from 'lucide-react';
 import {
   Card,
@@ -27,14 +33,35 @@ import {
   TabsList,
   TabsTrigger,
   TabsContent,
+  Input,
   ModuleLoadingState,
   ErrorDisplay,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
 import { useFarmStore } from '@/lib/store/useFarmStore';
+import type { FarmTask, InventoryTransaction } from '@nexfield/contracts';
+import Link from 'next/link';
 
 export default function OpsPage() {
-  const { selectedFarmId } = useFarmStore();
+  const queryClient = useQueryClient();
+  const { selectedFarmId, selectedFieldId } = useFarmStore();
+
+  const [activeTaskFilter, setActiveTaskFilter] = useState<string>('all');
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [isNewTransactionModalOpen, setIsNewTransactionModalOpen] = useState(false);
+
+  // New Task Form State
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskCategory, setNewTaskCategory] = useState('irrigation');
+  const [newTaskPriority, setNewTaskPriority] = useState<'urgent' | 'high' | 'medium' | 'low'>('medium');
+  const [newTaskDueDate, setNewTaskDueDate] = useState('2026-10-26');
+  const [newTaskCost, setNewTaskCost] = useState('2500');
+
+  // New Transaction Form State
+  const [newTxItemName, setNewTxItemName] = useState('DAP Fertilizer (50kg)');
+  const [newTxType, setNewTxType] = useState('usage');
+  const [newTxQuantity, setNewTxQuantity] = useState('10');
+  const [newTxUnitPrice, setNewTxUnitPrice] = useState('1350');
 
   const tasksQuery = useQuery({
     queryKey: ['tasks', selectedFarmId],
@@ -51,39 +78,83 @@ export default function OpsPage() {
     queryFn: () => apiClient.getHarvestBatches(selectedFarmId),
   });
 
+  // Task Creation Mutation
+  const createTaskMutation = useMutation({
+    mutationFn: () =>
+      apiClient.createTask({
+        farmId: selectedFarmId,
+        fieldId: selectedFieldId || undefined,
+        title: newTaskTitle,
+        category: newTaskCategory,
+        priority: newTaskPriority,
+        dueDate: newTaskDueDate,
+        costEstimateInr: Number(newTaskCost),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', selectedFarmId] });
+      setIsNewTaskModalOpen(false);
+      setNewTaskTitle('');
+    },
+  });
+
   if (tasksQuery.isLoading || inventoryQuery.isLoading || harvestQuery.isLoading) {
-    return <ModuleLoadingState message="Loading resource inventory, workforce tasks, and harvest ledgers..." />;
+    return <ModuleLoadingState message="Loading farm operational ledgers, inventory balances, and task queues..." />;
   }
 
   const tasks = tasksQuery.data?.data || [];
   const inventory = inventoryQuery.data?.data || [];
   const harvestBatches = harvestQuery.data?.data || [];
 
+  const filteredTasks = tasks.filter((t) => {
+    if (activeTaskFilter === 'all') return true;
+    if (activeTaskFilter === 'urgent') return t.priority === 'urgent';
+    if (activeTaskFilter === 'completed') return t.status === 'completed';
+    if (activeTaskFilter === 'pending') return t.status !== 'completed';
+    return true;
+  });
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
+      {/* Top Banner & Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#F1F6F3] flex items-center gap-2">
               <ClipboardList className="h-6 w-6 text-emerald-400" />
-              NEXFIELD Ops — Resource Inventory & Field Operations
+              NEXFIELD Ops — Resource Inventory & Operational Command
             </h1>
+            <Badge variant="outline" size="sm" className="font-mono text-emerald-400 border-emerald-800/40">
+              Active Ledger
+            </Badge>
           </div>
-          <p className="text-xs md:text-sm text-[#8DA295] mt-0.5">
-            Operational command: field workforce work orders, input stocks burn-rate, and graded harvest batch custody.
+          <p className="text-xs md:text-sm text-[#8DA295] mt-1">
+            Workforce task orders, inventory transactions, input cost accounting, and harvest batch storage custody.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="primary" size="sm" className="gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsNewTransactionModalOpen(true)}
+            className="h-8 text-xs gap-1.5"
+          >
+            <Boxes className="h-3.5 w-3.5 text-emerald-400" />
+            Book Inventory
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsNewTaskModalOpen(true)}
+            className="h-8 text-xs gap-1.5"
+          >
             <Plus className="h-4 w-4" />
-            New Dispatch Order
+            Dispatch Work Order
           </Button>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Active Work Orders"
@@ -97,12 +168,12 @@ export default function OpsPage() {
         />
 
         <StatCard
-          label="Inventory Valuation"
+          label="Inventory Stock Value"
           value="₹93,100"
           unit="INR"
-          subValue="Seed & Agrochemical reserves"
+          subValue="Seed, chemical & diesel stores"
           trend="down"
-          trendValue="Stock Stable"
+          trendValue="Burn Rate Normal"
           icon={<Boxes className="h-4 w-4" />}
           variant="sky"
         />
@@ -119,7 +190,7 @@ export default function OpsPage() {
         />
 
         <StatCard
-          label="Operational Expenses"
+          label="Total Season Expenses"
           value="₹97,300"
           unit="YTD"
           subValue="Fertilizer, seed & fuel costs"
@@ -135,29 +206,56 @@ export default function OpsPage() {
         <TabsList className="mb-4">
           <TabsTrigger value="tasks" className="gap-2">
             <ClipboardList className="h-4 w-4" />
-            Field Dispatch Tasks ({tasks.length})
+            Work Orders ({tasks.length})
           </TabsTrigger>
           <TabsTrigger value="inventory" className="gap-2">
             <Boxes className="h-4 w-4" />
-            Input Stock Inventory ({inventory.length})
+            Stock Ledger ({inventory.length})
+          </TabsTrigger>
+          <TabsTrigger value="expenses" className="gap-2">
+            <Receipt className="h-4 w-4" />
+            Expense Breakdown
           </TabsTrigger>
           <TabsTrigger value="harvest" className="gap-2">
             <Archive className="h-4 w-4" />
-            Harvest Batches & Silos ({harvestBatches.length})
+            Harvest Batches ({harvestBatches.length})
           </TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Tasks */}
-        <TabsContent value="tasks">
+        <TabsContent value="tasks" className="space-y-4">
+          {/* Task Filters */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-[#0C120F] border border-[#1E2E25] text-xs">
+            <div className="flex items-center gap-2">
+              <Filter className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="font-semibold text-[#CADCD1]">Filter Work Orders:</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {['all', 'pending', 'urgent', 'completed'].map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveTaskFilter(filter)}
+                  className={`px-2.5 py-1 rounded text-xs capitalize font-medium transition-colors ${
+                    activeTaskFilter === filter
+                      ? 'bg-[#18261F] text-emerald-400 border border-[#273C30]'
+                      : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Field Work Orders & Labor Dispatch</CardTitle>
+              <CardTitle className="text-base">Field Labor & Machinery Dispatch Schedule</CardTitle>
               <CardDescription>
-                Scheduled agronomic actions assigned to operators and agronomists.
+                Agronomic tasks synchronized with NEXFIELD Twin simulations and FieldSight alerts.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <div
                   key={task.id}
                   className="rounded-lg bg-[#0E1511] border border-[#1E2E25] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
@@ -191,9 +289,9 @@ export default function OpsPage() {
                         </Badge>
                       </div>
                       <p className="text-[#87A092]">{task.description}</p>
-                      <div className="flex items-center gap-4 text-[11px] text-[#698475] pt-0.5">
-                        <span>Assignee: {task.assignedToName || 'Unassigned'}</span>
-                        <span>Due: {task.dueDate}</span>
+                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#698475] pt-0.5">
+                        <span>Assignee: {task.assignedToName || 'Unassigned Technician'}</span>
+                        <span>Due Date: {task.dueDate}</span>
                         {task.costEstimateInr ? (
                           <span className="font-mono text-emerald-400">
                             Est: ₹{task.costEstimateInr.toLocaleString('en-IN')}
@@ -203,7 +301,7 @@ export default function OpsPage() {
                     </div>
                   </div>
 
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1.5 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0">
                     <Badge variant={task.status === 'completed' ? 'success' : 'outline'} size="sm">
                       {task.status.replace(/_/g, ' ')}
                     </Badge>
@@ -218,9 +316,9 @@ export default function OpsPage() {
         <TabsContent value="inventory">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Agrochemical, Seed & Fuel Reserves</CardTitle>
+              <CardTitle className="text-base">Agrochemical, Seed & Fuel Ledger</CardTitle>
               <CardDescription>
-                Real-time stock balance, lot numbers, and supplier trace records.
+                Current storage balances, transaction lots, unit costs, and supplier provenance.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -230,11 +328,11 @@ export default function OpsPage() {
                     <tr>
                       <th className="pb-2.5">Item Name</th>
                       <th className="pb-2.5">Category</th>
-                      <th className="pb-2.5">Batch #</th>
+                      <th className="pb-2.5">Batch / Lot #</th>
                       <th className="pb-2.5">Balance</th>
                       <th className="pb-2.5">Unit Price</th>
                       <th className="pb-2.5">Total Valuation</th>
-                      <th className="pb-2.5">Supplier</th>
+                      <th className="pb-2.5">Supplier / Vendor</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#18261F] text-[#D8E6DE]">
@@ -264,7 +362,63 @@ export default function OpsPage() {
           </Card>
         </TabsContent>
 
-        {/* Tab 3: Harvest Batches */}
+        {/* Tab 3: Expenses */}
+        <TabsContent value="expenses">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Current Season Input Expense Allocations</CardTitle>
+              <CardDescription>
+                Auditable financial ledger tracking seed, fertilizer, chemical, and diesel expenditures.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">TOTAL REVENUE (PROJECTED)</span>
+                  <span className="text-lg font-bold text-emerald-400">₹12,38,400</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Based on 48 MT Wheat @ ₹2,580/q</span>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">TOTAL CUMULATIVE EXPENSES</span>
+                  <span className="text-lg font-bold text-amber-300">₹97,300</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Inputs, diesel & maintenance</span>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">NET MARGIN ESTIMATE</span>
+                  <span className="text-lg font-bold text-emerald-300">₹11,41,100</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Net margin: ~92.1%</span>
+                </div>
+              </div>
+
+              {/* Expense Breakdown Categories */}
+              <div className="space-y-2 pt-2 text-xs">
+                <h4 className="font-semibold text-[#CADCD1] uppercase tracking-wider text-[11px]">
+                  Expense Allocation Breakdown
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Foundation Seed (HD-3086 Certified)</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹57,600 (59.2%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Agrochemicals (Tilt Fungicide 25L)</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹35,500 (36.5%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Precision Soil Sampling & Core Assay</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹2,350 (2.4%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Irrigation Manifold Filter Maintenance</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹1,850 (1.9%)</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 4: Harvest Batches */}
         <TabsContent value="harvest">
           <Card>
             <CardHeader className="pb-3">
@@ -319,10 +473,12 @@ export default function OpsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button variant="secondary" size="sm" className="gap-1 text-xs">
-                      <Truck className="h-3.5 w-3.5 text-emerald-400" />
-                      Dispatch to Mandi
-                    </Button>
+                    <Link href="/markets">
+                      <Button variant="secondary" size="sm" className="gap-1 text-xs">
+                        <Truck className="h-3.5 w-3.5 text-emerald-400" />
+                        Check Mandi Arbitrage
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -330,6 +486,183 @@ export default function OpsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* New Task Modal */}
+      {isNewTaskModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md rounded-xl border border-[#273B2F] bg-[#0E1512] shadow-2xl p-5 space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-[#1E2E25] pb-3">
+              <h3 className="font-semibold text-base text-[#F1F6F3]">Dispatch New Work Order</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsNewTaskModalOpen(false)}
+                className="h-6 w-6 text-[#7F998B]"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[#A2B6AA] font-semibold block">Task Title</label>
+                <Input
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  placeholder="e.g. Bio-stimulant spray run on Sector Alpha"
+                  className="bg-[#121B16]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Category</label>
+                  <select
+                    value={newTaskCategory}
+                    onChange={(e) => setNewTaskCategory(e.target.value)}
+                    className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-3 text-xs text-[#F0F5F2] focus:outline-none"
+                  >
+                    <option value="irrigation">Irrigation</option>
+                    <option value="spraying_pest_control">Spraying</option>
+                    <option value="fertilization">Fertilization</option>
+                    <option value="equipment_maintenance">Equipment</option>
+                    <option value="soil_testing">Soil Testing</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Priority</label>
+                  <select
+                    value={newTaskPriority}
+                    onChange={(e) => setNewTaskPriority(e.target.value as typeof newTaskPriority)}
+                    className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-3 text-xs text-[#F0F5F2] focus:outline-none"
+                  >
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Due Date</label>
+                  <Input
+                    type="date"
+                    value={newTaskDueDate}
+                    onChange={(e) => setNewTaskDueDate(e.target.value)}
+                    className="bg-[#121B16] font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Cost Estimate (₹)</label>
+                  <Input
+                    type="number"
+                    value={newTaskCost}
+                    onChange={(e) => setNewTaskCost(e.target.value)}
+                    className="bg-[#121B16] font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#1E2E25]">
+              <Button variant="secondary" size="sm" onClick={() => setIsNewTaskModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => createTaskMutation.mutate()}
+                disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
+                isLoading={createTaskMutation.isPending}
+              >
+                Dispatch Order
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Book Inventory Modal */}
+      {isNewTransactionModalOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md rounded-xl border border-[#273B2F] bg-[#0E1512] shadow-2xl p-5 space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-[#1E2E25] pb-3">
+              <h3 className="font-semibold text-base text-[#F1F6F3]">Book Inventory Stock Transaction</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsNewTransactionModalOpen(false)}
+                className="h-6 w-6 text-[#7F998B]"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-[#A2B6AA] font-semibold block">Item Name</label>
+                <Input
+                  value={newTxItemName}
+                  onChange={(e) => setNewTxItemName(e.target.value)}
+                  className="bg-[#121B16]"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Transaction</label>
+                  <select
+                    value={newTxType}
+                    onChange={(e) => setNewTxType(e.target.value)}
+                    className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-2 text-xs text-[#F0F5F2] focus:outline-none"
+                  >
+                    <option value="usage">Field Usage</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="wastage_adjustment">Wastage</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Quantity</label>
+                  <Input
+                    type="number"
+                    value={newTxQuantity}
+                    onChange={(e) => setNewTxQuantity(e.target.value)}
+                    className="bg-[#121B16] font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[#A2B6AA] font-semibold block">Unit Price (₹)</label>
+                  <Input
+                    type="number"
+                    value={newTxUnitPrice}
+                    onChange={(e) => setNewTxUnitPrice(e.target.value)}
+                    className="bg-[#121B16] font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-[#1E2E25]">
+              <Button variant="secondary" size="sm" onClick={() => setIsNewTransactionModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => setIsNewTransactionModalOpen(false)}
+              >
+                Book Transaction
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
