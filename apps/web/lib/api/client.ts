@@ -260,13 +260,30 @@ export const apiClient = {
     let avgTemp = 25.0;
 
     if (observations.length > 0) {
-      const moistures = observations.map((o: any) => o.metrics?.moisture_percent || o.metrics?.moisture).filter(Boolean);
-      if (moistures.length > 0) {
-        avgMoisture = Number((moistures.reduce((a: number, b: number) => a + b, 0) / moistures.length).toFixed(1));
+      let moistureSum = 0;
+      let moistureCount = 0;
+      let tempSum = 0;
+      let tempCount = 0;
+
+      for (let i = 0; i < observations.length; i++) {
+        const o = observations[i];
+        const m = o.metrics?.moisture_percent || o.metrics?.moisture;
+        if (m) {
+          moistureSum += m;
+          moistureCount++;
+        }
+        const t = o.metrics?.temperature_c || o.metrics?.temp_c;
+        if (t) {
+          tempSum += t;
+          tempCount++;
+        }
       }
-      const temps = observations.map((o: any) => o.metrics?.temperature_c || o.metrics?.temp_c).filter(Boolean);
-      if (temps.length > 0) {
-        avgTemp = Number((temps.reduce((a: number, b: number) => a + b, 0) / temps.length).toFixed(1));
+
+      if (moistureCount > 0) {
+        avgMoisture = Number((moistureSum / moistureCount).toFixed(1));
+      }
+      if (tempCount > 0) {
+        avgTemp = Number((tempSum / tempCount).toFixed(1));
       }
     } else if (fields.length > 0 && fields[0].soilMetrics) {
       avgMoisture = fields[0].soilMetrics.moisturePercent || 38.0;
