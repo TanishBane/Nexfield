@@ -10,7 +10,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .auth import Principal, get_principal
 from .database import get_session
 from .errors import ApiProblem
-from .models import CropCycle, Farm, FarmExpense, FarmTask, Field, HarvestBatch, InventoryTransaction
+from .models import (
+    CropCycle,
+    Farm,
+    FarmExpense,
+    FarmTask,
+    Field,
+    HarvestBatch,
+    HarvestSale,
+    InventoryTransaction,
+)
 from .schemas import (
     ApiMeta,
     ApiResponse,
@@ -28,6 +37,8 @@ from .schemas import (
     FarmExpenseCreate,
     FarmExpenseRead,
     ExpenseCategory,
+    HarvestSaleCreate,
+    HarvestSaleRead,
     TaskPriority,
     TaskStatus,
 )
@@ -124,6 +135,100 @@ def expense_payload(expense: FarmExpense) -> dict:
         "idempotency_key": expense.idempotency_key,
         "created_at": expense.created_at,
     }
+
+
+def sale_payload(sale: HarvestSale) -> dict:
+    return {
+        "id": sale.id,
+        "farm_id": sale.farm_id,
+        "batch_id": sale.batch_id,
+        "quantity_kg": sale.quantity_kg,
+        "price_inr_per_quintal": sale.price_inr_per_quintal,
+        "total_amount_inr": sale.total_amount_inr,
+        "buyer_entity": sale.buyer_entity,
+        "date": sale.sale_date,
+        "idempotency_key": sale.idempotency_key,
+        "created_at": sale.created_at,
+    }
+
+
+@router.post(
+    "/sales",
+    status_code=201,
+    response_model=ApiResponse[HarvestSaleRead],
+    response_model_exclude_none=True,
+)
+async def create_harvest_sale(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    body: HarvestSaleCreate,
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[HarvestSaleRead]:
+    async with session.begin():
+        await owned_farm(session, farm_id, user, lock=True)
+        existing = await session.scalar(
+            select(HarvestSale).where(
+                HarvestSale.farm_id == farm_id,
+                HarvestSale.idempotency_key == body.idempotency_key,
+            )
+        )
+        if existing is not None:
+            raise ApiProblem(409, "DUPLICATE_SALE", "This sale was already recorded")
+        batch = await session.scalar(
+            select(HarvestBatch)
+            .where(
+                HarvestBatch.id == body.batch_id,
+                HarvestBatch.farm_id == farm_id,
+                HarvestBatch.dispatch_status == "settled_at_mandi",
+            )
+            .with_for_update()
+        )
+        if batch is None:
+            raise ApiProblem(409, "BATCH_NOT_SETTLED", "Sales require a harvest batch settled at the mandi")
+        sold_quantity = await session.scalar(
+            select(func.coalesce(func.sum(HarvestSale.quantity_kg), 0)).where(
+                HarvestSale.batch_id == batch.id,
+            )
+        )
+        remaining_quantity = batch.total_quantity_kg - float(sold_quantity or 0)
+        if body.quantity_kg > remaining_quantity:
+            raise ApiProblem(409, "QUANTITY_EXCEEDS_BATCH", "Sale quantity exceeds the unsold batch quantity")
+        total_amount = body.quantity_kg / 100 * body.price_inr_per_quintal
+        sale = HarvestSale(
+            farm_id=farm_id,
+            sale_date=body.date,
+            total_amount_inr=total_amount,
+            **body.model_dump(mode="python", exclude={"date"}),
+        )
+        session.add(sale)
+        await session.flush()
+        await session.refresh(sale)
+        result = HarvestSaleRead.model_validate(sale_payload(sale))
+    return ApiResponse(data=result, meta=metadata(request))
+
+
+@router.get(
+    "/sales",
+    response_model=ApiResponse[list[HarvestSaleRead]],
+    response_model_exclude_none=True,
+)
+async def list_harvest_sales(
+    farm_id: Annotated[UUID, Query(alias="farmId")],
+    request: Request,
+    user: User,
+    session: Session,
+) -> ApiResponse[list[HarvestSaleRead]]:
+    await owned_farm(session, farm_id, user)
+    sales = await session.scalars(
+        select(HarvestSale)
+        .where(HarvestSale.farm_id == farm_id)
+        .order_by(HarvestSale.sale_date.desc(), HarvestSale.id)
+    )
+    return ApiResponse(
+        data=[HarvestSaleRead.model_validate(sale_payload(sale)) for sale in sales],
+        meta=metadata(request),
+    )
 
 
 async def validate_expense_scope(

@@ -281,3 +281,30 @@ class FarmExpense(Base):
     expense_date: Mapped[date] = mapped_column(Date)
     idempotency_key: Mapped[str] = mapped_column(String)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class HarvestSale(Base):
+    __tablename__ = "harvest_sales"
+    __table_args__ = (
+        CheckConstraint("quantity_kg > 0 AND quantity_kg < 'Infinity'::float8", name="ck_harvest_sales_quantity"),
+        CheckConstraint(
+            "price_inr_per_quintal > 0 AND price_inr_per_quintal < 'Infinity'::float8",
+            name="ck_harvest_sales_price",
+        ),
+        CheckConstraint(
+            "total_amount_inr > 0 AND total_amount_inr < 'Infinity'::float8",
+            name="ck_harvest_sales_total",
+        ),
+        UniqueConstraint("farm_id", "idempotency_key", name="uq_harvest_sales_idempotency"),
+        Index("ix_harvest_sales_farm_date", "farm_id", "sale_date"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    farm_id: Mapped[UUID] = mapped_column(ForeignKey("farms.id", ondelete="RESTRICT"), index=True)
+    batch_id: Mapped[UUID] = mapped_column(ForeignKey("harvest_batches.id", ondelete="RESTRICT"), index=True)
+    quantity_kg: Mapped[float] = mapped_column(Float)
+    price_inr_per_quintal: Mapped[float] = mapped_column(Float)
+    total_amount_inr: Mapped[float] = mapped_column(Float)
+    buyer_entity: Mapped[str] = mapped_column(String)
+    sale_date: Mapped[date] = mapped_column(Date)
+    idempotency_key: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

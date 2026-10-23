@@ -487,6 +487,28 @@ class FarmExpenseRead(ContractModel):
     created_at: AwareDatetime
 
 
+class HarvestSaleCreate(ContractModel):
+    batch_id: UUID
+    quantity_kg: Annotated[float, Field(gt=0, strict=True)]
+    price_inr_per_quintal: Annotated[float, Field(gt=0, strict=True)]
+    buyer_entity: Annotated[StrictStr, Field(min_length=2, max_length=200)]
+    date: date
+    idempotency_key: Annotated[StrictStr, Field(min_length=8, max_length=100)]
+
+
+class HarvestSaleRead(ContractModel):
+    id: UUID
+    farm_id: UUID
+    batch_id: UUID
+    quantity_kg: float = Field(gt=0)
+    price_inr_per_quintal: float = Field(gt=0)
+    total_amount_inr: float = Field(gt=0)
+    buyer_entity: str
+    date: date
+    idempotency_key: str
+    created_at: AwareDatetime
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)

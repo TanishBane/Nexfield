@@ -261,6 +261,27 @@ def test_expense_routes_are_registered():
     assert "/api/v1/ops/expenses" in paths
 
 
+def test_sale_contract_calculates_quantity_in_kg_and_price_per_quintal():
+    from services.api.schemas import HarvestSaleCreate
+
+    sale = HarvestSaleCreate(
+        batchId="11111111-1111-1111-1111-111111111111",
+        quantityKg=250,
+        priceInrPerQuintal=2450,
+        buyerEntity="Pune Mandi Buyer",
+        date="2026-10-24",
+        idempotencyKey="sale-0001",
+    )
+    assert sale.quantity_kg == 250
+    assert sale.price_inr_per_quintal == 2450
+
+
+def test_sale_routes_are_registered():
+    from services.api.main import app
+
+    assert "/api/v1/ops/sales" in app.openapi()["paths"]
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),
