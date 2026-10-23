@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime, date
+from itertools import zip_longest
 
 class OpenMeteoHourlyData(BaseModel):
     time: List[datetime]
@@ -115,28 +116,45 @@ class OpenMeteoAdapter(BaseAdapter):
         """
         hourly_obs = []
         if data.hourly:
-            for i, ts in enumerate(data.hourly.time):
+            for ts, t, rh, r, ws, et in zip_longest(
+                data.hourly.time,
+                data.hourly.temperature_2m,
+                data.hourly.relative_humidity_2m,
+                data.hourly.rain,
+                data.hourly.wind_speed_10m,
+                data.hourly.et0_fao_evapotranspiration,
+            ):
+                if ts is None:
+                    continue
                 hourly_obs.append(
                     NormalizedWeatherObservation(
                         timestamp=ts,
-                        temperature_celsius=data.hourly.temperature_2m[i] if i < len(data.hourly.temperature_2m) else None,
-                        humidity_percent=data.hourly.relative_humidity_2m[i] if i < len(data.hourly.relative_humidity_2m) else None,
-                        rainfall_mm=data.hourly.rain[i] if i < len(data.hourly.rain) else None,
-                        wind_speed_kmh=data.hourly.wind_speed_10m[i] if i < len(data.hourly.wind_speed_10m) else None,
-                        evapotranspiration_mm=data.hourly.et0_fao_evapotranspiration[i] if i < len(data.hourly.et0_fao_evapotranspiration) else None,
+                        temperature_celsius=t,
+                        humidity_percent=rh,
+                        rainfall_mm=r,
+                        wind_speed_kmh=ws,
+                        evapotranspiration_mm=et,
                     )
                 )
 
         daily_obs = []
         if data.daily:
-            for i, dt in enumerate(data.daily.time):
+            for dt, tmax, tmin, r, et in zip_longest(
+                data.daily.time,
+                data.daily.temperature_2m_max,
+                data.daily.temperature_2m_min,
+                data.daily.rain_sum,
+                data.daily.et0_fao_evapotranspiration,
+            ):
+                if dt is None:
+                    continue
                 daily_obs.append(
                     NormalizedDailyWeather(
                         date=dt,
-                        max_temperature_celsius=data.daily.temperature_2m_max[i] if i < len(data.daily.temperature_2m_max) else None,
-                        min_temperature_celsius=data.daily.temperature_2m_min[i] if i < len(data.daily.temperature_2m_min) else None,
-                        rainfall_sum_mm=data.daily.rain_sum[i] if i < len(data.daily.rain_sum) else None,
-                        evapotranspiration_mm=data.daily.et0_fao_evapotranspiration[i] if i < len(data.daily.et0_fao_evapotranspiration) else None,
+                        max_temperature_celsius=tmax,
+                        min_temperature_celsius=tmin,
+                        rainfall_sum_mm=r,
+                        evapotranspiration_mm=et,
                     )
                 )
 
