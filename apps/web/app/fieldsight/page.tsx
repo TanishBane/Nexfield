@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ModuleLoadingState, ErrorDisplay } from '@nexfield/ui';
+import { AlertTriangle } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { uploadObservationImage } from '@/lib/supabase/storage';
 import { useFarmStore } from '@/lib/store/useFarmStore';
@@ -112,6 +113,15 @@ export default function FieldSightPage() {
         fileInputRef={fileInputRef}
         onFileSelect={handleFileSelect}
       />
+
+      {diagnoseMutation.isError && (
+        <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-600/50 text-xs text-amber-200 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+          <span>
+            <strong>Inference Engine Status:</strong> Deep neural network weights (.onnx) are not configured on this server. Active model inference was suspended to avoid generating fake diagnoses. Historical pathology records and ICAR mitigation protocols remain fully accessible below.
+          </span>
+        </div>
+      )}
 
       <FieldSightDropzone
         isDragOver={isDragOver}
