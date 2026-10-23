@@ -1,13 +1,25 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { cn } from '@nexfield/ui';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { isSidebarOpen } = useFarmStore();
+
+  const isAuthPage = pathname === '/login';
+
+  if (isAuthPage) {
+    return (
+      <div className="min-h-screen bg-[#090D0B] text-[#F1F6F3]">
+        <main className="w-full">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#090D0B] text-[#F1F6F3]">
@@ -24,3 +36,4 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

@@ -32,6 +32,7 @@ import {
   ErrorDisplay,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
+import { uploadObservationImage } from '@/lib/supabase/storage';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import type { CropAssessment } from '@nexfield/contracts';
 import Link from 'next/link';
@@ -89,7 +90,7 @@ export default function FieldSightPage() {
     }
   };
 
-  const processFile = (file: File) => {
+  const processFile = async (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
@@ -97,6 +98,12 @@ export default function FieldSightPage() {
       diagnoseMutation.mutate(dataUrl);
     };
     reader.readAsDataURL(file);
+
+    try {
+      await uploadObservationImage(file);
+    } catch {
+      // Offline fallback
+    }
   };
 
   if (isLoading) {
