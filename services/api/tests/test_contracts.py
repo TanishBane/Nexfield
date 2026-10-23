@@ -130,6 +130,38 @@ def test_control_overview_exposes_unavailable_sources_explicitly():
     assert "unavailableSources" in schema["properties"]
 
 
+def test_twin_water_estimate_uses_explicit_scheduled_volume_assumption():
+    from services.api.twin import estimate_irrigation_volume
+
+    estimate = estimate_irrigation_volume(2.5, [10, 20, 30], 100)
+
+    assert estimate.total_irrigation_volume_m3 == 750
+    assert "not modeled" in estimate.assumption
+
+
+def test_twin_request_rejects_negative_intervention_values():
+    from services.api.schemas import TwinSimulateRequest
+
+    with pytest.raises(ValidationError):
+        TwinSimulateRequest(
+            fieldId=uuid4(),
+            cycleId=uuid4(),
+            title="Water scenario",
+            interventions={
+                "irrigationScheduleDays": [10],
+                "irrigationVolumeM3PerHa": -1,
+                "nitrogenTopDressingKgPerHa": 10,
+                "biostimulantApplied": False,
+            },
+        )
+
+
+def test_twin_water_requirement_route_is_registered():
+    from services.api.main import app
+
+    assert "/api/v1/twin/water-requirement" in app.openapi()["paths"]
+
+
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():
     meta = ApiMeta(
         request_id=str(uuid4()),

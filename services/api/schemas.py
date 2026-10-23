@@ -253,6 +253,28 @@ class FarmOverviewRead(ContractModel):
     unavailable_sources: list[Literal["weather", "alerts", "tasks"]] = Field(default_factory=list)
 
 
+class TwinInterventions(ContractModel):
+    irrigation_schedule_days: list[Annotated[int, Field(ge=0, le=365, strict=True)]]
+    irrigation_volume_m3_per_ha: Annotated[float, Field(ge=0, strict=True)]
+    nitrogen_top_dressing_kg_per_ha: Annotated[float, Field(ge=0, strict=True)]
+    biostimulant_applied: bool
+
+
+class TwinSimulateRequest(ContractModel):
+    field_id: UUID
+    cycle_id: UUID
+    title: Annotated[StrictStr, Field(min_length=3, max_length=200)]
+    interventions: TwinInterventions
+
+
+class WaterRequirementEstimate(ContractModel):
+    field_area_hectares: PositiveArea
+    irrigation_events: int = Field(ge=0)
+    irrigation_volume_m3_per_ha: float = Field(ge=0)
+    total_irrigation_volume_m3: float = Field(ge=0)
+    assumption: str
+
+
 class Pagination(ContractModel):
     page: int = Field(gt=0)
     limit: int = Field(gt=0)
