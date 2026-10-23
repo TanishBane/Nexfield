@@ -1,6 +1,6 @@
 <div align="center">
 
-![NEXFIELD Banner](docs/assets/branding/nexfield-banner.svg)
+<img src="docs/assets/branding/nexfield-logo-readme.png" alt="NEXFIELD Official Logo" width="128" height="128" style="border-radius: 28px;" />
 
 # NEXFIELD
 ### The Agricultural Intelligence Operating System
@@ -13,6 +13,7 @@
 [![Backend CI](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml)
 [![Backend Tests](https://img.shields.io/badge/Pytest-78%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
 [![System Smoke Suite](https://img.shields.io/badge/Smoke%20Suite-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -21,7 +22,11 @@
 [![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-CPU%205.1ms-blue?logo=onnx&logoColor=white)](docs/AI_AND_MODELS.md)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20PostGIS-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-[**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security Architecture**](docs/SECURITY.md)
+[**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security**](SECURITY.md) • [**Contributing**](CONTRIBUTING.md)
+
+<br/>
+
+![NEXFIELD Banner](docs/assets/branding/nexfield-banner.svg)
 
 </div>
 
@@ -632,15 +637,22 @@ NEXFIELD is co-developed by an integrated engineering team operating under stric
 
 ## 13. License & Attribution
 
-- **License:** Apache License 2.0 / MIT.
+NEXFIELD's original source code is licensed under the [MIT License](LICENSE). See [LICENSE](LICENSE) for details. Third-party datasets, model assets, and other externally licensed materials remain subject to their respective terms.
+
+- **License:** [MIT License](LICENSE) — Copyright (c) 2026 Tanish Bane and Rohan Panchal.
 - **Hackathon:** Developed for **ADAPPT 5.0 — Round 2 — Domain 2: AI in Food Technology**.
-- **Agronomic Standards:** Equations adapted from *FAO Irrigation and Drainage Paper 56* (FAO-56 Penman-Monteith) and *FAO Agricultural Services Bulletin 149*.
+- **Agronomic Standards:** Equations adapted from *FAO Irrigation and Drainage Paper 56* (*FAO-56 Penman-Monteith*) and *FAO Agricultural Services Bulletin 149*.
 - **Extension Protocols:** Treatment protocols adhere to published guidelines of the *Indian Council of Agricultural Research (ICAR)*.
 
 ---
 
 <div align="center">
-  <sub>Built with precision for <strong>ADAPPT 5.0 (AI in Food Technology)</strong></sub><br>
-  <sub>Observe. Predict. Simulate. Optimize. Grow.</sub><br>
-  <sub>© 2026 NEXFIELD. All rights reserved.</sub>
+  <p>© 2026 NEXFIELD Contributors.</p>
+  <p>
+    <strong>Maintained by:</strong><br/>
+    Tanish Bane — <a href="https://github.com/TanishBane">@TanishBane</a><br/>
+    Rohan Panchal — <a href="https://github.com/panchalrohan44">@panchalrohan44</a>
+  </p>
+  <p>Licensed under the <a href="LICENSE">MIT License</a>.</p>
+  <sub>Observe. Predict. Simulate. Optimize. Grow.</sub>
 </div>
