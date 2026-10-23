@@ -24,6 +24,9 @@ export function DemoBanner() {
           <span className="text-[#7B9587] hidden md:inline">
             ({cropName} · {areaHectares} ha · {location})
           </span>
+          <span className="text-[10px] font-mono text-[#8CA394] px-2 py-0.5 rounded bg-[#101914] border border-[#23352A] hidden lg:inline">
+            Development Mode: Synthetic Agronomic Fixtures
+          </span>
         </div>
 
         {/* Right: Actions */}

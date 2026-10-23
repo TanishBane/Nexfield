@@ -2,6 +2,7 @@
  * End-to-End Navigation Test Specification for NEXFIELD Core Modules
  * ADAPPT 5.0 - Round 2 - Domain 2: AI in Food Technology
  */
+import { describe, test } from 'vitest';
 
 describe('NEXFIELD Core Module Navigation Flow', () => {
   const modules = [
