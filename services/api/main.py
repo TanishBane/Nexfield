@@ -13,6 +13,7 @@ from .errors import install_error_handlers
 from .farms import router as farms_router
 from .fieldsight import router as fieldsight_router
 from .fields import router as fields_router
+from .agriculture import router as agriculture_router
 
 
 @asynccontextmanager
@@ -86,3 +87,4 @@ install_error_handlers(app)
 app.include_router(farms_router)
 app.include_router(fields_router)
 app.include_router(fieldsight_router)
+app.include_router(agriculture_router)

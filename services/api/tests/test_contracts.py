@@ -4,7 +4,16 @@ from uuid import uuid4
 import pytest
 from pydantic import ValidationError
 
-from services.api.schemas import ApiMeta, FarmCreate, FarmPatch, FieldCreate, FieldPatch, GeoLocation
+from services.api.schemas import (
+    ApiMeta,
+    CropCycleCreate,
+    FarmCreate,
+    FarmPatch,
+    FieldCreate,
+    FieldPatch,
+    GeoLocation,
+    ObservationCreate,
+)
 
 
 def location() -> dict[str, object]:
@@ -77,6 +86,30 @@ def test_field_create_accepts_soil_metrics_aliases():
 def test_field_patch_requires_a_writable_field():
     with pytest.raises(ValidationError):
         FieldPatch.model_validate({})
+
+
+def test_crop_cycle_rejects_harvest_before_sowing():
+    with pytest.raises(ValidationError):
+        CropCycleCreate(
+            cropName="Wheat",
+            variety="HD-2967",
+            season="rabi",
+            sowingDate="2026-11-15",
+            expectedHarvestDate="2026-10-15",
+            targetYieldMetricTons=3,
+            currentGrowthStage="seedling_germination",
+        )
+
+
+def test_observation_requires_timezone_aware_timestamp_and_typed_metrics():
+    observation = ObservationCreate(
+        observationType="iot_sensor_telemetry",
+        timestamp="2026-10-24T00:00:00Z",
+        metrics={"moisturePercent": 41.5, "sensorStatus": "ok"},
+    )
+
+    assert observation.metrics["moisturePercent"] == 41.5
+    assert observation.timestamp.tzinfo is not None
 
 
 def test_api_meta_serializes_contract_aliases_and_utc_timestamp():

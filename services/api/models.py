@@ -1,9 +1,9 @@
 """Farm records only. Identity and login remain managed by Supabase Auth."""
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import CheckConstraint, DateTime, Float, ForeignKey, Index, String, UniqueConstraint, func
+from sqlalchemy import CheckConstraint, Date, DateTime, Float, ForeignKey, Index, Integer, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -54,3 +54,75 @@ class Field(Base):
     polygon_coordinates: Mapped[list[list[float]] | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class CropCycle(Base):
+    __tablename__ = "crop_cycles"
+    __table_args__ = (
+        CheckConstraint(
+            "season IN ('kharif','rabi','zaid')",
+            name="ck_crop_cycles_season",
+        ),
+        CheckConstraint(
+            "status IN ('planned','active','harvested','failed')",
+            name="ck_crop_cycles_status",
+        ),
+        CheckConstraint(
+            "current_growth_stage IN ('seedling_germination','tillering','vegetative_growth',"
+            "'flowering_panicle','grain_filling','physiological_maturity','harvest_ready')",
+            name="ck_crop_cycles_growth_stage",
+        ),
+        CheckConstraint("target_yield_metric_tons > 0", name="ck_crop_cycles_target_yield"),
+        CheckConstraint(
+            "actual_yield_metric_tons IS NULL OR actual_yield_metric_tons > 0",
+            name="ck_crop_cycles_actual_yield",
+        ),
+        CheckConstraint(
+            "stage_progress_percent >= 0 AND stage_progress_percent <= 100",
+            name="ck_crop_cycles_progress",
+        ),
+        CheckConstraint(
+            "health_index_score >= 0 AND health_index_score <= 100",
+            name="ck_crop_cycles_health",
+        ),
+        Index("ix_crop_cycles_field_status", "field_id", "status"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    field_id: Mapped[UUID] = mapped_column(ForeignKey("fields.id", ondelete="RESTRICT"), index=True)
+    crop_name: Mapped[str] = mapped_column(String)
+    variety: Mapped[str] = mapped_column(String)
+    season: Mapped[str] = mapped_column(String)
+    sowing_date: Mapped[date] = mapped_column(Date)
+    expected_harvest_date: Mapped[date] = mapped_column(Date)
+    actual_harvest_date: Mapped[date | None] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(String)
+    target_yield_metric_tons: Mapped[float] = mapped_column(Float)
+    actual_yield_metric_tons: Mapped[float | None] = mapped_column(Float)
+    current_growth_stage: Mapped[str] = mapped_column(String)
+    stage_progress_percent: Mapped[float] = mapped_column(Float)
+    health_index_score: Mapped[float] = mapped_column(Float, server_default="85")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class Observation(Base):
+    __tablename__ = "observations"
+    __table_args__ = (
+        CheckConstraint(
+            "observation_type IN ('iot_sensor_telemetry','satellite_ndvi','scouting_note',"
+            "'weather_station','drone_multispectral')",
+            name="ck_observations_type",
+        ),
+        Index("ix_observations_field_timestamp", "field_id", "observed_at"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    field_id: Mapped[UUID] = mapped_column(ForeignKey("fields.id", ondelete="RESTRICT"), index=True)
+    cycle_id: Mapped[UUID | None] = mapped_column(ForeignKey("crop_cycles.id", ondelete="SET NULL"))
+    observer_id: Mapped[UUID | None] = mapped_column(nullable=True)
+    observation_type: Mapped[str] = mapped_column(String)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    metrics: Mapped[dict[str, float | str]] = mapped_column(JSONB)
+    notes: Mapped[str | None] = mapped_column(String)
+    geo_tag: Mapped[dict[str, float] | None] = mapped_column(JSONB)
+    media_urls: Mapped[list[str] | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
