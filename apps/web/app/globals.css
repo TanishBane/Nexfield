@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 140 18% 4%;
+  --foreground: 140 10% 95%;
+
+  --card: 140 15% 7%;
+  --card-foreground: 140 10% 95%;
+
+  --popover: 140 18% 10%;
+  --popover-foreground: 140 10% 95%;
+
+  --primary: 160 84% 39%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 140 20% 12%;
+  --secondary-foreground: 140 15% 90%;
+
+  --muted: 140 20% 11%;
+  --muted-foreground: 140 10% 60%;
+
+  --accent: 140 15% 17%;
+  --accent-foreground: 160 70% 60%;
+
+  --destructive: 345 80% 40%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 140 18% 15%;
+  --input: 140 18% 15%;
+  --ring: 160 84% 39%;
+
+  --radius: 0.75rem;
+}
+
+body {
+  background-color: #090D0B;
+  color: #F1F5F2;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular figures for telemetry data */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle Agronomic Dark Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090D0B;
+}
+::-webkit-scrollbar-thumb {
+  background: #1B2B22;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #284032;
+}

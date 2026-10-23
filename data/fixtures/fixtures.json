@@ -1,0 +1,448 @@
+{
+  "farms": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "name": "GreenValley Bio-Research Agrohub",
+      "ownerId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "location": {
+        "latitude": 30.7046,
+        "longitude": 76.7179,
+        "address": "GT Road, Khanna Agro Corridor",
+        "district": "Ludhiana",
+        "state": "Punjab",
+        "pinCode": "141401"
+      },
+      "totalAreaHectares": 28.5,
+      "soilType": "alluvial",
+      "primaryIrrigation": "drip_irrigation",
+      "activeCropCycleCount": 3,
+      "createdAt": "2026-01-15T08:30:00Z",
+      "updatedAt": "2026-10-23T14:20:00Z"
+    },
+    {
+      "id": "e83b2a19-47dc-4921-b830-2f91a0c84102",
+      "name": "Deccan Agro-Ecology Precision Estate",
+      "ownerId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+      "location": {
+        "latitude": 20.9374,
+        "longitude": 77.7796,
+        "address": "Morshi Road, Vidarbha Agro Hub",
+        "district": "Amravati",
+        "state": "Maharashtra",
+        "pinCode": "444601"
+      },
+      "totalAreaHectares": 42.0,
+      "soilType": "black_cotton",
+      "primaryIrrigation": "sprinkler",
+      "activeCropCycleCount": 2,
+      "createdAt": "2026-02-10T10:00:00Z",
+      "updatedAt": "2026-10-22T16:45:00Z"
+    }
+  ],
+  "fields": [
+    {
+      "id": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "name": "North Sector Alpha — Precision Parcel",
+      "code": "FLD-N01",
+      "areaHectares": 8.4,
+      "soilMetrics": {
+        "ph": 7.35,
+        "organicCarbonPercent": 0.68,
+        "nitrogenKgPerHa": 210.5,
+        "phosphorusKgPerHa": 24.2,
+        "potassiumKgPerHa": 285.0,
+        "electricalConductivityDsM": 0.36,
+        "moisturePercent": 44.2,
+        "lastSampledDate": "2026-10-20T09:00:00Z"
+      },
+      "currentCycleId": "c3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a",
+      "polygonCoordinates": [
+        [30.7041, 76.7171],
+        [30.7058, 76.7175],
+        [30.7054, 76.7192],
+        [30.7038, 76.7188]
+      ],
+      "createdAt": "2026-01-16T10:00:00Z",
+      "updatedAt": "2026-10-23T11:00:00Z"
+    },
+    {
+      "id": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "name": "East Terraced Basin — Sensor Grid 4",
+      "code": "FLD-E04",
+      "areaHectares": 12.1,
+      "soilMetrics": {
+        "ph": 6.95,
+        "organicCarbonPercent": 0.74,
+        "nitrogenKgPerHa": 235.0,
+        "phosphorusKgPerHa": 31.0,
+        "potassiumKgPerHa": 310.4,
+        "electricalConductivityDsM": 0.28,
+        "moisturePercent": 38.5,
+        "lastSampledDate": "2026-10-21T07:30:00Z"
+      },
+      "currentCycleId": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+      "polygonCoordinates": [
+        [30.706, 76.7195],
+        [30.7082, 76.7201],
+        [30.7077, 76.7225],
+        [30.7055, 76.7218]
+      ],
+      "createdAt": "2026-01-16T11:00:00Z",
+      "updatedAt": "2026-10-23T12:00:00Z"
+    }
+  ],
+  "cropCycles": [
+    {
+      "id": "c3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a",
+      "fieldId": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "cropName": "Wheat",
+      "variety": "HD-3086 (Pusa Gautami)",
+      "season": "rabi",
+      "sowingDate": "2026-11-05",
+      "expectedHarvestDate": "2027-04-12",
+      "status": "active",
+      "targetYieldMetricTons": 48.0,
+      "currentGrowthStage": "flowering_panicle",
+      "stageProgressPercent": 68.0,
+      "healthIndexScore": 91,
+      "createdAt": "2026-11-01T06:00:00Z",
+      "updatedAt": "2026-10-23T14:00:00Z"
+    },
+    {
+      "id": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+      "fieldId": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "cropName": "Basmati Rice",
+      "variety": "PB-1121 Export Grade",
+      "season": "kharif",
+      "sowingDate": "2026-07-02",
+      "expectedHarvestDate": "2026-11-10",
+      "status": "active",
+      "targetYieldMetricTons": 55.0,
+      "currentGrowthStage": "grain_filling",
+      "stageProgressPercent": 84.5,
+      "healthIndexScore": 88,
+      "createdAt": "2026-06-28T09:00:00Z",
+      "updatedAt": "2026-10-23T14:30:00Z"
+    }
+  ],
+  "cropAssessments": [
+    {
+      "id": "a9b8c7d6-e5f4-3a2b-1c0d-9e8f7a6b5c4d",
+      "fieldId": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "cycleId": "c3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a",
+      "assessmentType": "foliar_disease",
+      "conditionName": "Stripe Rust (Yellow Rust / Puccinia striiformis)",
+      "confidenceScore": 0.942,
+      "severityLevel": "moderate",
+      "affectedAreaPercentage": 14.8,
+      "visualEvidenceUrl": "/fixtures/imagery/wheat_yellow_rust_leaf.jpg",
+      "heatmapOverlayUrl": "/fixtures/imagery/wheat_yellow_rust_gradcam.jpg",
+      "diagnosisDetails": {
+        "pathogenOrPest": "Puccinia striiformis f. sp. tritici",
+        "symptoms": [
+          "Linear yellow-orange uredinial pustules arranged in parallel stripes along leaf veins",
+          "Premature chlorosis and necrosis of infected flag leaves",
+          "Reduced photosynthetic active radiation capture"
+        ],
+        "recommendedIntervention": "Apply targeted triazole fungicide spray (Propiconazole 25% EC @ 0.1%) during morning still air conditions, followed by bio-control Bacillus subtilis formulation after 7 days.",
+        "chemicalOptions": [
+          "Propiconazole 25% EC (500 ml/ha)",
+          "Tebuconazole 25.9% EC (625 ml/ha)"
+        ],
+        "organicOptions": [
+          "Bacillus subtilis biological agent (2.5 kg/ha)",
+          "Neem oil 10,000 ppm formulation (3 ml/L water)"
+        ],
+        "estimatedYieldLossRiskPercent": 18.5
+      },
+      "assessedAt": "2026-10-23T11:45:00Z",
+      "assessedBy": "fieldsight_vision_v1"
+    },
+    {
+      "id": "b1c2d3e4-f5a6-7b8c-9d0e-1f2a3b4c5d6e",
+      "fieldId": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "cycleId": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+      "assessmentType": "foliar_disease",
+      "conditionName": "Bacterial Leaf Blight (Xanthomonas oryzae)",
+      "confidenceScore": 0.895,
+      "severityLevel": "low",
+      "affectedAreaPercentage": 4.2,
+      "visualEvidenceUrl": "/fixtures/imagery/rice_bacterial_blight.jpg",
+      "diagnosisDetails": {
+        "pathogenOrPest": "Xanthomonas oryzae pv. oryzae",
+        "symptoms": [
+          "Water-soaked lesions turning yellow to grey-white with wavy margins along leaf margins",
+          "Bacterial ooze droplets visible during high morning relative humidity"
+        ],
+        "recommendedIntervention": "Drain standing water from the field for 48 hours to arrest bacterial spread. Foliar spray of Copper Oxychloride 50% WP @ 2.5g/L + Streptocycline @ 0.15g/L.",
+        "chemicalOptions": [
+          "Copper Oxychloride 50% WP + Streptocycline"
+        ],
+        "organicOptions": [
+          "Pseudomonas fluorescens 0.5% liquid suspension"
+        ],
+        "estimatedYieldLossRiskPercent": 6.0
+      },
+      "assessedAt": "2026-10-22T15:20:00Z",
+      "assessedBy": "fieldsight_vision_v1"
+    }
+  ],
+  "simulationScenarios": [
+    {
+      "id": "s1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c",
+      "fieldId": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "cycleId": "c3e4f5a6-7b8c-9d0e-1f2a-3b4c5d6e7f8a",
+      "title": "Optimized Deficit Irrigation + Split-N Intervention",
+      "description": "Simulates shifting from flood basin watering to pulse drip schedule with 2-stage split urea top-dressing during critical anthesis and milk stages.",
+      "baselineParameters": {
+        "initialSoilMoisturePercent": 42.0,
+        "projectedRainfallMm": 18.5,
+        "temperatureMaxC": 29.4,
+        "temperatureMinC": 14.2
+      },
+      "simulatedInterventions": {
+        "irrigationScheduleDays": [3, 7, 12, 18],
+        "irrigationVolumeM3PerHa": 340.0,
+        "nitrogenTopDressingKgPerHa": 45.0,
+        "biostimulantApplied": true
+      },
+      "projectedOutcomes": {
+        "estimatedYieldMtPerHa": 5.92,
+        "baselineYieldMtPerHa": 5.15,
+        "yieldDeltaPercent": 14.95,
+        "waterUseEfficiencyScore": 89.4,
+        "carbonFootprintKgCo2ePerHa": 412.0,
+        "economicBenefitInrPerHa": 18450.0,
+        "riskIndex": 0.16,
+        "confidenceInterval": [5.68, 6.15]
+      },
+      "simulatedAt": "2026-10-23T12:00:00Z"
+    }
+  ],
+  "farmTasks": [
+    {
+      "id": "t1a2b3c4-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "fieldId": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "title": "Foliar Fungicide Spray (Yellow Rust Remediation)",
+      "description": "Targeted application of Propiconazole 25% EC on Sector Alpha North boundary",
+      "category": "spraying_pest_control",
+      "priority": "urgent",
+      "status": "in_progress",
+      "assignedToName": "Gurmeet Singh (Agri Specialist)",
+      "dueDate": "2026-10-24",
+      "costEstimateInr": 4200.0,
+      "createdAt": "2026-10-23T12:30:00Z",
+      "updatedAt": "2026-10-23T15:10:00Z"
+    },
+    {
+      "id": "t2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "fieldId": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "title": "Precision Drip Line Flush & Emitter Inspection",
+      "description": "De-scale sub-main valves and calibrate pressure compensating drippers",
+      "category": "equipment_maintenance",
+      "priority": "medium",
+      "status": "todo",
+      "assignedToName": "Rajesh Kumar (Technician)",
+      "dueDate": "2026-10-26",
+      "costEstimateInr": 1800.0,
+      "createdAt": "2026-10-23T09:00:00Z",
+      "updatedAt": "2026-10-23T09:00:00Z"
+    },
+    {
+      "id": "t3c4d5e6-7f8a-9b0c-1d2e-3f4a5b6c7d8e",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "fieldId": "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c",
+      "title": "Post-Rainfall Soil Moisture Core Sampling",
+      "description": "Collect composite depth samples at 15cm and 45cm for nitrate verification",
+      "category": "soil_testing",
+      "priority": "low",
+      "status": "completed",
+      "assignedToName": "Dr. Ananya Sen (Agronomist)",
+      "dueDate": "2026-10-21",
+      "costEstimateInr": 2500.0,
+      "actualCostInr": 2350.0,
+      "completedAt": "2026-10-21T16:00:00Z",
+      "createdAt": "2026-10-20T10:00:00Z",
+      "updatedAt": "2026-10-21T16:00:00Z"
+    }
+  ],
+  "inventoryTransactions": [
+    {
+      "id": "i1a2b3c4-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "itemType": "seed",
+      "itemName": "HD-3086 Certified Foundation Seed",
+      "batchNumber": "PB-SEED-2026-8812",
+      "transactionType": "purchase",
+      "quantity": 1200.0,
+      "unit": "kg",
+      "unitPriceInr": 48.0,
+      "totalAmountInr": 57600.0,
+      "balanceAfterQuantity": 1200.0,
+      "supplierOrVendor": "Punjab State Seeds Corporation",
+      "date": "2026-10-15",
+      "createdAt": "2026-10-15T11:00:00Z"
+    },
+    {
+      "id": "i2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "itemType": "pesticide_fungicide",
+      "itemName": "Tilt Propiconazole 25% EC",
+      "batchNumber": "SYNG-2026-4401",
+      "transactionType": "purchase",
+      "quantity": 25.0,
+      "unit": "liter",
+      "unitPriceInr": 1420.0,
+      "totalAmountInr": 35500.0,
+      "balanceAfterQuantity": 20.0,
+      "supplierOrVendor": "Syngenta Agro Distributor Khanna",
+      "date": "2026-10-22",
+      "createdAt": "2026-10-22T08:30:00Z"
+    }
+  ],
+  "harvestBatches": [
+    {
+      "id": "h1a2b3c4-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+      "farmId": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "fieldId": "b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e",
+      "cycleId": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+      "batchCode": "BATCH-PB1121-OCT26",
+      "cropName": "Basmati Rice",
+      "variety": "Pusa Basmati 1121",
+      "harvestDate": "2026-10-21",
+      "totalQuantityKg": 24800.0,
+      "qualityGrade": "Grade_A_Export",
+      "moistureContentPercent": 12.8,
+      "foreignMatterPercent": 0.4,
+      "storageWarehouse": "Central Agronomic Silo #3, Khanna",
+      "dispatchStatus": "in_warehouse_storage",
+      "targetMandiPriceInrPerQuintal": 4350.0,
+      "createdAt": "2026-10-21T17:00:00Z",
+      "updatedAt": "2026-10-23T10:00:00Z"
+    }
+  ],
+  "marketObservations": [
+    {
+      "id": "m1a2b3c4-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+      "commodity": "Wheat",
+      "variety": "Dara / Mill Quality",
+      "state": "Punjab",
+      "district": "Ludhiana",
+      "marketName": "Khanna Mandi (Asia's Largest)",
+      "arrivalQuantityTons": 1420.0,
+      "minPricePerQuintalInr": 2420.0,
+      "maxPricePerQuintalInr": 2680.0,
+      "modalPricePerQuintalInr": 2580.0,
+      "priceTrend": "upward",
+      "dailyChangeInr": 45.0,
+      "reportedDate": "2026-10-23",
+      "sourceFeed": "agmarket_live_api"
+    },
+    {
+      "id": "m2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
+      "commodity": "Wheat",
+      "variety": "Sharbati Premium",
+      "state": "Madhya Pradesh",
+      "district": "Sehore",
+      "marketName": "Sehore Mandi",
+      "arrivalQuantityTons": 680.0,
+      "minPricePerQuintalInr": 3100.0,
+      "maxPricePerQuintalInr": 3650.0,
+      "modalPricePerQuintalInr": 3480.0,
+      "priceTrend": "upward",
+      "dailyChangeInr": 80.0,
+      "reportedDate": "2026-10-23",
+      "sourceFeed": "agmarket_live_api"
+    },
+    {
+      "id": "m3c4d5e6-7f8a-9b0c-1d2e-3f4a5b6c7d8e",
+      "commodity": "Basmati Rice",
+      "variety": "1121 Raw Paddy",
+      "state": "Haryana",
+      "district": "Karnal",
+      "marketName": "Karnal Mandi",
+      "arrivalQuantityTons": 2150.0,
+      "minPricePerQuintalInr": 4150.0,
+      "maxPricePerQuintalInr": 4580.0,
+      "modalPricePerQuintalInr": 4420.0,
+      "priceTrend": "upward",
+      "dailyChangeInr": 110.0,
+      "reportedDate": "2026-10-23",
+      "sourceFeed": "agmarket_live_api"
+    },
+    {
+      "id": "m4d5e6f7-8a9b-0c1d-2e3f-4a5b6c7d8e9f",
+      "commodity": "Soybean",
+      "variety": "Yellow Standard",
+      "state": "Maharashtra",
+      "district": "Latur",
+      "marketName": "Latur Mandi",
+      "arrivalQuantityTons": 3800.0,
+      "minPricePerQuintalInr": 4400.0,
+      "maxPricePerQuintalInr": 4820.0,
+      "modalPricePerQuintalInr": 4690.0,
+      "priceTrend": "neutral",
+      "dailyChangeInr": -15.0,
+      "reportedDate": "2026-10-23",
+      "sourceFeed": "agmarket_live_api"
+    }
+  ],
+  "marketComparisons": [
+    {
+      "id": "mc1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c",
+      "commodity": "Wheat (HD-3086)",
+      "variety": "Pusa Gautami Milling",
+      "baseOriginMarketName": "Local Farm Gate (Khanna Rural)",
+      "baseModalPricePerQuintalInr": 2390.0,
+      "comparisonDate": "2026-10-23",
+      "opportunities": [
+        {
+          "marketName": "Khanna Mandi APMC",
+          "state": "Punjab",
+          "distanceKm": 16.5,
+          "modalPricePerQuintalInr": 2580.0,
+          "grossSpreadPerQuintalInr": 190.0,
+          "estimatedFreightPerQuintalInr": 28.0,
+          "mandiFeePerQuintalInr": 18.0,
+          "netArbitrageProfitPerQuintalInr": 144.0,
+          "transitTimeHours": 0.8,
+          "recommendation": "transport_arbitrage_profitable"
+        },
+        {
+          "marketName": "Rajpura Terminal Mandi",
+          "state": "Punjab",
+          "distanceKm": 48.0,
+          "modalPricePerQuintalInr": 2640.0,
+          "grossSpreadPerQuintalInr": 250.0,
+          "estimatedFreightPerQuintalInr": 62.0,
+          "mandiFeePerQuintalInr": 22.0,
+          "netArbitrageProfitPerQuintalInr": 166.0,
+          "transitTimeHours": 1.6,
+          "recommendation": "transport_arbitrage_profitable"
+        },
+        {
+          "marketName": "Sirhind Local Sub-Yard",
+          "state": "Punjab",
+          "distanceKm": 12.0,
+          "modalPricePerQuintalInr": 2430.0,
+          "grossSpreadPerQuintalInr": 40.0,
+          "estimatedFreightPerQuintalInr": 22.0,
+          "mandiFeePerQuintalInr": 16.0,
+          "netArbitrageProfitPerQuintalInr": 2.0,
+          "transitTimeHours": 0.5,
+          "recommendation": "sell_locally"
+        }
+      ],
+      "optimalDecision": {
+        "suggestedMarket": "Rajpura Terminal Mandi",
+        "expectedNetProfitDeltaInr": 166.0,
+        "confidenceScore": 0.91,
+        "rationale": "Strong demand from flour mills in Patiala-Rajpura industrial belt creating a +₹250 gross spread that easily absorbs the ₹62/quintal freight cost."
+      }
+    }
+  ]
+}

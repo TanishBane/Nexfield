@@ -1,0 +1,58 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'data/fixtures/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'data/fixtures/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  verify-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type Check Contracts Package
+        run: pnpm --filter @nexfield/contracts type-check
+
+      - name: Type Check UI Package
+        run: pnpm --filter @nexfield/ui type-check
+
+      - name: Type Check Next.js Application
+        run: pnpm --filter web type-check
+
+      - name: Lint Next.js Application
+        run: pnpm --filter web lint
+
+      - name: Build Next.js Application
+        run: pnpm --filter web build
+        env:
+          NEXT_PUBLIC_USE_FIXTURES: 'true'

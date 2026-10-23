@@ -1,0 +1,45 @@
+name: Backend CI (Scaffolding for Developer B)
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'services/api/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'services/api/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: services/api
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Verify Backend Scaffolding
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            if [ -d tests ]; then
+              pytest -v --maxfail=5
+            else
+              echo "Backend tests directory not yet populated by Developer B. Skipping pytest execution."
+            fi
+          else
+            echo "services/api/requirements.txt not yet committed by Developer B. Scaffolding verified."
+          fi
