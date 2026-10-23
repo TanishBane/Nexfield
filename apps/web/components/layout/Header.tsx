@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Menu,
   ChevronDown,
@@ -10,14 +11,51 @@ import {
   Activity,
   Layers,
   MapPin,
+  User as UserIcon,
+  LogOut,
+  LogIn,
 } from 'lucide-react';
 import { Button, StatusIndicator, cn } from '@nexfield/ui';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { NAVIGATION_ITEMS } from './Sidebar';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { toggleSidebar, selectedFarmId, setSelectedFarmId } = useFarmStore();
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (data.user?.email) {
+          setUserEmail(data.user.email);
+        }
+      });
+
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUserEmail(session?.user?.email || null);
+      });
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    } else {
+      setUserEmail('demo@nexfield.ag');
+    }
+  }, []);
+
+  const handleSignOut = async () => {
+    if (isSupabaseConfigured()) {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    }
+    setUserEmail(null);
+    router.push('/login');
+    router.refresh();
+  };
 
   const currentModule =
     NAVIGATION_ITEMS.find((item) => pathname.startsWith(item.href)) || NAVIGATION_ITEMS[0];
@@ -50,7 +88,7 @@ export function Header() {
       </div>
 
       {/* Center / Right: Farm Selector & Telemetry HUD Bar */}
-      <div className="flex items-center gap-2 md:gap-4">
+      <div className="flex items-center gap-2 md:gap-3">
         {/* Farm Switcher */}
         <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
           <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
@@ -69,14 +107,14 @@ export function Header() {
         </div>
 
         {/* Ambient Telemetry Chips (Constant Width / No Wrapping) */}
-        <div className="hidden lg:flex items-center gap-3 text-xs text-[#8BA093] font-mono tabular-nums">
+        <div className="hidden xl:flex items-center gap-2 text-xs text-[#8BA093] font-mono tabular-nums">
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <CloudSun className="h-3.5 w-3.5 text-amber-400" />
             <span>27.8°C</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <Droplets className="h-3.5 w-3.5 text-sky-400" />
-            <span>41.4% Moist</span>
+            <span>41.4%</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
             <Activity className="h-3.5 w-3.5 text-emerald-400" />
@@ -87,10 +125,46 @@ export function Header() {
         {/* Development Fixture Mode Indicator */}
         <StatusIndicator
           status="fixture"
-          label="Development Fixtures"
+          label="Fixtures"
           pulse={false}
           className="hidden sm:inline-flex"
         />
+
+        {/* User Profile / Auth Action */}
+        <div className="flex items-center gap-2 pl-1 border-l border-[#1D2B23]">
+          {userEmail ? (
+            <div className="flex items-center gap-1.5">
+              <div
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#121B16] border border-[#1F2F24] text-xs text-[#BDD1C5]"
+                title={`Signed in as ${userEmail}`}
+              >
+                <UserIcon className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                <span className="hidden md:inline-block max-w-[120px] truncate">{userEmail}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="h-7 w-7 text-[#768F81] hover:text-red-400 hover:bg-red-950/30"
+                title="Sign Out"
+                aria-label="Sign Out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs border-emerald-700/50 text-emerald-400 hover:bg-emerald-950/40"
+              >
+                <LogIn className="h-3.5 w-3.5 mr-1" />
+                Sign In
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

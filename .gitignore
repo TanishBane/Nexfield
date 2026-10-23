@@ -21,6 +21,9 @@ dist/
 .env.test.local
 .env.production.local
 !.env.example
+!apps/web/.env.example
+!services/api/.env.example
+.vercel/
 
 # Python & Virtualenv
 __pycache__/
