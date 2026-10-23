@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   TrendingUp,
@@ -59,26 +59,28 @@ export default function MarketsPage() {
     queryFn: () => apiClient.getMarketComparison(),
   });
 
+
+  const prices = useMemo(() => pricesQuery.data?.data || [], [pricesQuery.data?.data]);
+  const comparison = comparisonQuery.data?.data;
+  // Filter prices by search query
+  const filteredPrices = useMemo(() => {
+    return prices.filter((m) => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        m.marketName.toLowerCase().includes(query) ||
+        m.district.toLowerCase().includes(query) ||
+        m.state.toLowerCase().includes(query) ||
+        m.commodity.toLowerCase().includes(query)
+      );
+    });
+  }, [prices, searchQuery]);
+
+  const currentObservation = activeObservation || filteredPrices[0] || prices[0];
+
   if (pricesQuery.isLoading || comparisonQuery.isLoading) {
     return <ModuleLoadingState message="Aggregating APMC Mandi price bulletins and calculating freight margins..." />;
   }
-
-  const prices = pricesQuery.data?.data || [];
-  const comparison = comparisonQuery.data?.data;
-
-  // Filter prices by search query
-  const filteredPrices = prices.filter((m) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      m.marketName.toLowerCase().includes(query) ||
-      m.district.toLowerCase().includes(query) ||
-      m.state.toLowerCase().includes(query) ||
-      m.commodity.toLowerCase().includes(query)
-    );
-  });
-
-  const currentObservation = activeObservation || filteredPrices[0] || prices[0];
 
   return (
     <div className="space-y-6">
