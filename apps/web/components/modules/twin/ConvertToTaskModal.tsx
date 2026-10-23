@@ -60,7 +60,7 @@ export function ConvertToTaskModal({ isOpen, onClose }: ConvertToTaskModalProps)
               Convert Simulation to Farm Task
             </h3>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-[#8BA193]">
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-[#8BA193]" aria-label="Close modal">
             <X className="h-4 w-4" />
           </Button>
         </div>
