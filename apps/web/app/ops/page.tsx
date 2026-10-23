@@ -158,7 +158,7 @@ export default function OpsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Active Work Orders"
-          value={tasks.filter((t) => t.status !== 'completed').length}
+          value={tasks.reduce((count, t) => t.status !== 'completed' ? count + 1 : count, 0)}
           unit="Tasks"
           subValue="1 Urgent, 1 Medium Priority"
           trend="neutral"
