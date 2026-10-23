@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Sprout,
@@ -55,6 +55,25 @@ export default function ControlPage() {
     },
   });
 
+
+  const overview = data?.data;
+
+  // Filter cycles
+  const filteredCycles = useMemo(() => {
+    if (!overview?.activeCycles) return [];
+    return overview.activeCycles.filter((c: any) => {
+      if (activeFieldFilter && c.fieldId !== activeFieldFilter) return false;
+      if (activeSeasonFilter && c.season !== activeSeasonFilter) return false;
+      return true;
+    });
+  }, [overview?.activeCycles, activeFieldFilter, activeSeasonFilter]);
+
+  // Filter alerts
+  const visibleAlerts = useMemo(() => {
+    if (!overview?.activeAlerts) return [];
+    return overview.activeAlerts.filter((a: any) => !dismissedAlertIds.includes(a.id));
+  }, [overview?.activeAlerts, dismissedAlertIds]);
+
   if (isLoading) {
     return <ModuleLoadingState message="Connecting to farm IoT gateway, soil sensors & satellite feed..." />;
   }
@@ -96,30 +115,19 @@ export default function ControlPage() {
     );
   }
 
-  const overview = data.data;
+  // TypeScript narrowing after the early return
+  const validOverview = data.data;
   const {
     farm,
     weatherSummary,
     forecastDays,
     soilTelemetrySummary,
-    activeAlerts,
-    activeCycles,
     recentTasks,
     activityTimeline,
     inventorySummary,
     harvestSummary,
     relevantMandiPrices,
-  } = overview;
-
-  // Filter cycles
-  const filteredCycles = activeCycles.filter((c) => {
-    if (activeFieldFilter && c.fieldId !== activeFieldFilter) return false;
-    if (activeSeasonFilter && c.season !== activeSeasonFilter) return false;
-    return true;
-  });
-
-  // Filter alerts
-  const visibleAlerts = activeAlerts.filter((a) => !dismissedAlertIds.includes(a.id));
+  } = validOverview;
 
   const toggleTaskCompletion = (taskId: string) => {
     setCompletedTaskIds((prev) =>
