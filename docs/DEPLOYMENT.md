@@ -70,16 +70,24 @@ flowchart TB
 
 ## 3. Vercel Deployment Guide (Frontend)
 
-1. **Connect Repository:** Import `https://github.com/TanishBane/Nexfield` into Vercel Dashboard.
+- **Production Live URL:** [https://nexfield-agritech.vercel.app](https://nexfield-agritech.vercel.app)
+- **Vercel Project:** `nexfield-agritech`
+- **Root Directory:** `apps/web`
+
+1. **Connect Repository:** Import `https://github.com/TanishBane/Nexfield` into Vercel Dashboard or link via CLI (`vercel link --yes --project nexfield-agritech`).
 2. **Build & Development Settings:**
    - **Framework Preset:** `Next.js`
-   - **Root Directory:** Leave as `./` (monorepo root).
-   - **Build Command:** `pnpm --filter web build`
-   - **Output Directory:** `apps/web/.next`
+   - **Root Directory:** `apps/web` *(enables native Next.js detection while pnpm workspace resolves dependencies from monorepo packages)*
+   - **Build Command:** `pnpm --filter @nexfield/contracts build && pnpm --filter @nexfield/ui build && next build`
+   - **Output Directory:** Default (`.next`)
    - **Install Command:** `pnpm install`
+   - **Node.js Version:** `22.x`
 3. **Environment Variables:**
-   - Configure `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `NEXT_PUBLIC_USE_FIXTURES=false`.
-4. **Deploy:** Click **Deploy**. Vercel will build the Next.js App Router application and distribute it across its global Edge Network.
+   - `NEXT_PUBLIC_APP_NAME="NEXFIELD"`
+   - `NEXT_PUBLIC_APP_ENV="production"`
+   - `NEXT_PUBLIC_USE_FIXTURES="true"` *(enables domain-accurate synthetic agronomic fallback when offline or independent of local backend)*
+   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` *(optional, for cloud auth)*
+4. **Deploy:** Click **Deploy** or run `vercel deploy --prod`. Vercel builds the Next.js App Router application and distributes it globally.
 
 ---
 

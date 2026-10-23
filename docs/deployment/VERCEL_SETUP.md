@@ -69,15 +69,13 @@ For authentication callbacks (email confirmations, OAuth, and magic links) to fu
 
 1. Navigate to **Supabase Dashboard > Authentication > URL Configuration**.
 2. **Site URL:**
-   Set to the production Vercel domain:
-   ```
-   https://nexfield.vercel.app
-   ```
+   Set to our verified production Vercel domain: `https://nexfield-agritech.vercel.app`.
+   *(Note: `nexfield.vercel.app` is an unrelated third-party gaming domain and must never be used).*
 3. **Redirect URLs:**
    Add the following patterns to allow local and preview environments:
    ```
    http://localhost:3000/**
-   https://nexfield.vercel.app/**
+   https://*.vercel.app/**
    https://*-tanishbane.vercel.app/**
    ```
    *(The wildcard pattern matches unique pull-request preview branches automatically created by Vercel).*
@@ -86,8 +84,8 @@ For authentication callbacks (email confirmations, OAuth, and magic links) to fu
 
 ## 5. Automated CI/CD Workflow with GitHub
 
-- **Production Deployment:** Any merge to the `main` branch automatically builds and deploys to the production URL (`https://nexfield.vercel.app`).
-- **Pull Request Previews:** Any pull request branch (e.g. `chore/tanish-cloud-infrastructure` or feature branches) generates an ephemeral preview deployment with a distinct URL.
+- **Production Deployment:** Any merge to the `main` branch automatically builds and deploys to your assigned production URL.
+- **Pull Request Previews:** Any pull request branch (e.g. `feature/tanish-frontend` or documentation branches) generates an ephemeral preview deployment with a distinct URL.
 - **Vercel Checks:** Deployment status appears as an automatic commit check directly on GitHub pull requests.
 
 ---

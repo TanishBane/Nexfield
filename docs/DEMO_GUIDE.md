@@ -4,7 +4,8 @@
 **Hackathon:** ADAPPT 5.0 — Round 2 — Domain 2: AI in Food Technology  
 **Version:** 2.4.0  
 **Target Audience:** Hackathon Judges, Agricultural Evaluators, and Prospective Users  
-**Live Demo Route:** `/demo/control`
+**Live Cloud Demo:** [https://nexfield-agritech.vercel.app/demo/control](https://nexfield-agritech.vercel.app/demo/control)  
+**Local Route:** `http://localhost:3000/demo/control`
 
 ---
 
@@ -39,7 +40,7 @@ flowchart LR
 ```
 
 ### Step 1: Farm Command Center (`/demo/control`)
-1. **Navigate to:** `http://localhost:3000/demo/control` (or click **Explore Live Demo** from the landing page).
+1. **Navigate to:** [https://nexfield-agritech.vercel.app/demo/control](https://nexfield-agritech.vercel.app/demo/control) (or `http://localhost:3000/demo/control` locally, or click **Explore Live Demo** from the landing page).
 2. **Observe:**
    - **Telemetry HUD:** Air temperature ($28.4^\circ\text{C}$), relative humidity ($64\%$), rootzone soil VWC ($24.2\%$), and VPD ($1.42\text{ kPa}$).
    - **Crop Health Index:** $88 / 100$ overall composite health.
