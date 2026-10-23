@@ -10,7 +10,7 @@ if (!fs.existsSync(OUT_DIR)) {
 const EDGE_PATH = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
 
 async function capture() {
-  console.log('Launching browser...');
+  console.log('Launching Edge Chromium...');
   const browser = await chromium.launch({
     executablePath: EDGE_PATH,
     headless: true,
@@ -27,71 +27,131 @@ async function capture() {
   // Helper function to safely navigate and wait
   async function loadPage(url, waitMs = 2500) {
     console.log(`Navigating to ${url}...`);
-    await page.goto(url, { waitUntil: 'load', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'load', timeout: 35000 });
     await page.waitForTimeout(waitMs);
   }
 
-  // 1. Command Center
+  // 1. Landing Page
+  await loadPage('http://localhost:3000/', 2500);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'landing-page.png'),
+    fullPage: false,
+  });
+  console.log('Saved landing-page.png');
+
+  // 2. Command Center
   await loadPage('http://localhost:3000/control', 3000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'command-center.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '01-command-center.png'),
     fullPage: false,
   });
-  console.log('Saved 01-command-center.png');
+  console.log('Saved command-center.png');
 
-  // 2. FieldSight AI
+  // 3. FieldSight AI
   await loadPage('http://localhost:3000/fieldsight', 2500);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'fieldsight-ai.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '02-fieldsight-ai.png'),
     fullPage: false,
   });
-  console.log('Saved 02-fieldsight-ai.png');
+  console.log('Saved fieldsight-ai.png');
 
-  // 3. NEXFIELD Twin (3D WebGL)
-  await loadPage('http://localhost:3000/twin', 4000); // Allow WebGL canvas to finish initial frame
+  // 4. Digital Twin (3D WebGL)
+  await loadPage('http://localhost:3000/twin', 4000); // Allow Three.js canvas to render
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'digital-twin.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '03-nexfield-twin.png'),
     fullPage: false,
   });
-  console.log('Saved 03-nexfield-twin.png');
+  console.log('Saved digital-twin.png');
 
-  // 4. Intelligence Copilot
+  // 5. Intelligence Copilot
   await loadPage('http://localhost:3000/intelligence', 2000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'intelligence.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '04-intelligence.png'),
     fullPage: false,
   });
-  console.log('Saved 04-intelligence.png');
+  console.log('Saved intelligence.png');
 
-  // 5. Operations Ledger
+  // 6. Operations Ledger
   await loadPage('http://localhost:3000/ops', 2000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'operations.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '05-operations.png'),
     fullPage: false,
   });
-  console.log('Saved 05-operations.png');
+  console.log('Saved operations.png');
 
-  // 6. Mandi Markets
+  // 7. Mandi Markets
   await loadPage('http://localhost:3000/markets', 2500);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'markets.png'),
+    fullPage: false,
+  });
   await page.screenshot({
     path: path.join(OUT_DIR, '06-markets.png'),
     fullPage: false,
   });
-  console.log('Saved 06-markets.png');
+  console.log('Saved markets.png');
 
-  // 7. Twin Simulation Comparison (Scrolled to scenario comparison)
+  // 8. Authentication (/login)
+  await loadPage('http://localhost:3000/login', 2000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'authentication.png'),
+    fullPage: false,
+  });
+  console.log('Saved authentication.png');
+
+  // 9. Onboarding (/onboarding)
+  await loadPage('http://localhost:3000/onboarding', 2000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'onboarding.png'),
+    fullPage: false,
+  });
+  console.log('Saved onboarding.png');
+
+  // 10. Data Center (/data-center)
+  await loadPage('http://localhost:3000/data-center', 2000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'data-center.png'),
+    fullPage: false,
+  });
+  console.log('Saved data-center.png');
+
+  // 11. Twin Simulation Comparison (scrolled)
   await loadPage('http://localhost:3000/twin', 3500);
   await page.evaluate(() => {
     window.scrollBy(0, 520);
   });
   await page.waitForTimeout(1000);
   await page.screenshot({
+    path: path.join(OUT_DIR, 'twin-simulation.png'),
+    fullPage: false,
+  });
+  await page.screenshot({
     path: path.join(OUT_DIR, '07-twin-simulation-comparison.png'),
     fullPage: false,
   });
-  console.log('Saved 07-twin-simulation-comparison.png');
+  console.log('Saved twin-simulation.png');
 
-  // 8. Crop Assessment Result (Scrolled to diagnosis and remediation)
+  // Also capture Crop Assessment Result & Market Price Analysis for legacy references
   await loadPage('http://localhost:3000/fieldsight', 2000);
   await page.evaluate(() => {
     window.scrollBy(0, 380);
@@ -101,9 +161,7 @@ async function capture() {
     path: path.join(OUT_DIR, '08-crop-assessment-result.png'),
     fullPage: false,
   });
-  console.log('Saved 08-crop-assessment-result.png');
 
-  // 9. Market Price Analysis (Scrolled to trend and transport calculator)
   await loadPage('http://localhost:3000/markets', 2500);
   await page.evaluate(() => {
     window.scrollBy(0, 480);
@@ -113,11 +171,18 @@ async function capture() {
     path: path.join(OUT_DIR, '09-market-price-analysis.png'),
     fullPage: false,
   });
-  console.log('Saved 09-market-price-analysis.png');
+
+  // 12. Demo Mode (/demo/control)
+  await loadPage('http://localhost:3000/demo/control', 3000);
+  await page.screenshot({
+    path: path.join(OUT_DIR, 'demo-mode.png'),
+    fullPage: false,
+  });
+  console.log('Saved demo-mode.png');
 
   await desktopContext.close();
 
-  // 10. Mobile Responsive Context (iPhone 14 / 390x844)
+  // 13. Mobile Responsive Viewport (iPhone 14 / 390x844)
   console.log('Capturing mobile responsive viewport...');
   const mobileContext = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -128,18 +193,22 @@ async function capture() {
   const mobilePage = await mobileContext.newPage();
   await mobilePage.goto('http://localhost:3000/control', {
     waitUntil: 'load',
-    timeout: 30000,
+    timeout: 35000,
   });
   await mobilePage.waitForTimeout(2500);
+  await mobilePage.screenshot({
+    path: path.join(OUT_DIR, 'mobile.png'),
+    fullPage: false,
+  });
   await mobilePage.screenshot({
     path: path.join(OUT_DIR, '10-mobile-responsive.png'),
     fullPage: false,
   });
-  console.log('Saved 10-mobile-responsive.png');
+  console.log('Saved mobile.png');
 
   await mobileContext.close();
   await browser.close();
-  console.log('All 10 authentic screenshots successfully captured and saved to docs/assets/screenshots/');
+  console.log('All 13 authentic screenshots successfully captured and saved to docs/assets/screenshots/');
 }
 
 capture().catch((err) => {
