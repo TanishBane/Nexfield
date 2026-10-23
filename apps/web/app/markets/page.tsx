@@ -17,6 +17,8 @@ import {
   Search,
   CheckCircle,
   RefreshCw,
+  ShieldCheck,
+  Scale,
 } from 'lucide-react';
 import {
   Card,
@@ -263,6 +265,133 @@ export default function MarketsPage() {
           />
         </div>
       ) : null}
+
+      {/* Official CACP Minimum Support Price (MSP) Matrix */}
+      <Card className="border-[#273B2F] bg-[#101713]">
+        <CardHeader className="pb-3 border-b border-[#1C2921]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2 text-[#F1F6F3]">
+                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                CACP Official Minimum Support Price (MSP) Reference Matrix
+              </CardTitle>
+              <CardDescription>
+                Authoritative statutory floor prices established by the Commission for Agricultural Costs and Prices (CACP) and approved by CCEA.
+              </CardDescription>
+            </div>
+            <Badge variant="outline" size="sm" className="font-mono text-[11px] border-emerald-800 text-emerald-400">
+              Government Gazette Benchmarks
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-[#1E2E25] text-[#71897C] uppercase font-mono text-[10px]">
+                <tr>
+                  <th className="pb-2.5">Commodity & Variety</th>
+                  <th className="pb-2.5">Season & Year</th>
+                  <th className="pb-2.5">Statutory MSP</th>
+                  <th className="pb-2.5">Cost A2+FL</th>
+                  <th className="pb-2.5">Margin Over Cost</th>
+                  <th className="pb-2.5">Procurement Agency</th>
+                  <th className="pb-2.5">Statutory Regime</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#18261F] text-[#D8E6DE] font-mono">
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Wheat (Standard / Milling)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">RMS 2026-27</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹2,585 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹1,260 / q</td>
+                  <td className="py-2.5 text-emerald-400">+105.2%</td>
+                  <td className="py-2.5 font-sans text-xs">Food Corporation of India (FCI)</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Approved by CCEA</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Wheat (Standard / Milling)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">RMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-[#D8E6DE]">₹2,275 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹1,128 / q</td>
+                  <td className="py-2.5 text-emerald-400">+101.7%</td>
+                  <td className="py-2.5 font-sans text-xs">Food Corporation of India (FCI)</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Historical Benchmark</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Paddy (Common)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">KMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹2,300 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹1,438 / q</td>
+                  <td className="py-2.5 text-emerald-400">+60.0%</td>
+                  <td className="py-2.5 font-sans text-xs">FCI / State Civil Supplies</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Kharif Floor</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Paddy (Grade A)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">KMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹2,320 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹1,438 / q</td>
+                  <td className="py-2.5 text-emerald-400">+61.3%</td>
+                  <td className="py-2.5 font-sans text-xs">FCI / State Civil Supplies</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Kharif Floor</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Gram / Chana
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">RMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹5,440 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹3,400 / q</td>
+                  <td className="py-2.5 text-emerald-400">+60.0%</td>
+                  <td className="py-2.5 font-sans text-xs">NAFED (PSS)</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Rabi Floor</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Mustard / Rapeseed
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">RMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹5,650 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹2,855 / q</td>
+                  <td className="py-2.5 text-emerald-400">+97.9%</td>
+                  <td className="py-2.5 font-sans text-xs">NAFED</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Rabi Floor</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
+                    Soybean (Yellow)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">KMS 2024-25</td>
+                  <td className="py-2.5 font-bold text-emerald-300">₹4,892 / q</td>
+                  <td className="py-2.5 text-[#8CA394]">₹3,261 / q</td>
+                  <td className="py-2.5 text-emerald-400">+50.0%</td>
+                  <td className="py-2.5 font-sans text-xs">NAFED / State Agencies</td>
+                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Kharif Floor</td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 font-sans font-semibold text-amber-300">
+                    Tomato (Horticulture)
+                  </td>
+                  <td className="py-2.5 text-[#8CA394]">Continuous</td>
+                  <td className="py-2.5 font-sans text-xs text-amber-400">Non-MSP Produce</td>
+                  <td className="py-2.5 text-[#8CA394]">—</td>
+                  <td className="py-2.5 text-[#8CA394]">—</td>
+                  <td className="py-2.5 font-sans text-xs">Operation Greens / TOP Buffer</td>
+                  <td className="py-2.5 font-sans text-[11px] text-amber-300/80">Market Intervention Scheme (MIS)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Detailed APMC Mandi Commodity Arrival & Price Table */}
       <Card>

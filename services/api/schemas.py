@@ -522,7 +522,7 @@ class IntelligenceChatRequest(ContractModel):
     farm_id: UUID
     field_id: UUID | None = None
     user_query: Annotated[StrictStr, Field(min_length=1, max_length=4000)]
-    conversation_history: list[dict[str, StrictStr]] = Field(default_factory=list, max_length=50)
+    conversation_history: list[dict[str, Any]] = Field(default_factory=list, max_length=50)
 
 
 class MarketQuery(ContractModel):
