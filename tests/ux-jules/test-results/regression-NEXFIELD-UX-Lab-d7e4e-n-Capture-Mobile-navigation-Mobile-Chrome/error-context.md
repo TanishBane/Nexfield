@@ -1,0 +1,543 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: regression.spec.ts >> NEXFIELD UX Lab - Screenshots & Visual Regression >> Capture Mobile navigation
+- Location: regression.spec.ts:201:9
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /menu/i })
+    - locator resolved to <button aria-label="Open menu" class="md:hidden p-2 rounded-lg text-[#9BB1A4] hover:text-[#F0F5F2] hover:bg-[#16201B] transition-colors">…</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <kbd class="px-1 text-[10px] bg-[#16201B] rounded border border-[#273C30]">ESC</kbd> from <main class="w-full flex-1">…</main> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <kbd class="px-1 text-[10px] bg-[#16201B] rounded border border-[#273C30]">ESC</kbd> from <main class="w-full flex-1">…</main> subtree intercepts pointer events
+  2 × retrying click action
+      - waiting 100ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div role="region" aria-label="NEXFIELD Cinematic Welcome" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#090D0B] text-[#FAF8F2] transition-opacity duration-500 select-none opacity-100">…</div> from <main class="w-full flex-1">…</main> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <kbd class="px-1 text-[10px] bg-[#16201B] rounded border border-[#273C30]">ESC</kbd> from <main class="w-full flex-1">…</main> subtree intercepts pointer events
+  49 × retrying click action
+       - waiting 500ms
+       - waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <a href="/demo" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-500 text-[#090D0B] hover:bg-emerald-400 transition-all shadow-sm shadow-emerald-500/20 active:scale-95">…</a> intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "NEXFIELD Official Logo NEXFIELD OS Agricultural Intelligence NEXFIELD OS Agricultural Intelligence" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e6]:
+            - img "NEXFIELD Official Logo" [ref=e8]
+            - generic [ref=e9]:
+              - generic [ref=e10]:
+                - generic [ref=e11]: NEXFIELD
+                - generic [ref=e12]: OS
+              - generic [ref=e13]: Agricultural Intelligence
+          - generic [ref=e14]:
+            - generic [ref=e15]:
+              - generic [ref=e16]: NEXFIELD
+              - generic [ref=e17]: OS
+            - generic [ref=e18]: Agricultural Intelligence
+        - generic [ref=e19]:
+          - link "Explore Demo" [ref=e20] [cursor=pointer]:
+            - /url: /demo
+          - button "Open menu" [ref=e24] [cursor=pointer]
+    - main [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: "ADAPPT 5.0 · Domain 2: AI in Food Technology"
+            - heading "Understand the land. Shape what comes next." [level=1] [ref=e33]: Understand the land.Shape what comes next.
+            - paragraph [ref=e34]: Observe your fields, simulate possibilities, and make decisive agricultural decisions. NEXFIELD unifies biophysical soil sensors, foliar computer vision, 3D digital twins, and wholesale mandi arbitrage into one closed-loop operating system.
+            - paragraph [ref=e35]: Observe. Predict. Simulate. Optimize. Grow.
+            - generic [ref=e36]:
+              - link "Explore Guided Demo" [ref=e37] [cursor=pointer]:
+                - /url: /demo
+              - link "Launch Control HUD" [ref=e41] [cursor=pointer]:
+                - /url: /demo/control
+              - link "Discover the Platform" [ref=e45] [cursor=pointer]:
+                - /url: /platform
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e54]: Live Telemetry Stream
+                - generic [ref=e55]: ·
+                - generic [ref=e56]: Nashik Tomato Precision Estate (Field Sector 2-B)
+              - generic [ref=e57]: Sentinel-2 MSI & LoRa Probe Synced · Verified Fixtures
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - generic [ref=e60]: Soil Moisture
+                - generic [ref=e65]: 41.4%
+                - generic [ref=e66]: Optimal Root Zone
+              - generic [ref=e67]:
+                - generic [ref=e68]: Canopy NDVI
+                - generic [ref=e73]: "0.81"
+                - generic [ref=e74]: High Vegetative Vigour
+              - generic [ref=e75]:
+                - generic [ref=e76]: Foliar Temperature
+                - generic [ref=e84]: 26.8°C
+                - generic [ref=e85]: Transpiration Active
+              - generic [ref=e86]:
+                - generic [ref=e87]: Vadose Matrix Potential
+                - generic [ref=e91]: "-33 kPa"
+                - generic [ref=e92]: Capillary Infiltration
+              - generic [ref=e93]:
+                - generic [ref=e94]: Nashik APMC Price
+                - generic [ref=e99]: ₹2,450 / qtl
+                - generic [ref=e100]: +₹210 Spatial Spread
+              - generic [ref=e101]:
+                - generic [ref=e102]: Grain Silo Moisture
+                - generic [ref=e107]: 12.4%
+                - generic [ref=e108]: Safe Storage (<14%)
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - text: Chapter 2 · Observe
+            - heading "See What the Human Eye Misses" [level=2] [ref=e112]
+            - paragraph [ref=e113]: Pathogens establish fungal colonies days before necrosis is visible to the naked eye. FieldSight AI captures multi-spectral foliar images, generating class-activation heatmaps in 5.13ms.
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - generic [ref=e117]: FieldSight AI Foliar Studio
+                - 'button "Grad-CAM Heatmap: ON" [ref=e126] [cursor=pointer]'
+              - generic [ref=e127]:
+                - generic:
+                  - generic: Alternaria solani
+                  - generic: "Conf: 94.6%"
+            - generic [ref=e134]:
+              - generic [ref=e135]:
+                - text: Phytopathology Alert · Early Blight
+                - heading "Tomato Foliar Blight (Alternaria solani)" [level=3] [ref=e136]
+                - paragraph [ref=e137]: Concentric target-like necrotic rings detected on lower canopy of Sector 2-B. High humidity (>85% for 6h) promotes spore dispersal.
+              - generic [ref=e138]:
+                - generic [ref=e139]: "ICAR Recommended Chemical Rotation:"
+                - generic [ref=e140]:
+                  - generic [ref=e141]: Mancozeb 75 WP @ 2.5 g/L foliar spray with uniform coverage.
+                  - generic [ref=e146]: Alternate with Azoxystrobin 23 SC @ 1 ml/L after 10 days.
+              - link "Open Complete Inspection Studio" [ref=e151] [cursor=pointer]:
+                - /url: /demo/fieldsight
+        - generic [ref=e156]:
+          - generic [ref=e157]:
+            - text: Chapter 3 · Understand
+            - heading "From Raw Data to Biological Ground Truth" [level=2] [ref=e158]
+            - paragraph [ref=e159]: Data alone does not grow crops. NEXFIELD bridges the gap between sensor streams and agronomic action, replacing guesswork with deterministic biophysical certainty.
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - text: Chapter 3 · Understand
+                - heading "Conventional Practice vs. Living Earth Intelligence" [level=3] [ref=e164]
+              - generic [ref=e165]:
+                - button "Side-by-Side" [ref=e166] [cursor=pointer]
+                - button "NEXFIELD" [ref=e167] [cursor=pointer]
+                - button "Conventional" [ref=e168] [cursor=pointer]
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e171]:
+                  - heading "Foliar Crop Protection" [level=4] [ref=e172]
+                  - generic [ref=e173]: 01 / 04
+                - generic [ref=e174]:
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Conventional Guesswork
+                    - paragraph [ref=e180]: Visual scouting 5–10 days after infection; broadcast blanket pesticide spray.
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: NEXFIELD Closed-Loop OS
+                    - paragraph [ref=e186]: 5.13ms edge computer vision with Grad-CAM localization & ICAR bio-remediation.
+              - generic [ref=e187]:
+                - generic [ref=e188]:
+                  - heading "Root-Zone Irrigation" [level=4] [ref=e189]
+                  - generic [ref=e190]: 02 / 04
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - generic [ref=e193]: Conventional Guesswork
+                    - paragraph [ref=e197]: Fixed calendar flood scheduling; up to 45% water lost to deep vadose percolation.
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: NEXFIELD Closed-Loop OS
+                    - paragraph [ref=e203]: FAO-56 Penman-Monteith biophysical vadose matrix potential sensing; 34% water conserved.
+              - generic [ref=e204]:
+                - generic [ref=e205]:
+                  - heading "Harvest Storage & Silo Quality" [level=4] [ref=e206]
+                  - generic [ref=e207]: 03 / 04
+                - generic [ref=e208]:
+                  - generic [ref=e209]:
+                    - generic [ref=e210]: Conventional Guesswork
+                    - paragraph [ref=e214]: Unmeasured silo humidity; post-harvest grain spoilage losses averaging 18%.
+                  - generic [ref=e215]:
+                    - generic [ref=e216]: NEXFIELD Closed-Loop OS
+                    - paragraph [ref=e220]: Equilibrium moisture monitoring (<14% critical threshold) & smart aeration triggers.
+              - generic [ref=e221]:
+                - generic [ref=e222]:
+                  - heading "Wholesale Mandi Realization" [level=4] [ref=e223]
+                  - generic [ref=e224]: 04 / 04
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - generic [ref=e227]: Conventional Guesswork
+                    - paragraph [ref=e231]: Selling at local gate with zero freight arbitrage awareness; high middleman cess.
+                  - generic [ref=e232]:
+                    - generic [ref=e233]: NEXFIELD Closed-Loop OS
+                    - paragraph [ref=e237]: Multi-APMC spatial price discovery with real-time freight deduction & MSP guarantee.
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - text: Chapter 4 · Simulate
+            - heading "Test Decisions Before Applying Them" [level=2] [ref=e241]
+            - paragraph [ref=e242]: Every irrigation cycle alters soil matrix potential and root respiration. Simulate heatwave stress, drought tolerance, and fertigation regimes in our 3D biophysical mesh.
+          - generic [ref=e243]:
+            - generic [ref=e244]:
+              - generic [ref=e245]:
+                - text: FAO-56 Vadose Zone Hydrology
+                - heading "Irrigation Regime Comparison" [level=3] [ref=e246]
+                - paragraph [ref=e247]: Switch between conventional scheduled flood irrigation and NEXFIELD precision drip fertigation to observe vadose matrix potential in real time.
+              - generic [ref=e248]:
+                - button "Regime A Conventional Flood Calendar-based flood" [ref=e249] [cursor=pointer]:
+                  - generic [ref=e250]: Regime A
+                  - generic [ref=e251]: Conventional Flood
+                  - generic [ref=e252]: Calendar-based flood
+                - button "Regime B Precision Drip Matrix potential -33 kPa" [ref=e253] [cursor=pointer]:
+                  - generic [ref=e254]: Regime B
+                  - generic [ref=e255]: Precision Drip
+                  - generic [ref=e256]: Matrix potential -33 kPa
+              - generic [ref=e257]:
+                - generic [ref=e258]:
+                  - text: "Water Consumed:"
+                  - generic [ref=e259]: 3,840 L / ha
+                  - text: 34% Water Conserved
+                - generic [ref=e260]:
+                  - text: "Root Matric Potential:"
+                  - generic [ref=e261]: "-33 kPa"
+                  - text: Optimal Field Capacity
+              - link "Launch Interactive 3D Digital Twin" [ref=e262] [cursor=pointer]:
+                - /url: /demo/twin
+            - generic [ref=e266]:
+              - generic [ref=e272]:
+                - heading "WebGL 3D Soil Strata Mesh" [level=4] [ref=e273]
+                - paragraph [ref=e274]: Campbell-Norman soil hydraulic conductivity modeling for clay-loam substrates.
+              - generic [ref=e275]: R3F Hardware Accelerated
+        - generic [ref=e279]:
+          - generic [ref=e280]:
+            - text: Chapter 5 · Act & Grow
+            - heading "Close the Loop with Precision Realization" [level=2] [ref=e281]
+            - paragraph [ref=e282]: Agronomic optimization is meaningless if market value is lost. Calculate real-time net realization across wholesale APMC mandis after freight, cess, and spoilage deductions.
+          - generic [ref=e283]:
+            - generic [ref=e284]:
+              - generic [ref=e285]:
+                - heading "Live Agmarknet Mandi Arbitrage Calculator" [level=3] [ref=e286]
+                - paragraph [ref=e287]: "Crop: Hybrid Tomato (Abhinav F1) · Baseline: Pimpalgaon APMC (₹2,240/qtl)"
+              - generic [ref=e288]:
+                - generic [ref=e289]: "Lot Volume:"
+                - generic [ref=e290]: 20 Qtl
+                - slider [ref=e291]: "20"
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - generic [ref=e294]:
+                  - generic [ref=e295]: Nashik APMC
+                  - generic [ref=e296]: Optimal Market
+                - generic [ref=e297]:
+                  - generic [ref=e298]: Modal Price
+                  - generic [ref=e299]: ₹2,450 / qtl
+                - generic [ref=e300]:
+                  - generic [ref=e301]:
+                    - generic [ref=e302]: "Freight (14 km):"
+                    - generic [ref=e303]: ₹45 / qtl
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: "Net Lot Realization:"
+                    - generic [ref=e306]: ₹47,360
+              - generic [ref=e307]:
+                - generic [ref=e308]:
+                  - generic [ref=e309]: Pimpalgaon APMC
+                  - generic [ref=e310]: Local Yard
+                - generic [ref=e311]:
+                  - generic [ref=e312]: Modal Price
+                  - generic [ref=e313]: ₹2,240 / qtl
+                - generic [ref=e314]:
+                  - generic [ref=e315]:
+                    - generic [ref=e316]: "Freight (6 km):"
+                    - generic [ref=e317]: ₹25 / qtl
+                  - generic [ref=e318]:
+                    - generic [ref=e319]: "Net Lot Realization:"
+                    - generic [ref=e320]: ₹43,640
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e323]: Vashi APMC (Mumbai)
+                  - generic [ref=e324]: Terminal Hub
+                - generic [ref=e325]:
+                  - generic [ref=e326]: Modal Price
+                  - generic [ref=e327]: ₹2,820 / qtl
+                - generic [ref=e328]:
+                  - generic [ref=e329]:
+                    - generic [ref=e330]: "Freight (168 km):"
+                    - generic [ref=e331]: ₹240 / qtl
+                  - generic [ref=e332]:
+                    - generic [ref=e333]: "Net Lot Realization:"
+                    - generic [ref=e334]: ₹50,760
+          - generic [ref=e335]:
+            - generic [ref=e336]:
+              - text: ADAPPT 5.0 Demonstration Hub
+              - heading "Experience Living Earth Intelligence" [level=3] [ref=e337]
+              - paragraph [ref=e338]: Take an interactive 8-step guided walkthrough across our pre-calibrated Nashik Tomato Precision Estate or launch your own farm workspace.
+            - generic [ref=e339]:
+              - link "Start Guided Demo Walkthrough" [ref=e340] [cursor=pointer]:
+                - /url: /demo
+              - link "Direct Command HUD" [ref=e344] [cursor=pointer]:
+                - /url: /demo/control
+    - contentinfo [ref=e348]:
+      - generic [ref=e349]:
+        - generic [ref=e350]:
+          - generic [ref=e351]:
+            - link "NEXFIELD Official Logo NEXFIELD OS Agricultural Intelligence NEXFIELD Agricultural Intelligence Operating System" [ref=e352] [cursor=pointer]:
+              - /url: /
+              - generic [ref=e353]:
+                - img "NEXFIELD Official Logo" [ref=e355]
+                - generic [ref=e356]:
+                  - generic [ref=e357]:
+                    - generic [ref=e358]: NEXFIELD
+                    - generic [ref=e359]: OS
+                  - generic [ref=e360]: Agricultural Intelligence
+              - generic [ref=e361]:
+                - generic [ref=e362]: NEXFIELD
+                - generic [ref=e363]: Agricultural Intelligence Operating System
+            - paragraph [ref=e364]: Understand the land. Shape what comes next. Unifying biophysical sensors, foliar pathology, first-principles 3D digital twins, operational ledgers, and Mandi arbitrage into one closed-loop platform.
+            - generic [ref=e365]: "ADAPPT 5.0 · Domain 2: AI in Food Technology"
+          - generic [ref=e368]:
+            - heading "Platform Modules" [level=4] [ref=e369]
+            - list [ref=e370]:
+              - listitem [ref=e371]:
+                - link "Command Center" [ref=e372] [cursor=pointer]:
+                  - /url: /platform/control
+              - listitem [ref=e373]:
+                - link "FieldSight AI" [ref=e374] [cursor=pointer]:
+                  - /url: /platform/fieldsight
+              - listitem [ref=e375]:
+                - link "Digital Twin 3D" [ref=e376] [cursor=pointer]:
+                  - /url: /platform/twin
+              - listitem [ref=e377]:
+                - link "Agronomic Copilot" [ref=e378] [cursor=pointer]:
+                  - /url: /platform/intelligence
+              - listitem [ref=e379]:
+                - link "Farm Operations" [ref=e380] [cursor=pointer]:
+                  - /url: /platform/operations
+              - listitem [ref=e381]:
+                - link "Mandi Markets" [ref=e382] [cursor=pointer]:
+                  - /url: /platform/markets
+          - generic [ref=e383]:
+            - heading "Experience" [level=4] [ref=e384]
+            - list [ref=e385]:
+              - listitem [ref=e386]:
+                - link "Guided Demo Tour" [ref=e387] [cursor=pointer]:
+                  - /url: /demo
+              - listitem [ref=e392]:
+                - link "How It Works" [ref=e393] [cursor=pointer]:
+                  - /url: /how-it-works
+              - listitem [ref=e394]:
+                - link "Agronomic Solutions" [ref=e395] [cursor=pointer]:
+                  - /url: /solutions
+              - listitem [ref=e396]:
+                - link "About & Mission" [ref=e397] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e398]:
+                - link "Farmer Sign In" [ref=e399] [cursor=pointer]:
+                  - /url: /login
+          - generic [ref=e400]:
+            - heading "Open Technology" [level=4] [ref=e401]
+            - list [ref=e402]:
+              - listitem [ref=e403]:
+                - link "GitHub Repository" [ref=e404] [cursor=pointer]:
+                  - /url: https://github.com/TanishBane/Nexfield
+              - listitem [ref=e408]:
+                - link "MIT Open Source License" [ref=e409] [cursor=pointer]:
+                  - /url: https://github.com/TanishBane/Nexfield/blob/main/LICENSE
+              - listitem [ref=e410]:
+                - link "Production Vercel Cloud" [ref=e411] [cursor=pointer]:
+                  - /url: https://nexfield-agritech.vercel.app
+              - listitem [ref=e412]: Maintained by Tanish Bane & Rohan Panchal
+        - generic [ref=e413]:
+          - generic [ref=e414]:
+            - generic [ref=e415]: © 2026 NEXFIELD
+            - generic [ref=e416]: ·
+            - generic [ref=e417]: The Agricultural Intelligence Operating System
+          - generic [ref=e418]: Built with Next.js 15, Three.js, GSAP & FastAPI
+  - button "Open Next.js Dev Tools" [ref=e425] [cursor=pointer]
+  - alert [ref=e429]
+```
+
+# Test source
+
+```ts
+  106 |     });
+  107 |   }
+  108 | });
+  109 |
+  110 | test.describe('NEXFIELD UX Lab - Group D: Text Readability', () => {
+  111 |     test('Check typography for essential interface elements', async ({ page }) => {
+  112 |         await page.goto('/demo/control');
+  113 |
+  114 |         // Wait for page to load
+  115 |         await page.waitForTimeout(1000);
+  116 |
+  117 |         // Let's do a basic Axe check for color contrast which covers text readability partly
+  118 |         try {
+  119 |             const accessibilityScanResults = await new AxeBuilder({ page })
+  120 |                 .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+  121 |                 .analyze();
+  122 |
+  123 |             // We just ensure we ran it. We can write the report later.
+  124 |             expect(accessibilityScanResults).toBeDefined();
+  125 |         } catch (e) {
+  126 |             console.log("Axe check failed or not fully available");
+  127 |         }
+  128 |     });
+  129 | });
+  130 |
+  131 | test.describe('NEXFIELD UX Lab - Group E: Navigation', () => {
+  132 |     test('Check mobile navigation', async ({ page }) => {
+  133 |         await page.setViewportSize({ width: 390, height: 844 });
+  134 |         await page.goto('/');
+  135 |
+  136 |         const menuBtn = page.getByRole('button', { name: /menu/i });
+  137 |         if (await menuBtn.isVisible()) {
+  138 |             await menuBtn.click();
+  139 |             const demoLink = page.getByRole('link', { name: /Launch Interactive Demo/i });
+  140 |             await expect(demoLink).toBeVisible();
+  141 |         }
+  142 |     });
+  143 |
+  144 |     test('Check Command Palette escape key behavior', async ({ page }) => {
+  145 |         await page.setViewportSize({ width: 1280, height: 800 });
+  146 |         await page.goto('/');
+  147 |
+  148 |         // Press Cmd+K or Ctrl+K
+  149 |         await page.keyboard.press('Control+K');
+  150 |         await page.waitForTimeout(500); // Wait for animation
+  151 |
+  152 |         // Press Escape
+  153 |         await page.keyboard.press('Escape');
+  154 |         // If there is a dialog, it should be closed. We check body doesn't have a specific class or just assume it succeeds
+  155 |         // We'll just verify the page is still interactive
+  156 |         const body = page.locator('body');
+  157 |         await expect(body).toBeVisible();
+  158 |     });
+  159 | });
+  160 |
+  161 | test.describe('NEXFIELD UX Lab - Group F: Demo Mode', () => {
+  162 |     test('Verify Demo Mode', async ({ page }) => {
+  163 |         await page.goto('/demo/control');
+  164 |
+  165 |         // Wait for data
+  166 |         await page.waitForTimeout(2000);
+  167 |
+  168 |         const indicator = page.getByText(/Synthetic Baseline Fixtures|Development Mode/i);
+  169 |         await expect(indicator.first()).toBeVisible();
+  170 |
+  171 |         const twinLink = page.getByRole('button', { name: /Launch Digital Twin/i });
+  172 |         if (await twinLink.isVisible()) {
+  173 |             // It's there
+  174 |         }
+  175 |     });
+  176 | });
+  177 |
+  178 | test.describe('NEXFIELD UX Lab - Group G: Responsive Footer', () => {
+  179 |     test('Verify responsive footer', async ({ page }) => {
+  180 |         await page.setViewportSize({ width: 390, height: 844 });
+  181 |         await page.goto('/');
+  182 |
+  183 |         const footer = page.locator('footer');
+  184 |         await expect(footer).toBeVisible();
+  185 |
+  186 |         const box = await footer.boundingBox();
+  187 |         if (box) {
+  188 |             expect(box.width).toBeLessThanOrEqual(390); // No horizontal overflow
+  189 |         }
+  190 |     });
+  191 | });
+  192 |
+  193 | test.describe('NEXFIELD UX Lab - Screenshots & Visual Regression', () => {
+  194 |     test('Capture Public navigation', async ({ page }) => {
+  195 |         await page.setViewportSize({ width: 1440, height: 900 });
+  196 |         await page.goto('/');
+  197 |         await page.waitForTimeout(1000);
+  198 |         await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'public_navigation.png') });
+  199 |     });
+  200 |
+  201 |     test('Capture Mobile navigation', async ({ page }) => {
+  202 |         await page.setViewportSize({ width: 390, height: 844 });
+  203 |         await page.goto('/');
+  204 |         const menuBtn = page.getByRole('button', { name: /menu/i });
+  205 |         if (await menuBtn.isVisible()) {
+> 206 |             await menuBtn.click();
+      |                           ^ Error: locator.click: Test timeout of 30000ms exceeded.
+  207 |             await page.waitForTimeout(500);
+  208 |             await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'mobile_navigation.png') });
+  209 |         }
+  210 |     });
+  211 |
+  212 |     test('Capture Farm dashboard', async ({ page }) => {
+  213 |         await page.setViewportSize({ width: 1440, height: 900 });
+  214 |         await page.goto('/demo/control');
+  215 |         await page.waitForTimeout(2000);
+  216 |         await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'farm_dashboard.png'), fullPage: true });
+  217 |     });
+  218 |
+  219 |     test('Capture Demo farm', async ({ page }) => {
+  220 |         await page.setViewportSize({ width: 1440, height: 900 });
+  221 |         await page.goto('/demo');
+  222 |         await page.waitForTimeout(1000);
+  223 |         await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'demo_farm.png') });
+  224 |     });
+  225 |
+  226 |     test('Capture Digital Twin entry', async ({ page }) => {
+  227 |         await page.setViewportSize({ width: 1440, height: 900 });
+  228 |         await page.goto('/demo/twin');
+  229 |         await page.waitForTimeout(2000);
+  230 |         await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'digital_twin_entry.png') });
+  231 |     });
+  232 |
+  233 |     test('Capture Public footer', async ({ page }) => {
+  234 |         await page.setViewportSize({ width: 1440, height: 900 });
+  235 |         await page.goto('/');
+  236 |         await page.locator('footer').scrollIntoViewIfNeeded();
+  237 |         await page.waitForTimeout(1000);
+  238 |         await page.screenshot({ path: path.join(SCREENSHOT_DIR, 'public_footer.png') });
+  239 |     });
+  240 | });
+  241 |
+```
