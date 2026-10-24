@@ -35,22 +35,13 @@ export function PublicNavbar() {
     <>
       <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-[#090D0B]/80 border-b border-[#1F2E25]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Logo Brand */}
-          <Link href="/" className="flex items-center gap-3 group">
+          {/* Logo Brand: Exactly One Logo Symbol & Wordmark */}
+          <Link
+            href="/"
+            className="inline-flex items-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 rounded-xl"
+            aria-label="NEXFIELD Home"
+          >
             <NexfieldLogo size="md" />
-            <div className="flex flex-col leading-tight">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold tracking-tight text-[#F0F5F2] group-hover:text-emerald-400 transition-colors text-base font-sans">
-                  NEXFIELD
-                </span>
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 font-mono">
-                  OS
-                </span>
-              </div>
-              <span className="text-[#63796E] font-medium tracking-wide uppercase text-[9px]">
-                Agricultural Intelligence
-              </span>
-            </div>
           </Link>
 
           {/* Desktop Navigation Links */}

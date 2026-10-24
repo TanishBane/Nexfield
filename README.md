@@ -11,7 +11,7 @@
 
 [![Frontend CI](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml)
 [![Backend CI](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml)
-[![Backend Tests](https://img.shields.io/badge/Pytest-78%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
+[![Backend Tests](https://img.shields.io/badge/Pytest-82%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
 [![System Smoke Suite](https://img.shields.io/badge/Smoke%20Suite-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-nexfield--agritech.vercel.app-000000?logo=vercel&logoColor=white)](https://nexfield-agritech.vercel.app)
@@ -156,48 +156,43 @@ flowchart TB
 
 ---
 
-## 4. NEXFIELD Experience 2.0 & Screenshot Showcase
+## 4. Product Experience & Design: The Clarity Update
 
 > [!NOTE]
-> All screenshots below are authentic high-resolution captures from the running NEXFIELD application (Next.js 15.5 App Router, React 19, Three.js WebGL, 21st.dev component architecture, Tailwind CSS). No mock graphics or fabricated Figma screenshots are used.
+> All screenshots below are authentic high-resolution captures from the running NEXFIELD application (Next.js 15.5 App Router, React 19, Three.js WebGL, 21st.dev component architecture, Tailwind CSS, Plus Jakarta Sans). No mock graphics or fabricated Figma screenshots are used.
 
-### 4.1 Project Earth 2.0: The Cinematic & Human-First SaaS Transformation
+### 4.1 The Clarity Architecture: Purpose-Driven Simplification
 
-Following evaluator critique of research-terminal density, NEXFIELD underwent a comprehensive second-generation user experience overhaul:
+The **Clarity Update** resolves interface density and cognitive overload by re-architecting the frontend around three distinct navigation layers, plain agricultural language, and an authentic **Wheat Gold & Deep Forest Green** visual identity:
 
-| UX Dimension | Previous Research Terminal | Project Earth 2.0 Experience |
+| Architectural Dimension | Previous Implementation | The Clarity Update Implementation |
 |---|---|---|
-| **First Impression** | Static dashboard cards loaded immediately without dramatic context. | **"The Land Awakens"** bespoke entrance sequence (<1.5s, ESC skip, golden bloom, session suppression). |
-| **Homepage Storytelling** | Generic feature grid. | **5 Scroll Narrative Chapters** (The Land, Observe, Understand, Simulate, Act & Grow) with interactive curtain comparison & telemetry ticker. |
-| **Global Navigation** | 6 small ambient telemetry chips in header competing with page content. | **Clean Unified Header** focused on navigation, search, and farm selector; ambient chips removed to let page hero breathe. |
-| **Command Center (`/control`)** | 12 dense scientific metric tiles with microscopic labels (`text-[9px]`, `text-[10px]`). | **Human-First 5-Section Architecture**: Farm Overview, Top 3 Daily Action Priorities, 4 Farm-at-a-Glance indicators, 4 Explore destinations, verified Recent Activity feed, and progressive disclosure drawer for deep NPK & phenology. |
-| **Typography Tokens** | Dense, unreadable small text (`<11px`). | Elevated typography: `text-xs`/`text-sm` body labels, `text-2xl` to `text-4xl tabular-nums` for all quantitative figures, APCA-compliant contrast. |
-| **3D Digital Twin (`/twin`)** | Complex scientific vadose parameters displayed all at once. | **Simple Mode vs Advanced Mode Toggle**: Simple mode provides plain-language soil health, 40% water savings comparison, and one-click fertigation dispatch; Advanced mode exposes FAO-56 dual $K_c$ and van Genuchten equations. |
-| **FieldSight AI (`/fieldsight`)** | Static photo with binary lesion tags. | **Photo-Studio Inspection Canvas**: Interactive Grad-CAM heatmap blending slider (0% to 100%), 4 Maharashtra regional specimens, and ICAR-certified treatment protocols. |
-| **Mandi Markets (`/markets`)** | Flat price list. | **Guided 4-Step Flow**: Choose Crop → Choose Market → Compare Prices & MSP → Real Net Returns with consignment volume slider and transport freight calculator. |
-| **Operations (`/ops`)** | Basic task list. | **Work Order Operator Dispatch & Automated Inventory Deductions**: When tasks complete, urea/potash/pesticide stocks automatically deduct with low-stock warnings; ADAPPT 5.0 grain silo & cold storage monitors guard against aflatoxin and chilling injury. |
+| **Visual Identity & Brand Tokens** | Standard dark-mode grays with neon green rings and grids. | **Wheat Gold & Forest Green Identity**: Deep Forest (`#163B2A`), Agricultural Green (`#2D6546`), Wheat Gold (`#D7B678`), Warm Wheat (`#F2E5C9`), Ivory (`#F9F6ED`). Organic, grounded, APCA-compliant contrast. |
+| **Typography System** | Dense, unreadable small text (`<11px`) with serif in data tables. | **Plus Jakarta Sans** as primary SaaS font (`text-xs` to `text-sm` body, `text-2xl` to `text-4xl tabular-nums`). Editorial serif reserved exclusively for marketing headlines; strictly no serif in telemetry panels or alert cards. |
+| **Brand Mark Integrity** | Duplicate `NEXFIELD NEXFIELD` wordmark bug in navigation bar and footer. | **Unified Brand Component**: Exactly one `<NexfieldLogo />` with subtle `OS` badge in Deep Forest and gold border. Zero duplicate text. |
+| **3-Layer Navigation Shell** | Telemetry chips crowding the header; complex multi-level menus. | **3 Clear Structural Layers**: <br/>1. **Left Sidebar:** Primary destinations with plain-language labels (*Overview, Crop Health, Digital Twin, Insights, Operations, Markets*). No subtitle clutter. Collapsible with tooltips.<br/>2. **Top Action Bar:** Lightweight header with breadcrumbs, farm switcher, search (`⌘K`), and Contextual Tasks trigger.<br/>3. **Contextual Task Drawer:** Desktop slide-over and mobile bottom sheet connected to real operational queue. |
+| **Mobile Experience** | Sidebar and header colliding on small viewports (<768px). | **Clean Mobile Layout:** Left sidebar hidden on mobile (`hidden md:flex`). Persistent thumb-friendly bottom navigation bar (`MobileNavBar`) with Overview, Crop Health, Twin 3D, Tasks, and More bottom sheet. Zero horizontal clipping or overlap. |
+| **Farm Command Center** | 12 dense scientific metric tiles competing for attention. | **5-Section Progressive Disclosure Architecture**:<br/>• **A. Farm Summary:** Location, area, weather snippet, holding profile modal, and telemetry sync provenance.<br/>• **B. What Needs Attention:** Strictly max 3 actionable priority cards (Irrigation, Crop Protection, Market Arbitrage) with one-click resolution.<br/>• **C. Farm at a Glance:** 4 key indicators (Active Crops, Soil Moisture %, Scheduled Tasks, Storage Stock).<br/>• **D. Quick Actions:** 4 clean destination cards to core modules.<br/>• **E. Field Status & Telemetry:** Timeline of recent events + tabbed progressive disclosure (Cycles, Microclimate, Soil Sensors, Tasks, Storage/Markets). |
+| **Demo Provenance Truth** | Misleading "Live Estate Synced" labels on sample data. | **Truthful Agronomic Presentation**: Unambiguously badged with `"Interactive Demo — Sample Farm Data"` and `"Development Mode: Synthetic Agronomic Fixtures"`. |
 
-### 4.2 Experience 2.0 Visual Gallery
+---
 
-| 1. Cinematic Entrance & Hero | 2. 5-Chapter Scroll Storytelling |
+### 4.2 The Clarity Visual Showcase
+
+| 1. Editorial Landing Page & Header | 2. Simplified 5-Section Command Center |
 |:---:|:---:|
-| ![NEXFIELD Cinematic Hero](docs/assets/screenshots/experience-hero.png) | ![Scroll Storytelling](docs/assets/screenshots/experience-scroll.png) |
-| *"The Land Awakens" editorial hero with multispectral satellite layer, official emblem, and instant evaluator tour launch.* | *Interactive Feature Comparison Curtain and live MetricTickerBar contrasting traditional farming vs NEXFIELD.* |
+| ![NEXFIELD Clarity Home](docs/assets/screenshots/ui-clarity-home.png) | ![NEXFIELD Clarity Dashboard](docs/assets/screenshots/ui-clarity-dashboard.png) |
+| *Single NEXFIELD wordmark, Plus Jakarta Sans typography, Wheat & Forest Green palette, and clean navigation bar.* | *5-section human-first Farm Overview: Top farm summary, max 3 prioritized attention items, and 4 glanceable metrics.* |
 
-| 3. Human-First Command Center (`/demo/control`) | 4. 3D Digital Twin Sandbox (`/demo/twin`) |
+| 3. Uncluttered Left Sidebar Navigation | 4. Slide-Over Contextual Task Drawer |
 |:---:|:---:|
-| ![Command Center](docs/assets/screenshots/experience-control.png) | ![Digital Twin](docs/assets/screenshots/experience-digital-twin.png) |
-| *5-Section intuitive Command Center: Nashik Tomato estate overview, top 3 actionable priorities, and large readable indicators.* | *3D soil mesh with Simple vs. Advanced mode toggle, 40% water savings scenario comparison, and camera angle presets.* |
+| ![NEXFIELD Clarity Sidebar](docs/assets/screenshots/ui-clarity-sidebar.png) | ![NEXFIELD Clarity Task Drawer](docs/assets/screenshots/ui-clarity-task-drawer.png) |
+| *Plain agricultural labels without subtitle clutter, clean active indicators in Forest Green (`#163B2A`) and Wheat Gold (`#D7B678`).* | *Instant slide-over task queue on desktop and bottom sheet on mobile, featuring 1-click completion and alert triage.* |
 
-| 5. FieldSight AI Grad-CAM Studio (`/demo/fieldsight`) | 6. Mandi Markets & Arbitrage (`/demo/markets`) |
+| 5. Mobile Navigation & Responsive Shell | 6. Redesigned 4-Section Public Footer |
 |:---:|:---:|
-| ![FieldSight AI](docs/assets/screenshots/experience-fieldsight.png) | ![Mandi Markets](docs/assets/screenshots/experience-markets.png) |
-| *Photo-studio inspection layout with interactive Grad-CAM opacity slider, 4 regional crops, and ICAR chemical/organic protocols.* | *Guided 4-step flow calculating net margin after freight deductions, diesel cost factor, and consignment volume slider.* |
-
-| 7. Mobile Viewport (390×844) | 8. Guided Evaluator Tour (`/demo`) |
-|:---:|:---:|
-| ![Mobile Responsive](docs/assets/screenshots/experience-mobile.png) | ![Demo Hub](docs/assets/screenshots/redesign-03-demo-hub.png) |
-| *APCA-compliant contrast and touch-optimized responsive layout tested on modern mobile devices.* | *Step-by-step evaluator walkthrough across all 6 core agricultural domains with instant baseline reset.* |
+| ![NEXFIELD Clarity Mobile](docs/assets/screenshots/ui-clarity-mobile.png) | ![NEXFIELD Clarity Footer](docs/assets/screenshots/ui-clarity-footer.png) |
+| *Tested across 360px–390px viewports with zero horizontal clipping, clean top bar, and persistent bottom navigation bar.* | *Clean 4-column footer with single brand mark, open-source technology links, and MIT licensing attribution.* |
 
 ---
 

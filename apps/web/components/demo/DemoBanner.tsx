@@ -13,19 +13,20 @@ export function DemoBanner() {
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         {/* Left: Indicator & Domain Notice */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 font-mono font-bold text-[10px] tracking-wide border border-emerald-600/40 uppercase">
-            <Sparkles className="h-3 w-3" />
-            Interactive Demo
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#163B2A] text-[#D7B678] font-mono font-semibold text-xs border border-[#D7B678]/40">
+            <Sparkles className="h-3.5 w-3.5" />
+            Interactive Demo — Sample Farm Data
           </span>
 
-          <span className="font-semibold text-emerald-300">
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-[#8FA396] px-2 py-0.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+            Development Mode: Synthetic Agronomic Fixtures
+          </span>
+
+          <span className="font-semibold text-[#FAF8F2]">
             {farmName}
           </span>
-          <span className="text-[#7B9587] hidden md:inline">
+          <span className="text-[#8FA396] hidden md:inline">
             ({cropName} · {areaHectares} ha · {location})
-          </span>
-          <span className="text-[10px] font-mono text-[#8CA394] px-2 py-0.5 rounded bg-[#101914] border border-[#23352A] hidden lg:inline">
-            Development Mode: Synthetic Agronomic Fixtures
           </span>
         </div>
 
