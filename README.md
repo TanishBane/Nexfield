@@ -14,6 +14,7 @@
 [![Backend Tests](https://img.shields.io/badge/Pytest-78%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
 [![System Smoke Suite](https://img.shields.io/badge/Smoke%20Suite-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-nexfield--agritech.vercel.app-000000?logo=vercel&logoColor=white)](https://nexfield-agritech.vercel.app)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -22,7 +23,7 @@
 [![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-CPU%205.1ms-blue?logo=onnx&logoColor=white)](docs/AI_AND_MODELS.md)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20PostGIS-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 
-[**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security**](SECURITY.md) • [**Contributing**](CONTRIBUTING.md)
+[**Live Production App**](https://nexfield-agritech.vercel.app) • [**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security**](SECURITY.md) • [**Contributing**](CONTRIBUTING.md)
 
 <br/>
 
