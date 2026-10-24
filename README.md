@@ -156,12 +156,52 @@ flowchart TB
 
 ---
 
-## 4. Product Gallery: Real Screenshot Showcase
+## 4. NEXFIELD Experience 2.0 & Screenshot Showcase
 
 > [!NOTE]
-> All screenshots below are authentic captures from the running NEXFIELD application (Next.js 15.5, Three.js WebGL, Tailwind CSS). No mock graphics or fabricated Figma screenshots are used.
+> All screenshots below are authentic high-resolution captures from the running NEXFIELD application (Next.js 15.5 App Router, React 19, Three.js WebGL, 21st.dev component architecture, Tailwind CSS). No mock graphics or fabricated Figma screenshots are used.
 
-### 4.1 Landing Page & Situational Awareness
+### 4.1 Project Earth 2.0: The Cinematic & Human-First SaaS Transformation
+
+Following evaluator critique of research-terminal density, NEXFIELD underwent a comprehensive second-generation user experience overhaul:
+
+| UX Dimension | Previous Research Terminal | Project Earth 2.0 Experience |
+|---|---|---|
+| **First Impression** | Static dashboard cards loaded immediately without dramatic context. | **"The Land Awakens"** bespoke entrance sequence (<1.5s, ESC skip, golden bloom, session suppression). |
+| **Homepage Storytelling** | Generic feature grid. | **5 Scroll Narrative Chapters** (The Land, Observe, Understand, Simulate, Act & Grow) with interactive curtain comparison & telemetry ticker. |
+| **Global Navigation** | 6 small ambient telemetry chips in header competing with page content. | **Clean Unified Header** focused on navigation, search, and farm selector; ambient chips removed to let page hero breathe. |
+| **Command Center (`/control`)** | 12 dense scientific metric tiles with microscopic labels (`text-[9px]`, `text-[10px]`). | **Human-First 5-Section Architecture**: Farm Overview, Top 3 Daily Action Priorities, 4 Farm-at-a-Glance indicators, 4 Explore destinations, verified Recent Activity feed, and progressive disclosure drawer for deep NPK & phenology. |
+| **Typography Tokens** | Dense, unreadable small text (`<11px`). | Elevated typography: `text-xs`/`text-sm` body labels, `text-2xl` to `text-4xl tabular-nums` for all quantitative figures, APCA-compliant contrast. |
+| **3D Digital Twin (`/twin`)** | Complex scientific vadose parameters displayed all at once. | **Simple Mode vs Advanced Mode Toggle**: Simple mode provides plain-language soil health, 40% water savings comparison, and one-click fertigation dispatch; Advanced mode exposes FAO-56 dual $K_c$ and van Genuchten equations. |
+| **FieldSight AI (`/fieldsight`)** | Static photo with binary lesion tags. | **Photo-Studio Inspection Canvas**: Interactive Grad-CAM heatmap blending slider (0% to 100%), 4 Maharashtra regional specimens, and ICAR-certified treatment protocols. |
+| **Mandi Markets (`/markets`)** | Flat price list. | **Guided 4-Step Flow**: Choose Crop → Choose Market → Compare Prices & MSP → Real Net Returns with consignment volume slider and transport freight calculator. |
+| **Operations (`/ops`)** | Basic task list. | **Work Order Operator Dispatch & Automated Inventory Deductions**: When tasks complete, urea/potash/pesticide stocks automatically deduct with low-stock warnings; ADAPPT 5.0 grain silo & cold storage monitors guard against aflatoxin and chilling injury. |
+
+### 4.2 Experience 2.0 Visual Gallery
+
+| 1. Cinematic Entrance & Hero | 2. 5-Chapter Scroll Storytelling |
+|:---:|:---:|
+| ![NEXFIELD Cinematic Hero](docs/assets/screenshots/experience-hero.png) | ![Scroll Storytelling](docs/assets/screenshots/experience-scroll.png) |
+| *"The Land Awakens" editorial hero with multispectral satellite layer, official emblem, and instant evaluator tour launch.* | *Interactive Feature Comparison Curtain and live MetricTickerBar contrasting traditional farming vs NEXFIELD.* |
+
+| 3. Human-First Command Center (`/demo/control`) | 4. 3D Digital Twin Sandbox (`/demo/twin`) |
+|:---:|:---:|
+| ![Command Center](docs/assets/screenshots/experience-control.png) | ![Digital Twin](docs/assets/screenshots/experience-digital-twin.png) |
+| *5-Section intuitive Command Center: Nashik Tomato estate overview, top 3 actionable priorities, and large readable indicators.* | *3D soil mesh with Simple vs. Advanced mode toggle, 40% water savings scenario comparison, and camera angle presets.* |
+
+| 5. FieldSight AI Grad-CAM Studio (`/demo/fieldsight`) | 6. Mandi Markets & Arbitrage (`/demo/markets`) |
+|:---:|:---:|
+| ![FieldSight AI](docs/assets/screenshots/experience-fieldsight.png) | ![Mandi Markets](docs/assets/screenshots/experience-markets.png) |
+| *Photo-studio inspection layout with interactive Grad-CAM opacity slider, 4 regional crops, and ICAR chemical/organic protocols.* | *Guided 4-step flow calculating net margin after freight deductions, diesel cost factor, and consignment volume slider.* |
+
+| 7. Mobile Viewport (390×844) | 8. Guided Evaluator Tour (`/demo`) |
+|:---:|:---:|
+| ![Mobile Responsive](docs/assets/screenshots/experience-mobile.png) | ![Demo Hub](docs/assets/screenshots/redesign-03-demo-hub.png) |
+| *APCA-compliant contrast and touch-optimized responsive layout tested on modern mobile devices.* | *Step-by-step evaluator walkthrough across all 6 core agricultural domains with instant baseline reset.* |
+
+---
+
+### 4.3 Deep System Component Showcase
 
 | Landing Page Showcase | Farm Command Center (`/control`) |
 |:---:|:---:|

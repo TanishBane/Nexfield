@@ -128,7 +128,7 @@ export function Header() {
               <select
                 value={selectedFarmId}
                 onChange={(e) => setSelectedFarmId(e.target.value)}
-                className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none cursor-pointer pr-1 text-xs"
+                className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500/80 rounded cursor-pointer pr-1 text-xs"
               >
                 <option value="f47ac10b-58cc-4372-a567-0e02b2c3d479" className="bg-[#111A15] text-[#E1ECE5]">
                   Punjab Agrohub (Khanna)
@@ -140,28 +140,12 @@ export function Header() {
             </div>
           )}
 
-          {/* Ambient Telemetry Chips */}
-          <div className="hidden xl:flex items-center gap-2 text-xs text-[#8BA093] font-mono tabular-nums">
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
-              <CloudSun className="h-3.5 w-3.5 text-amber-400" />
-              <span>{isDemo ? `${demoStore.ambientTemperature}°C` : '27.8°C'}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
-              <Droplets className="h-3.5 w-3.5 text-sky-400" />
-              <span>{isDemo ? `${demoStore.soilMoisture}%` : '41.4%'}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#101813] border border-[#1C2A21]">
-              <Activity className="h-3.5 w-3.5 text-emerald-400" />
-              <span>NDVI {isDemo ? demoStore.canopyNdvi : '0.81'}</span>
-            </div>
-          </div>
-
           {/* Status Indicator */}
           <StatusIndicator
             status={isDemo ? 'fixture' : 'online'}
-            label={isDemo ? 'Demo Sim' : 'Live Sync'}
+            label={isDemo ? 'Demo Mode' : 'Live Gateway'}
             pulse={!isDemo}
-            className="hidden sm:inline-flex"
+            className="hidden sm:inline-flex text-xs"
           />
 
           {/* User Profile / Auth Action */}
