@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   ClipboardList,
   Plus,
@@ -13,6 +14,13 @@ import {
   Archive,
   Calendar,
   Layers,
+  Thermometer,
+  Droplets,
+  ShieldAlert,
+  ShieldCheck,
+  Check,
+  User,
+  ArrowRight,
 } from 'lucide-react';
 import {
   Card,
@@ -26,50 +34,42 @@ import {
 } from '@nexfield/ui';
 import { useDemoStore } from '@/lib/store/useDemoStore';
 
+interface InventoryItem {
+  id: string;
+  name: string;
+  category: 'Fertilizer' | 'Bio-Pesticide' | 'Chemical Fungicide' | 'Hardware';
+  quantityKg: number;
+  unit: string;
+  reorderLevel: number;
+}
+
 export default function DemoOpsPage() {
-  const { farmName, cropName, tasks, expenses, addTask, completeTask } = useDemoStore();
+  const { farmName, tasks, expenses, addTask, completeTask } = useDemoStore();
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskCategory, setNewTaskCategory] = useState<'irrigation' | 'fertilization' | 'spraying_pest_control' | 'crop_scouting' | 'harvesting'>('fertilization');
+  const [newTaskCategory, setNewTaskCategory] = useState<
+    'irrigation' | 'fertilization' | 'spraying_pest_control' | 'crop_scouting' | 'harvesting'
+  >('fertilization');
   const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
+  const [assignedOperator, setAssignedOperator] = useState('Ramesh K. (Lead Sprayer)');
+  const [assignedSector, setAssignedSector] = useState('Sector 2-B');
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [deductionNotice, setDeductionNotice] = useState<string | null>(null);
 
-  const inventoryItems = [
-    { name: 'Potassium Nitrate (13-0-45)', category: 'Fertilizer', stock: '12 Bags (300 kg)', status: 'Optimal' },
-    { name: 'Neem Oil 10,000 PPM Emulsion', category: 'Bio-Pesticide', stock: '8 Litres', status: 'Optimal' },
-    { name: 'Inline Drip Emitters 2.2 LPH', category: 'Hardware', stock: '85 Units', status: 'Low Stock' },
-    { name: 'Trichoderma viride Bio-Culture', category: 'Bio-Fungicide', stock: '4 kg', status: 'Optimal' },
-  ];
-
-  const harvestBatches = [
-    {
-      batchCode: 'NEX-TOM-2026-B01',
-      field: 'Sector 2-B',
-      crop: 'Tomato (Abhinav F1)',
-      grade: 'Grade_A_Export',
-      quantityKg: 3200,
-      harvestDate: '2026-10-21',
-      status: 'Consignment Booked',
-      targetPrice: '₹2,500 / qtl',
-    },
-    {
-      batchCode: 'NEX-TOM-2026-B02',
-      field: 'Sector 1-A',
-      crop: 'Tomato (Abhinav F1)',
-      grade: 'Grade_B_Domestic_Premium',
-      quantityKg: 1850,
-      harvestDate: '2026-10-18',
-      status: 'Settled at Mandi',
-      targetPrice: '₹2,240 / qtl',
-    },
-  ];
+  // Local inventory state to support real-time deductions
+  const [inventory, setInventory] = useState<InventoryItem[]>([
+    { id: 'inv-1', name: 'Potassium Nitrate (13-0-45)', category: 'Fertilizer', quantityKg: 300, unit: 'kg', reorderLevel: 100 },
+    { id: 'inv-2', name: 'Mancozeb 75 WP Fungicide', category: 'Chemical Fungicide', quantityKg: 24, unit: 'kg', reorderLevel: 10 },
+    { id: 'inv-3', name: 'Neem Oil 10,000 PPM Emulsion', category: 'Bio-Pesticide', quantityKg: 12, unit: 'L', reorderLevel: 5 },
+    { id: 'inv-4', name: 'Inline Drip Emitters 2.2 LPH', category: 'Hardware', quantityKg: 45, unit: 'units', reorderLevel: 50 },
+  ]);
 
   const handleCreateTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
 
     addTask({
-      title: newTaskTitle.trim(),
+      title: `${newTaskTitle.trim()} [${assignedSector} · ${assignedOperator.split(' ')[0]}]`,
       category: newTaskCategory,
       priority: newTaskPriority,
       status: 'todo',
@@ -81,54 +81,96 @@ export default function DemoOpsPage() {
     setShowTaskForm(false);
   };
 
+  const handleToggleTask = (taskId: string, category: string) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    if (task.status !== 'completed') {
+      completeTask(taskId);
+
+      // Perform real-time inventory deduction
+      if (category === 'spraying_pest_control') {
+        setInventory((prev) =>
+          prev.map((item) =>
+            item.id === 'inv-2' ? { ...item, quantityKg: Math.max(0, item.quantityKg - 4.8) } : item
+          )
+        );
+        setDeductionNotice('Deducted 4.8 kg Mancozeb 75 WP from warehouse custody.');
+      } else if (category === 'fertilization' || category === 'irrigation') {
+        setInventory((prev) =>
+          prev.map((item) =>
+            item.id === 'inv-1' ? { ...item, quantityKg: Math.max(0, item.quantityKg - 25) } : item
+          )
+        );
+        setDeductionNotice('Deducted 25 kg Potassium Nitrate (13-0-45) from inventory.');
+      } else {
+        setDeductionNotice('Task logged in verified farm audit trail.');
+      }
+
+      setTimeout(() => setDeductionNotice(null), 5000);
+    }
+  };
+
   const totalExpenseInr = expenses.reduce((sum, e) => sum + e.amountInr, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#1A261F]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#1A261F]">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#F1F6F3]">
-              NEXFIELD Ops — Operational Ledger & Inventory
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#FAF8F2] font-serif">
+              Operations, Inventory & Food Storage
             </h1>
-            <Badge variant="outline" className="text-purple-400 border-purple-500/40 font-mono text-[10px]">
-              Farm ERP
+            <Badge variant="outline" className="text-purple-400 border-purple-500/40 font-mono text-xs px-2.5 py-0.5">
+              ADAPPT 5.0 Food Tech
             </Badge>
           </div>
-          <p className="text-xs text-[#7B9587] mt-0.5">
-            Resource logistics, field tasks, and QR-verifiable harvest records for {farmName}
+          <p className="text-sm text-[#8EA698] mt-1">
+            {farmName} · Field work order dispatch, automated custody deductions, and post-harvest safe storage monitors
           </p>
         </div>
 
         <Button
-          size="sm"
           onClick={() => setShowTaskForm(!showTaskForm)}
-          className="text-xs gap-1.5 bg-[#10B981] text-[#070B09] hover:bg-[#34D399] font-bold"
+          className="text-xs font-bold gap-2 bg-emerald-500 hover:bg-emerald-400 text-[#070B09] shadow-md shadow-emerald-500/20 py-2"
         >
-          <Plus className="h-3.5 w-3.5" />
-          <span>{showTaskForm ? 'Close Form' : 'Add Farm Task'}</span>
+          <Plus className="h-4 w-4" />
+          <span>{showTaskForm ? 'Close Form' : 'Schedule Work Order'}</span>
         </Button>
       </div>
 
-      {/* Task Creation Modal / Form */}
+      {/* Deduction Alert Notice Toast */}
+      {deductionNotice && (
+        <div className="p-3.5 rounded-2xl bg-emerald-950/80 border border-emerald-500/60 text-xs font-mono text-emerald-300 flex items-center justify-between shadow-lg animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+            <span>{deductionNotice}</span>
+          </div>
+          <span className="text-[10px] text-emerald-400/80">Tamper-evident audit log updated</span>
+        </div>
+      )}
+
+      {/* Task Creation Form */}
       {showTaskForm && (
-        <Card className="border-emerald-500/50 bg-[#0F1813] p-4">
-          <form onSubmit={handleCreateTask} className="space-y-3">
-            <div className="text-xs font-bold text-emerald-400">Schedule New Agronomic Task</div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card className="border-emerald-500/50 bg-[#0F1813] p-5 shadow-2xl">
+          <form onSubmit={handleCreateTask} className="space-y-4">
+            <div className="text-sm font-bold text-emerald-400 font-serif">
+              Dispatch New Field Work Order
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <input
                 type="text"
                 required
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
-                placeholder="e.g., Apply foliar Boron spray in Sector 2-B"
-                className="sm:col-span-1 px-3 py-2 rounded-lg bg-[#080D0A] border border-[#203227] text-xs text-[#F1F6F3]"
+                placeholder="Work Order description (e.g., Foliar Mancozeb spray)"
+                className="px-3.5 py-2.5 rounded-xl bg-[#080D0A] border border-[#203227] text-xs text-[#FAF8F2] focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
               <select
                 value={newTaskCategory}
                 onChange={(e) => setNewTaskCategory(e.target.value as any)}
-                className="px-3 py-2 rounded-lg bg-[#080D0A] border border-[#203227] text-xs text-[#E1ECE5]"
+                className="px-3.5 py-2.5 rounded-xl bg-[#080D0A] border border-[#203227] text-xs text-[#E1ECE5] focus:outline-none"
               >
                 <option value="fertilization">Fertilization</option>
                 <option value="irrigation">Irrigation</option>
@@ -136,206 +178,297 @@ export default function DemoOpsPage() {
                 <option value="crop_scouting">Crop Scouting</option>
                 <option value="harvesting">Harvesting</option>
               </select>
-              <div className="flex gap-2">
-                <select
-                  value={newTaskPriority}
-                  onChange={(e) => setNewTaskPriority(e.target.value as any)}
-                  className="flex-1 px-3 py-2 rounded-lg bg-[#080D0A] border border-[#203227] text-xs text-[#E1ECE5]"
-                >
-                  <option value="low">Low Priority</option>
-                  <option value="medium">Medium Priority</option>
-                  <option value="high">High Priority</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-                <Button type="submit" size="sm" className="bg-emerald-600 text-white text-xs">
-                  Save
-                </Button>
-              </div>
+              <select
+                value={assignedSector}
+                onChange={(e) => setAssignedSector(e.target.value)}
+                className="px-3.5 py-2.5 rounded-xl bg-[#080D0A] border border-[#203227] text-xs text-[#E1ECE5] focus:outline-none"
+              >
+                <option value="Sector 1-A">Sector 1-A (Tomato Abhinav)</option>
+                <option value="Sector 2-B">Sector 2-B (Tomato Abhinav)</option>
+                <option value="Sector 3-C">Sector 3-C (Onion Bhima)</option>
+              </select>
+              <select
+                value={assignedOperator}
+                onChange={(e) => setAssignedOperator(e.target.value)}
+                className="px-3.5 py-2.5 rounded-xl bg-[#080D0A] border border-[#203227] text-xs text-[#E1ECE5] focus:outline-none"
+              >
+                <option value="Ramesh K. (Lead Sprayer)">Ramesh K. (Lead Sprayer)</option>
+                <option value="Sunita P. (Irrigation Tech)">Sunita P. (Irrigation Tech)</option>
+                <option value="Vijay M. (Agronomist)">Vijay M. (Agronomist)</option>
+              </select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTaskForm(false)}
+                className="text-xs text-[#8EA698] border-[#22352A]"
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" className="bg-emerald-500 text-[#070B09] font-bold text-xs">
+                Dispatch Work Order
+              </Button>
             </div>
           </form>
         </Card>
       )}
 
-      {/* 2. Top Metric Cards */}
+      {/* 2. Top Summary KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
-          <div className="text-xs text-[#7B9587]">Active Tasks</div>
-          <div className="text-2xl font-bold text-emerald-400 mt-1">
+        <div className="p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
+          <div className="text-xs text-[#7B9587] font-semibold">Active Field Work Orders</div>
+          <div className="text-3xl font-bold text-emerald-400 tabular-nums mt-1">
             {tasks.filter((t) => t.status !== 'completed').length} Pending
           </div>
-          <div className="text-[11px] text-[#556D60] font-mono mt-0.5">
-            {tasks.filter((t) => t.status === 'completed').length} Completed
+          <div className="text-xs text-[#8EA698] mt-1 font-mono">
+            {tasks.filter((t) => t.status === 'completed').length} Completed in current cycle
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
-          <div className="text-xs text-[#7B9587]">Recorded Season Expenses</div>
-          <div className="text-2xl font-bold text-[#F1F6F3] mt-1">
+        <div className="p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
+          <div className="text-xs text-[#7B9587] font-semibold">Season Input Expenses</div>
+          <div className="text-3xl font-bold text-[#FAF8F2] tabular-nums mt-1">
             ₹{totalExpenseInr.toLocaleString('en-IN')}
           </div>
-          <div className="text-[11px] text-emerald-400 font-mono mt-0.5">
-            Budgeted: ₹45,000 / ha
+          <div className="text-xs text-emerald-400 mt-1 font-mono">
+            Budget Remaining: ₹32,450
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
-          <div className="text-xs text-[#7B9587]">Dispatched Harvest Lots</div>
-          <div className="text-2xl font-bold text-purple-400 mt-1">
+        <div className="p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25]">
+          <div className="text-xs text-[#7B9587] font-semibold">Tracked Harvest Lots</div>
+          <div className="text-3xl font-bold text-purple-400 tabular-nums mt-1">
             5,050 kg
           </div>
-          <div className="text-[11px] text-[#7B9587] font-mono mt-0.5">
-            Export Grade: 63.3%
+          <div className="text-xs text-[#8EA698] mt-1 font-mono">
+            63.3% Certified Export Grade A
           </div>
         </div>
       </div>
 
-      {/* 3. Task List & Inventory Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Task Management */}
-        <Card className="border-[#1E2E25] bg-[#0E1511]">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-bold text-[#F1F6F3]">
-              Active Field Work Orders
-            </CardTitle>
-            <CardDescription className="text-xs text-[#7B9587]">
-              Dispatch tasks to field workers or agronomists
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2.5">
-            {tasks.map((task) => (
-              <div
-                key={task.id}
-                onClick={() => completeTask(task.id)}
-                className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                  task.status === 'completed'
-                    ? 'bg-[#080D0A] border-[#18261E] opacity-50'
-                    : 'bg-[#0E1712] border-[#22352B] hover:border-emerald-500/50'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`h-4 w-4 rounded flex items-center justify-center border transition-colors ${
-                      task.status === 'completed'
-                        ? 'bg-emerald-600 border-emerald-500 text-white'
-                        : 'border-[#3D5C4A]'
-                    }`}
-                  >
-                    {task.status === 'completed' && <CheckCircle2 className="h-3.5 w-3.5" />}
-                  </div>
-                  <div>
-                    <div
-                      className={`text-xs font-medium ${
-                        task.status === 'completed' ? 'line-through text-[#63796E]' : 'text-[#E1ECE5]'
-                      }`}
-                    >
-                      {task.title}
-                    </div>
-                    <div className="text-[10px] text-[#7B9587] font-mono mt-0.5">
-                      {task.category} · Due {task.dueDate} · Est: ₹{task.costInr}
-                    </div>
-                  </div>
-                </div>
+      {/* 3. ADAPPT 5.0 Food Tech: Grain Silo & Cold Storage Quality Monitors */}
+      <div className="p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#18261E]">
+          <div>
+            <div className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+              Food Storage Quality & Preservation Telemetry
+            </div>
+            <h2 className="text-lg font-bold text-[#FAF8F2] font-serif mt-0.5">
+              Post-Harvest Grain Silo & Cold Storage Guard
+            </h2>
+          </div>
+          <Badge variant="outline" className="text-emerald-400 border-emerald-500/30 font-mono text-xs self-start sm:self-auto">
+            Domain 2: AI in Food Technology
+          </Badge>
+        </div>
 
-                <Badge
-                  variant="outline"
-                  className={`text-[9px] font-mono uppercase ${
-                    task.priority === 'urgent'
-                      ? 'border-rose-700/60 text-rose-400'
-                      : task.priority === 'high'
-                      ? 'border-amber-700/60 text-amber-400'
-                      : 'border-emerald-700/60 text-emerald-400'
-                  }`}
-                >
-                  {task.priority}
-                </Badge>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Grain Silo #1 */}
+          <div className="p-4 rounded-xl bg-[#080D0A] border border-[#1A261F] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Archive className="h-4 w-4 text-amber-400" />
+                <span className="font-bold text-sm text-[#FAF8F2]">Grain Silo #1 (Wheat Reserve)</span>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[11px] font-mono border border-emerald-500/30">
+                Safe Storage
+              </span>
+            </div>
 
-        {/* Input Inventory */}
-        <Card className="border-[#1E2E25] bg-[#0E1511]">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-bold text-[#F1F6F3]">
-              Farm Input Inventory
-            </CardTitle>
-            <CardDescription className="text-xs text-[#7B9587]">
-              Real-time stock of fertilizers, bio-inputs and hardware
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2.5 font-mono text-xs">
-            {inventoryItems.map((item, i) => (
-              <div
-                key={i}
-                className="p-3 rounded-xl bg-[#080D0A] border border-[#18261E] flex items-center justify-between"
-              >
-                <div>
-                  <div className="text-[#F1F6F3] font-sans font-medium">{item.name}</div>
-                  <div className="text-[10px] text-[#7B9587]">{item.category}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-bold text-emerald-400">{item.stock}</div>
-                  <span
-                    className={`text-[9px] px-1.5 py-0.2 rounded border ${
-                      item.status === 'Low Stock'
-                        ? 'border-amber-700/60 text-amber-400'
-                        : 'border-emerald-700/60 text-emerald-400'
-                    }`}
-                  >
-                    {item.status}
-                  </span>
-                </div>
+            <div className="grid grid-cols-3 gap-2 font-mono text-xs text-center">
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">EQUILIBRIUM MOISTURE</span>
+                <span className="text-sky-400 font-bold text-sm tabular-nums">12.4%</span>
+                <span className="text-[10px] text-[#7B9587] block">&lt; 14.0% limit</span>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">SILO TEMP</span>
+                <span className="text-amber-400 font-bold text-sm tabular-nums">21.8°C</span>
+                <span className="text-[10px] text-[#7B9587] block">Aeration Active</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">AFLATOXIN RISK</span>
+                <span className="text-emerald-400 font-bold text-sm tabular-nums">0.0%</span>
+                <span className="text-[10px] text-[#7B9587] block">Aspergillus Guard</span>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#8EA698] leading-relaxed">
+              Equilibrium Relative Humidity (ERH) is 58%, preventing mold sporulation. Safe storage window: <strong>180 Days</strong>.
+            </div>
+          </div>
+
+          {/* Cold Storage Room #2 */}
+          <div className="p-4 rounded-xl bg-[#080D0A] border border-[#1A261F] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Thermometer className="h-4 w-4 text-cyan-400" />
+                <span className="font-bold text-sm text-[#FAF8F2]">Cold Room #2 (Tomato Harvest)</span>
+              </div>
+              <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 text-[11px] font-mono border border-emerald-500/30">
+                Optimal Hold
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 font-mono text-xs text-center">
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">CHAMBER TEMP</span>
+                <span className="text-cyan-400 font-bold text-sm tabular-nums">11.5°C</span>
+                <span className="text-[10px] text-[#7B9587] block">&gt; 10°C (No Chilling)</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">CHAMBER RH</span>
+                <span className="text-sky-400 font-bold text-sm tabular-nums">88.5%</span>
+                <span className="text-[10px] text-[#7B9587] block">Prevents Shrivel</span>
+              </div>
+              <div className="p-2 rounded-lg bg-[#0F1713] border border-[#1E2E25]">
+                <span className="text-[#63796E] block text-[10px]">ETHYLENE SCRUBBER</span>
+                <span className="text-emerald-400 font-bold text-sm tabular-nums">0.04 ppm</span>
+                <span className="text-[10px] text-[#7B9587] block">Suppresses Ripening</span>
+              </div>
+            </div>
+
+            <div className="text-xs text-[#8EA698] leading-relaxed">
+              Maintained strictly above 10°C to eliminate chilling injury and surface pitting. Table shelf-life projection: <strong>14 Days</strong>.
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* 4. Harvest Batches & Traceability QR */}
-      <Card className="border-[#1E2E25] bg-[#0E1511]">
-        <CardHeader className="pb-3 flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-sm font-bold text-[#F1F6F3]">
-              Harvest Consignments & Food Quality Provenance
-            </CardTitle>
-            <CardDescription className="text-xs text-[#7B9587]">
-              Export batches tracked with tamper-evident batch codes
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className="text-emerald-400 border-emerald-500/40 text-[10px] font-mono">
-            ADAPPT 5.0 Food Tech Traceability
-          </Badge>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {harvestBatches.map((batch) => (
-              <div
-                key={batch.batchCode}
-                className="p-4 rounded-xl bg-[#080D0A] border border-[#19261E] space-y-3"
-              >
-                <div className="flex items-center justify-between border-b border-[#16231B] pb-2">
-                  <div className="flex items-center gap-2">
-                    <QrCode className="h-4 w-4 text-emerald-400" />
-                    <span className="font-mono text-xs font-bold text-emerald-300">
-                      {batch.batchCode}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800/40">
-                    {batch.grade.replace(/_/g, ' ')}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono text-[#8EA698]">
-                  <div>Field: <span className="text-[#F1F6F3]">{batch.field}</span></div>
-                  <div>Quantity: <span className="text-emerald-400 font-bold">{batch.quantityKg} kg</span></div>
-                  <div>Harvest Date: <span className="text-[#F1F6F3]">{batch.harvestDate}</span></div>
-                  <div>Status: <span className="text-purple-400">{batch.status}</span></div>
-                </div>
+      {/* 4. Task List & Real-Time Inventory Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Task Management (7 Cols) */}
+        <div className="lg:col-span-7 space-y-4">
+          <Card className="border-[#1E2E25] bg-[#0E1511]">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold text-[#FAF8F2]">
+                  Field Work Orders
+                </CardTitle>
+                <CardDescription className="text-xs text-[#7B9587]">
+                  Click to complete work order and trigger automated inventory deductions
+                </CardDescription>
               </div>
-            ))}
+              <span className="text-xs text-[#63796E] font-mono">
+                {tasks.length} total
+              </span>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {tasks.map((task) => {
+                const isCompleted = task.status === 'completed';
+                return (
+                  <div
+                    key={task.id}
+                    onClick={() => handleToggleTask(task.id, task.category)}
+                    className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      isCompleted
+                        ? 'bg-[#080D0A] border-[#18261E] opacity-60'
+                        : 'bg-[#0E1712] border-[#22352B] hover:border-emerald-500/50 hover:bg-[#121E17]'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`h-5 w-5 rounded-md flex items-center justify-center border transition-colors ${
+                          isCompleted
+                            ? 'bg-emerald-600 border-emerald-500 text-white'
+                            : 'border-[#3D5C4A] bg-[#0A0F0D]'
+                        }`}
+                      >
+                        {isCompleted && <Check className="h-3.5 w-3.5" />}
+                      </div>
+                      <div>
+                        <div
+                          className={`text-xs font-semibold ${
+                            isCompleted ? 'line-through text-[#63796E]' : 'text-[#FAF8F2]'
+                          }`}
+                        >
+                          {task.title}
+                        </div>
+                        <div className="text-[11px] text-[#7B9587] font-mono mt-0.5">
+                          {task.category} · Due {task.dueDate} · Est: ₹{task.costInr}
+                        </div>
+                      </div>
+                    </div>
+
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] font-mono uppercase px-2 py-0.5 ${
+                        task.priority === 'urgent'
+                          ? 'border-rose-700/60 text-rose-400 bg-rose-950/30'
+                          : task.priority === 'high'
+                          ? 'border-amber-700/60 text-amber-400 bg-amber-950/30'
+                          : 'border-emerald-700/60 text-emerald-400 bg-emerald-950/30'
+                      }`}
+                    >
+                      {task.priority}
+                    </Badge>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Real-time Inventory (5 Cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          <Card className="border-[#1E2E25] bg-[#0E1511]">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-bold text-[#FAF8F2]">
+                  Live Input Inventory
+                </CardTitle>
+                <CardDescription className="text-xs text-[#7B9587]">
+                  Deductions synchronized with task completion
+                </CardDescription>
+              </div>
+              <Boxes className="h-4 w-4 text-emerald-400" />
+            </CardHeader>
+            <CardContent className="space-y-2.5 font-mono text-xs">
+              {inventory.map((item) => {
+                const isLow = item.quantityKg <= item.reorderLevel;
+                return (
+                  <div
+                    key={item.id}
+                    className="p-3.5 rounded-xl bg-[#080D0A] border border-[#18261E] flex items-center justify-between"
+                  >
+                    <div>
+                      <div className="text-[#FAF8F2] font-sans font-semibold text-xs">{item.name}</div>
+                      <div className="text-[11px] text-[#7B9587]">{item.category}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-sm text-[#FAF8F2] tabular-nums">
+                        {item.quantityKg} {item.unit}
+                      </div>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded border inline-block mt-0.5 ${
+                          isLow
+                            ? 'border-amber-700/60 text-amber-400 bg-amber-950/30'
+                            : 'border-emerald-700/60 text-emerald-400 bg-emerald-950/30'
+                        }`}
+                      >
+                        {isLow ? 'Low Stock Warning' : 'Adequate'}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          {/* Traceable Batch Sample */}
+          <div className="p-4 rounded-2xl bg-[#080D0A] border border-[#19261E] space-y-2 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="text-[#FAF8F2] font-bold">Consignment NEX-TOM-2026-B01</span>
+              <span className="text-emerald-400 font-bold">Export Grade A</span>
+            </div>
+            <div className="text-[#8EA698]">
+              3,200 kg · Sector 2-B · Tamper-evident QR verifiable on Agmarknet
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
