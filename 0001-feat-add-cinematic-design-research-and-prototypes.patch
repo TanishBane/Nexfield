@@ -1,0 +1,653 @@
+From af65194190d9e7849ae66bb050fe1a108509c895 Mon Sep 17 00:00:00 2001
+From: "google-labs-jules[bot]"
+ <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date: Sat, 24 Oct 2026 00:38:46 +0000
+Subject: [PATCH] feat: add cinematic design research and prototypes
+
+---
+ docs/design-research/ANTIGRAVITY_HANDOFF.md   |  32 +++++
+ .../design-research/CINEMATIC_DESIGN_AUDIT.md |  35 ++++++
+ .../COMPONENT_RECOMMENDATIONS.md              |  45 +++++++
+ docs/design-research/NAVIGATION_BLUEPRINT.md  |  77 ++++++++++++
+ docs/design-research/STITCH_CONCEPTS.md       |  45 +++++++
+ docs/design-research/V0_PROTOTYPES.md         |  30 +++++
+ .../jules-design-lab/cinematic-hero.tsx       |  38 ++++++
+ .../image-inspection-workspace.tsx            | 115 ++++++++++++++++++
+ .../minimal-navigation-sidebar.tsx            |  78 ++++++++++++
+ .../jules-design-lab/scenario-controls.tsx    |  67 ++++++++++
+ 10 files changed, 562 insertions(+)
+ create mode 100644 docs/design-research/ANTIGRAVITY_HANDOFF.md
+ create mode 100644 docs/design-research/CINEMATIC_DESIGN_AUDIT.md
+ create mode 100644 docs/design-research/COMPONENT_RECOMMENDATIONS.md
+ create mode 100644 docs/design-research/NAVIGATION_BLUEPRINT.md
+ create mode 100644 docs/design-research/STITCH_CONCEPTS.md
+ create mode 100644 docs/design-research/V0_PROTOTYPES.md
+ create mode 100644 prototypes/jules-design-lab/cinematic-hero.tsx
+ create mode 100644 prototypes/jules-design-lab/image-inspection-workspace.tsx
+ create mode 100644 prototypes/jules-design-lab/minimal-navigation-sidebar.tsx
+ create mode 100644 prototypes/jules-design-lab/scenario-controls.tsx
+
+diff --git a/docs/design-research/ANTIGRAVITY_HANDOFF.md b/docs/design-research/ANTIGRAVITY_HANDOFF.md
+new file mode 100644
+index 0000000..52c6784
+--- /dev/null
++++ b/docs/design-research/ANTIGRAVITY_HANDOFF.md
+@@ -0,0 +1,32 @@
++# Antigravity Design Handoff: Cinematic Redesign
++
++This document outlines the execution strategy for transitioning the isolated prototypes and concepts in `design/jules-cinematic-lab` into the production frontend (`apps/web/` and `packages/ui/`).
++
++## 1. Prioritization Strategy: What to Implement First
++1. **The Minimal Navigation Shell:** Replace the heavy top-navigation with the floating sidebar (see `minimal-navigation-sidebar.tsx`). This immediately frees up screen real estate and sets the "OS" tone.
++2. **The Cinematic Hero (Public/Auth On-Ramp):** Implement the dark, glowing hero background and high-contrast typography (see `cinematic-hero.tsx`) to create a strong first impression.
++3. **Typography Standardization:** Ensure all telemetry components, data tables, and HUDs are strictly using `tabular-nums` via the `font-mono` class (JetBrains Mono).
++
++## 2. Preservation: Existing Components to Keep
++- **Color Tokens:** The base `#0A0F0D` charcoal and `#10B981` emerald tokens in `packages/ui/src/tokens.ts` are excellent and remain the foundation.
++- **Three.js WebGL Architecture:** The underlying logic for the 3D Digital Twin should remain untouched; we are only changing the *interface layers* that float above it.
++- **API Hooks & Caching:** Do not touch the React Query / Supabase logic.
++
++## 3. Reusable Prototype Components
++The code in `prototypes/jules-design-lab/` is built for visual demonstration.
++- The `CinematicHero` CSS gradients and masking logic are highly reusable.
++- The `MinimalNavigationSidebar` structure is solid, though you should swap the dummy `cn` utility with the project's actual `lib/utils.ts`.
++- The `ScenarioControls` layout is exact, but you must replace the dummy `<Slider>` and `<Switch>` with the actual `shadcn/ui` equivalents in `packages/ui/`.
++- The `ImageInspectionWorkspace` uses flexbox for the split-pane. For production, consider using `react-resizable-panels` as specified in the component recommendations.
++
++## 4. Required New Assets & Interactivity
++- **WebGL Shaders:** The Stitch concepts suggest a procedural, neon-wireframe LiDAR shader for the Digital Twin background. A Three.js shader implementation will be required to match the visual fidelity of the mockups.
++- **Animations:** Implement Framer Motion for the number tickers in the Command Center and the smooth expanding/collapsing of the navigation sidebar.
++
++## 5. Information Architecture Flow
++Refer to `NAVIGATION_BLUEPRINT.md`. The core shift is from a flat dashboard to a deeply contextual "Progressive Disclosure" model. The sidebar handles top-level routing, while contextual floating HUDs (like Scenario Controls) handle sub-interactions.
++
++## 6. Verification Requirements
++- **Accessibility (APCA):** Ensure the warm ivory text on the `#16201B` glassmorphic backgrounds maintains passing APCA contrast ratios.
++- **Mobile Responsiveness:** The heavy 3D WebGL scenes and dense Command Center telemetry must gracefully degrade on mobile devices (e.g., swapping the floating sidebar for a bottom tab bar).
++- **Performance:** Ensure the CSS backdrop-filters (blur) on the floating glassmorphic panels do not cause framerate drops over the active Three.js canvas. Use `will-change: transform` or fallback to solid colors if necessary.
+diff --git a/docs/design-research/CINEMATIC_DESIGN_AUDIT.md b/docs/design-research/CINEMATIC_DESIGN_AUDIT.md
+new file mode 100644
+index 0000000..e95e7dc
+--- /dev/null
++++ b/docs/design-research/CINEMATIC_DESIGN_AUDIT.md
+@@ -0,0 +1,35 @@
++# NEXFIELD Cinematic Design Audit
++
++## 1. Current Design System Tokens
++
++The existing application relies on a strictly defined set of tokens (`packages/ui/src/tokens.ts` and `apps/web/app/globals.css`).
++
++- **Backgrounds:** `Obsidian Dark Field` (#090D0B) serves as the primary canvas. Cards and elevated surfaces use slightly lighter shades (`#111714` and `#1B2620`).
++- **Typography:** The text colors are designed for high APCA contrast. Primary text is `#F0F5F2` (Lc > 90), supported by secondary `#9BB1A4` and muted `#63796E`. Tabular figures (`tabular-nums`) are enforced for telemetry data to prevent layout shift during updates.
++- **Brand Colors:** The primary action color is `Emerald Core` (#10B981), with brighter (`#34D399`) and darker (`#059669`) variants for interaction states.
++- **Semantic Colors:** Explicit palettes exist for domain-specific states (disease, warning, hydrology, harvest, spectral), combining text, background, and border colors for consistent badging and alerts.
++- **Geometry:** Border radii follow a strict concentric nesting rule: `child_r <= parent_r - gap`. The base card radius is `12px` (0.75rem).
++
++## 2. Identified Navigation and Visual-Hierarchy Problems
++
++Based on the prompt and project structure (`apps/web/app/`), the current routing includes: `auth`, `control`, `data-center`, `demo`, `fieldsight`, `intelligence`, `login`, `markets`, `onboarding`, `ops`, and `twin`.
++
++**Key Issues:**
++1. **Flat Architecture:** The current structure suggests a flat or overwhelming top-level navigation. Agricultural SaaS platforms often suffer from "dashboard fatigue" where too many complex tools (FieldSight, Twin, Markets, Control) are presented simultaneously.
++2. **Lack of Cinematic On-Ramp:** The transition from a public marketing state to an authenticated, data-dense workspace requires a smoother, more editorial "cinematic" approach. The current application likely drops users straight into dense telemetry.
++3. **Information Density:** High-contrast dark themes with complex data (charts, 3D canvases) need significant negative space to breathe. The current structure implies a need for "progressive disclosure," revealing advanced tools only when necessary.
++4. **Mobile Experience:** Complex 3D digital twins and large ECharts dashboards typically degrade poorly on mobile without a dedicated minimal navigation strategy.
++
++## 3. Cinematic Redesign Goals
++
++To elevate NEXFIELD into a sophisticated, cinematic agricultural OS:
++
++- **Editorial Composition:** Introduce larger, more expressive typography for high-level farm metrics, acting as "chapter headings" before diving into dense data tables.
++- **Warm Ivory & Gold Accents:** While respecting the existing charcoal and emerald palette, introduce subtle warm ivory (for primary display text) and gold accents (for premium/critical alerts or AI insights) to break the monochromatic green/black feel and add a "cinematic" warmth.
++- **Spatial Navigation:** Move away from standard top-bars to spatial navigation panels (e.g., floating sidebars or contextual bottom sheets on mobile) that float above the 3D Digital Twin and data layers.
++- **Guided Workspaces:** Separate the experience into distinct mental models: The "Overview" (Hero/Cinematic), the "Workspace" (Dense/Analytical), and the "Control" (Action-oriented).
++
++## 4. Constraint Discoveries
++
++- **Strict Adherence:** We must not modify existing `apps/web/` or `packages/ui/` files. All new concepts must be built using the established tokens as a foundation but extended visually in prototypes.
++- **Accessibility:** High APCA contrast must be maintained. Interactive elements must have clear affordances and focus states.
+diff --git a/docs/design-research/COMPONENT_RECOMMENDATIONS.md b/docs/design-research/COMPONENT_RECOMMENDATIONS.md
+new file mode 100644
+index 0000000..538380f
+--- /dev/null
++++ b/docs/design-research/COMPONENT_RECOMMENDATIONS.md
+@@ -0,0 +1,45 @@
++# Component & Pattern Recommendations
++
++This document outlines recommended modern UI components and interaction patterns (inspired by sources like 21st.dev, Magic UI, and shadcn/ui) to elevate the NEXFIELD experience to a cinematic standard.
++
++*Note: Antigravity will handle the actual integration and dependency management for the production environment.*
++
++## 1. Cinematic Hero Layouts
++- **Pattern:** Full-Bleed Spatial Backgrounds
++- **Source Inspiration:** 21st.dev - `Hero Section with Background Glow` or similar WebGL backdrop integrations.
++- **Integration:** Use behind the authenticated "Farm Overview" to create depth. The background should be a low-opacity rendering or abstract representation of the Digital Twin.
++- **Key Feature:** Large, editorial typography for high-level metrics (e.g., "Field A requires irrigation in 4 hours").
++
++## 2. Minimal & Spatial Navigation
++- **Component:** Floating Dock / Minimal Sidebar
++- **Source Inspiration:** 21st.dev - `Mac OS Dock` or shadcn/ui `Sidebar` (configured for minimal collapsed state).
++- **Integration:** Replace the standard heavy top-nav with a floating dock at the bottom (mobile) or a collapsed pill-shaped sidebar (desktop).
++- **Benefit:** Maximizes viewport for spatial data and charts; reduces dashboard clutter.
++
++## 3. Image Inspection Workspace (FieldSight)
++- **Component:** Split-Pane Resizable Layout
++- **Source Inspiration:** shadcn/ui `Resizable` component (react-resizable-panels).
++- **Integration:** For the FieldSight pathology view. Left pane: Large, zoomable crop image with CAM heatmap overlays. Right pane: Clinical diagnosis cards and ICAR prescriptions.
++- **Benefit:** Professional, medical-grade feeling for crop analysis.
++
++## 4. Scenario Controls & Telemetry
++- **Component:** Glassmorphic Floating Cards
++- **Source Inspiration:** UI labs exploring glassmorphism (backdrop-filter blur).
++- **Integration:** Use these for the interactive scenario controls overlaid on the 3D Digital Twin.
++- **Tokens:** Must strictly use the established background overlays (`#16201B` with opacity) and emerald accents to maintain brand consistency while achieving the "floating HUD" look.
++
++## 5. Animated Data Visualizations
++- **Component:** Number Ticker / Animated Counters
++- **Source Inspiration:** Magic UI `Number Ticker` or framed framer-motion equivalents.
++- **Integration:** Use for live telemetry updates in the Command Center (e.g., live temperature, moisture levels).
++- **Requirement:** Must utilize the `tabular-nums` font feature to prevent layout jitter during animation.
++
++## 6. Complex Data Tables (Ops & Markets)
++- **Component:** Command Palette / Data Table with Faceted Search
++- **Source Inspiration:** shadcn/ui `Data Table` (TanStack Table) & `Command` (cmdk).
++- **Integration:** For the Markets and Ops ledger. Provide a keyboard-first navigation experience for power users managing large inventories or analyzing multiple Mandi prices.
++
++## 7. Interactive Guided Demo
++- **Component:** Joyride / Feature Tour Tooltips
++- **Source Inspiration:** Libraries like `react-joyride` or custom framer-motion driven spotlight tooltips.
++- **Integration:** Essential for the "Demo Mode." Guides the user through complex workflows (like running a deficit irrigation simulation) step-by-step using synthetic data.
+diff --git a/docs/design-research/NAVIGATION_BLUEPRINT.md b/docs/design-research/NAVIGATION_BLUEPRINT.md
+new file mode 100644
+index 0000000..82f114a
+--- /dev/null
++++ b/docs/design-research/NAVIGATION_BLUEPRINT.md
+@@ -0,0 +1,77 @@
++# NEXFIELD Navigation Blueprint & Information Architecture
++
++## 1. Core Philosophy: Progressive Disclosure
++
++The current application structure presents a flat array of powerful tools. The cinematic redesign introduces a dramatically simplified navigation system built on progressive disclosure.
++
++We separate the application into three distinct experiential zones:
++1. **Public/Marketing:** A cinematic, scrolling narrative explaining the platform.
++2. **Interactive Demo Mode:** A guided, safe-environment exploration of features using synthetic fixtures.
++3. **Authenticated Workspace:** The dense, operational environment for actual farm management.
++
++## 2. Route Hierarchy Diagram
++
++```mermaid
++graph TD
++    %% Public Zone
++    Public[Public Website] --> Home[Cinematic Homepage]
++    Public --> Features[Product Tour]
++    Public --> Pricing[Plans]
++    Public --> Auth[Login / Onboarding]
++
++    %% Demo Zone
++    Demo[Interactive Demo Mode] --> DemoTwin[Guided Spatial Twin]
++    Demo --> DemoInsights[Scenario Simulations]
++
++    %% Authenticated Zone
++    Workspace[Authenticated Farm Workspace]
++    Auth --> Workspace
++
++    Workspace --> Overview[Farm Overview / Hero]
++
++    %% Core Pillars
++    Workspace --> Control[Command Center]
++    Workspace --> Intelligence[Agronomic Copilot & Data]
++    Workspace --> Spatial[Spatial Explorer]
++    Workspace --> Execution[Operations & Markets]
++
++    %% Sub-routes
++    Control --> Telemetry[Live Telemetry]
++    Control --> Weather[Hyper-local Weather]
++
++    Intelligence --> FieldSight[FieldSight Pathology]
++    Intelligence --> FarmData[Historical Crop Data]
++
++    Spatial --> Twin[3D Digital Twin]
++    Spatial --> Heatmaps[CAM Heatmaps & Indices]
++
++    Execution --> Ops[Farm Ledger & Tasks]
++    Execution --> Markets[Mandi Price Arbitrage]
++```
++
++## 3. Navigation UI Strategy
++
++To achieve the "Cinematic, sophisticated, and minimal" objective:
++
++### Desktop Experience: Floating Contextual Sidebar
++- Abandon the traditional, heavy top-navigation bar.
++- Introduce a minimal, floating left-hand sidebar containing only icons for the primary pillars (Overview, Control, Intelligence, Spatial, Execution) to maximize screen real estate for the 3D Twin and large data visualizations.
++- Hovering or clicking expands a secondary drawer for sub-navigation.
++
++### Mobile Experience: Action-Oriented Bottom Bar
++- Complex SaaS tools degrade on mobile. NEXFIELD will utilize a native-feeling bottom navigation bar.
++- The bottom bar contains: Home, Twin, FieldSight, and Menu (which opens a full-screen modal for deeper links).
++- Floating Action Buttons (FABs) will be used for primary actions within contexts (e.g., "Scan Crop" in FieldSight).
++
++### The "Cinematic Hero" Overview
++- Upon login, the user does not immediately see dense tables.
++- They see a "Cinematic Hero" page: A beautifully rendered high-level summary of the farm's status, overlaid on a blurred or stylized representation of their Digital Twin, with large, editorial typography highlighting the most critical current metric (e.g., "Harvest ready in 3 days").
++
++## 4. Subpage Functional Definitions
++
++- **Control (Command Center):** The operational heartbeat. Real-time dials, tabular-num telemetry, and immediate alerts (e.g., Post-Harvest Spoilage risk).
++- **FieldSight:** An image-inspection workspace. Large image viewer, clinical overlay of disease confidence, and ICAR prescription cards.
++- **Twin:** The spatial explorer. Full-bleed WebGL canvas with floating scenario controllers (e.g., toggling irrigation layers).
++- **Intelligence (Farm Data):** Dense, analytical views. ECharts integrations showing historical yield trajectories.
++- **Ops:** Task management, inventory tracking, and ledger. Standardized list/card views.
++- **Markets:** Split-pane or comparative layouts showing current inventory vs. live AGMARKNET Mandi prices.
+diff --git a/docs/design-research/STITCH_CONCEPTS.md b/docs/design-research/STITCH_CONCEPTS.md
+new file mode 100644
+index 0000000..498448d
+--- /dev/null
++++ b/docs/design-research/STITCH_CONCEPTS.md
+@@ -0,0 +1,45 @@
++# NEXFIELD Cinematic Design Lab: Stitch Concepts
++
++This document references the UI mockups generated using the Stitch MCP interactive UI controller.
++
++## Project Info
++**Project Name:** NEXFIELD Cinematic Lab
++**Project ID:** 8933349617585725384
++**Design System:** Obsidian Agronomy (Dark Charcoal `#0e1512`, Emerald Core `#10b981`, Warm Ivory/Gold `#e9c349`).
++**Typography:** Bodoni Moda (Headlines), Manrope (Body), JetBrains Mono (Telemetry/Tabular Nums).
++
++## Screen Inventory
++
++1. **Cinematic Homepage**
++   - *Concept:* A mobile-first, full-bleed spatial digital twin background with glassmorphic layers, high-contrast editorial typography, and a radiant "Launch Interactive Demo" CTA.
++   - *URL Reference:* `projects/8933349617585725384/screens/cf3a4d0897bb44c9b7d9048191628149`
++
++2. **Minimal Navigation (Sidebar)**
++   - *Concept:* Replaces the heavy top-nav with a floating left-hand glassmorphic pillar (Overview, Control, Intelligence, Spatial, Execution) over an expansive dark WebGL telemetry canvas.
++   - *URL Reference:* `projects/8933349617585725384/screens/5cf99f94eebe4bfa8a8b1d7dddf78e39`
++
++3. **Spatial Digital Twin Explorer**
++   - *Concept:* A dense, 3D WebGL workstation view. Features floating scenario controllers (Irrigation, Thermal, NDVI) and a prominent pulsing hydrology risk alert over Sector 04-B.
++   - *URL Reference:* `projects/8933349617585725384/screens/7bc85206f43c42748e41b7000a872677`
++
++4. **Farm Command Center**
++   - *Concept:* Operational telemetry dashboard featuring real-time dials (VPD, VWC), a tabular-num sensor matrix, and a prominent Post-Harvest Spoilage Risk alert banner.
++   - *URL Reference:* `projects/8933349617585725384/screens/0742f4452d2b423ea9f7bdad54f2c96a`
++
++5. **FieldSight Crop Inspection**
++   - *Concept:* Split-pane layout. Left pane shows macro photography with Grad-CAM neural attention heatmaps. Right pane displays clinical diagnosis cards and ICAR actionable prescriptions.
++   - *URL Reference:* `projects/8933349617585725384/screens/353f0b06391d48f1adb92e69735f214f`
++
++6. **Agricultural Markets Explorer**
++   - *Concept:* Split-pane comparative layout. Current farm silo inventory on the left vs. live AGMARKNET Mandi tickers and price arbitrage charts on the right. Includes a `⌘K` command palette.
++   - *URL Reference:* `projects/8933349617585725384/screens/d2e382bb44f04dc38ae818d262a54797`
++
++7. **Interactive Demo (Guided Joyride)**
++   - *Concept:* A floating Joyride-style tooltip modal card ("Step 2 of 4: Deficit Irrigation") layered over a dimmed 3D digital twin, guiding the user through running a scenario simulation.
++   - *URL Reference:* `projects/8933349617585725384/screens/d2a38658756d42ecbe1e1ae474bbee79`
++
++8. **User Onboarding (Telemetry Provisioning)**
++   - *Concept:* Multi-step horizontal progress tracker to sync satellite topography and provision ground sensor meshes. Features live diagnostic readouts and encrypted token fields.
++   - *URL Reference:* `projects/8933349617585725384/screens/0a19f2f69fa64a87b799cc37338ee027`
++
++These concepts serve as the visual north star for the Antigravity frontend implementation.
+diff --git a/docs/design-research/V0_PROTOTYPES.md b/docs/design-research/V0_PROTOTYPES.md
+new file mode 100644
+index 0000000..6aa9506
+--- /dev/null
++++ b/docs/design-research/V0_PROTOTYPES.md
+@@ -0,0 +1,30 @@
++# v0 Prototype Interactions & Components
++
++This document outlines the isolated React/TypeScript components generated using the v0 MCP for the NEXFIELD cinematic redesign lab.
++
++## Overview
++All components are housed in `prototypes/jules-design-lab/`. They are visually complete but functionally mocked, designed to demonstrate interactions and layout structures without complex dependencies.
++
++### 1. Cinematic Hero (`cinematic-hero.tsx`)
++- **Interaction:** Scroll-aware navigation and a prominent CTA with hover-state glow effects.
++- **Visuals:** Uses CSS radial gradients and grids to simulate a 3D digital twin glow on an obsidian canvas `#090D0B`.
++- **v0 URL:** [https://v0.app/chat/oVELgckZ2w0](https://v0.app/chat/oVELgckZ2w0)
++
++### 2. Minimal Navigation Sidebar (`minimal-navigation-sidebar.tsx`)
++- **Interaction:** Hover and active states for pillar navigation icons.
++- **Visuals:** Frosted glassmorphism (`backdrop-blur-xl bg-[#16201B]/80`) providing a floating, unobtrusive interface over complex data.
++- **Accessibility:** Uses standard HTML attributes (`aria-label`, `title`) for icon-only buttons to satisfy accessibility requirements.
++- **v0 URL:** [https://v0.app/chat/iGU56ZM2oSN](https://v0.app/chat/iGU56ZM2oSN)
++
++### 3. Scenario Controls (`scenario-controls.tsx`)
++- **Interaction:** Draggable time/forecast slider and toggle switches for map layers.
++- **Visuals:** A dense, high-contrast floating HUD panel (`bg-[#16201B]/90`) with tabular-num rendering for metric readouts.
++- **v0 URL:** [https://v0.app/chat/ukxCrNjHPw2](https://v0.app/chat/ukxCrNjHPw2)
++
++### 4. Image Inspection Workspace (`image-inspection-workspace.tsx`)
++- **Interaction:** Split-pane layout with image zooming (+/- controls) and interactive tab switching on the pathology card.
++- **Visuals:** High-contrast crimson (`#f05252`) alert states contrasting against the dark obsidian base. Simulates the Grad-CAM heatmap visualization.
++- **v0 URL:** [https://v0.app/chat/dLbIWWYv1Ru](https://v0.app/chat/dLbIWWYv1Ru)
++
++## Usage Note for Antigravity
++These components are visual prototypes only. They simulate advanced interactions (like WebGL shaders or `react-resizable-panels`) using simpler CSS or standard flexbox equivalents to remain isolated in this lab environment. When integrating into `apps/web/`, swap out the dummy wrappers for actual `shadcn/ui` components or complex third-party dependencies as required by the production architecture.
+diff --git a/prototypes/jules-design-lab/cinematic-hero.tsx b/prototypes/jules-design-lab/cinematic-hero.tsx
+new file mode 100644
+index 0000000..36f3044
+--- /dev/null
++++ b/prototypes/jules-design-lab/cinematic-hero.tsx
+@@ -0,0 +1,38 @@
++import { ArrowUpRight, ChevronDown, Orbit } from 'lucide-react'
++
++const navItems = ['Platform', 'Intelligence', 'Field Notes']
++
++export function CinematicHero() {
++  return (
++    <main className="relative min-h-screen overflow-hidden bg-[#090D0B] text-white selection:bg-emerald-400/30 selection:text-emerald-100">
++      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
++        <div className="absolute left-1/2 top-[42%] h-[52rem] w-[52rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/[0.08] blur-[120px]" />
++        <div className="absolute -right-40 top-[-12rem] h-[36rem] w-[36rem] rounded-full bg-teal-400/[0.05] blur-[110px]" />
++        <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_72%)]" />
++        <div className="absolute left-1/2 top-[46%] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-300/10 shadow-[0_0_120px_rgba(16,185,129,0.08),inset_0_0_100px_rgba(16,185,129,0.05)]" />
++        <div className="absolute left-1/2 top-[46%] h-[24rem] w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-emerald-200/[0.08]" />
++      </div>
++
++      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-7 lg:px-10" aria-label="Primary navigation">
++        <a href="#top" className="flex items-center gap-3 text-sm font-medium tracking-[0.18em] text-white/90" aria-label="Aether home">
++          <span className="flex size-8 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-300/10 text-emerald-300"><Orbit className="size-4" /></span>
++          NEXFIELD / OS
++        </a>
++        <div className="hidden items-center gap-9 text-[11px] uppercase tracking-[0.2em] text-white/45 md:flex">
++          {navItems.map((item) => <a key={item} href={`#${item.toLowerCase().replace(' ', '-')}`} className="transition-colors hover:text-emerald-300">{item}</a>)}
++        </div>
++        <a href="#contact" className="text-[11px] uppercase tracking-[0.2em] text-emerald-300 transition-colors hover:text-emerald-200">Enter the field <ArrowUpRight className="ml-1 inline size-3" /></a>
++      </nav>
++
++      <section id="top" className="relative z-10 mx-auto flex min-h-[calc(100vh-92px)] max-w-7xl flex-col justify-center px-6 pb-20 pt-14 lg:px-10">
++        <div className="max-w-4xl">
++          <div className="mb-8 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.32em] text-emerald-300/80"><span className="h-px w-9 bg-emerald-400/70" />Planetary intelligence / 2026</div>
++          <h1 className="max-w-4xl text-[clamp(3.6rem,9vw,8.8rem)] font-medium leading-[0.88] tracking-[-0.075em] text-white">Autonomous<br /><span className="text-white/35">Earth.</span> <span className="text-emerald-300">Synthesized.</span></h1>
++          <p className="mt-9 max-w-lg text-base leading-7 text-white/50 md:text-lg">A living digital twin of our planet, revealing the hidden systems that shape every horizon.</p>
++          <a href="#demo" className="group mt-10 inline-flex items-center gap-3 rounded-full bg-[#10B981] px-6 py-3.5 text-sm font-semibold text-[#04120d] shadow-[0_0_0_1px_rgba(110,231,183,0.3),0_0_28px_rgba(16,185,129,0.38)] transition-all hover:-translate-y-0.5 hover:bg-emerald-300 hover:shadow-[0_0_0_1px_rgba(167,243,208,0.5),0_0_42px_rgba(16,185,129,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090D0B]">Launch Interactive Demo <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a>
++        </div>
++        <div className="mt-auto flex items-end justify-between pt-20 text-[10px] uppercase tracking-[0.25em] text-white/30"><span>01 / 03</span><span className="hidden sm:block">A new operating layer for the living world</span><a href="#explore" className="flex items-center gap-2 transition-colors hover:text-emerald-300"><ChevronDown className="size-4" /> Explore</a></div>
++      </section>
++    </main>
++  )
++}
+diff --git a/prototypes/jules-design-lab/image-inspection-workspace.tsx b/prototypes/jules-design-lab/image-inspection-workspace.tsx
+new file mode 100644
+index 0000000..f398d8e
+--- /dev/null
++++ b/prototypes/jules-design-lab/image-inspection-workspace.tsx
+@@ -0,0 +1,115 @@
++'use client'
++
++import { useState } from 'react'
++import {
++  AlertTriangle,
++  ChevronDown,
++  Crosshair,
++  Download,
++  FileText,
++  Grid2X2,
++  Layers3,
++  Maximize2,
++  Minus,
++  Plus,
++  RotateCcw,
++  ScanSearch,
++  Sprout,
++  Target,
++} from 'lucide-react'
++
++// Dummy wrapper to simulate components without complex dependencies for this visual prototype
++function Button(props: any) {
++  return <button {...props} className={`rounded-md ${props.className}`}>{props.children}</button>
++}
++
++const metrics = [
++  { label: 'Affected area', value: '18.4', unit: '%', status: 'elevated' },
++  { label: 'Confidence score', value: '94.7', unit: '%', status: 'good' },
++  { label: 'Canopy coverage', value: '72.1', unit: '%', status: 'good' },
++  { label: 'Stress index', value: '0.68', unit: 'NDVI', status: 'elevated' },
++]
++
++export function ImageInspectionWorkspace() {
++  const [zoom, setZoom] = useState(1)
++  const [activeTab, setActiveTab] = useState('assessment')
++  const [marked, setMarked] = useState(false)
++
++  return (
++    <main className="min-h-screen bg-[#0b0f0d] text-[#e7eee9] selection:bg-emerald-500/30">
++      <header className="flex h-16 items-center justify-between border-b border-[#25312b] bg-[#101612] px-5 lg:px-7">
++        <div className="flex items-center gap-3">
++          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500 text-[#07100b] shadow-[0_0_24px_rgba(52,211,153,.22)]">
++            <Sprout className="h-5 w-5" strokeWidth={2.5} />
++          </div>
++          <div>
++            <div className="flex items-center gap-2">
++              <span className="text-sm font-semibold tracking-wide text-white">FieldSight</span>
++              <span className="rounded border border-[#304239] px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-[#82988a]">Research</span>
++            </div>
++            <p className="text-[11px] text-[#6e8174]">Image inspection workspace</p>
++          </div>
++        </div>
++      </header>
++
++      <div className="border-b border-[#25312b] bg-[#0e1410] px-5 py-3 lg:px-7">
++        <div className="flex flex-wrap items-center justify-between gap-3">
++          <div className="flex items-center gap-3 text-xs text-[#8da095]">
++            <span>Projects</span><span className="text-[#46574c]">/</span><span>North Field Trial</span><span className="text-[#46574c]">/</span><span className="text-[#dce8df]">Plot 04 · Canopy scan</span>
++          </div>
++        </div>
++      </div>
++
++      <div className="h-[calc(100vh-105px)] min-h-[680px] p-3 lg:p-5 flex flex-row gap-4">
++        {/* Left Pane (Image) */}
++        <section className="flex-1 flex flex-col overflow-hidden rounded-xl border border-[#26352c] bg-[#111812] shadow-2xl">
++          <div className="flex h-12 items-center justify-between border-b border-[#26352c] px-4">
++            <div className="flex items-center gap-2 text-xs text-[#a3b5a9]"><Layers3 className="h-4 w-4 text-emerald-400" /> RGB / canopy detail</div>
++          </div>
++          <div className="relative flex-1 overflow-hidden bg-[#18221b]">
++             <div className="absolute inset-7 overflow-hidden rounded-lg border border-[#516659] bg-[url('https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=1800&q=85')] bg-cover bg-center shadow-2xl transition-transform duration-300" style={{ transform: `scale(${zoom})` }} role="img" aria-label="Close-up multispectral image of crop canopy">
++                <div className="absolute inset-0 bg-emerald-900/10 mix-blend-color" />
++                <div className="absolute left-[38%] top-[29%] h-28 w-28 rounded-full border-2 border-crimson-400 border-[#f05252]/90 shadow-[0_0_0_9999px_rgba(7,16,10,.1),0_0_22px_rgba(240,82,82,.55)]" />
++                <span className="absolute left-[39%] top-[24%] rounded bg-[#170e0e]/90 px-2 py-1 text-[10px] font-medium text-[#ff8888]">Stress cluster · 18.4%</span>
++             </div>
++             {/* Zoom Toolbar */}
++             <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-[#405246] bg-[#111812]/95 p-1.5 shadow-lg backdrop-blur">
++                <button onClick={() => setZoom(Math.max(.75, zoom - .15))} className="rounded p-2 text-[#b4c5b8] hover:bg-[#27382c]"><Minus className="h-4 w-4" /></button>
++                <span className="min-w-12 text-center font-mono text-[11px] text-[#b8c8bc]">{Math.round(zoom * 100)}%</span>
++                <button onClick={() => setZoom(Math.min(1.8, zoom + .15))} className="rounded p-2 text-[#b4c5b8] hover:bg-[#27382c]"><Plus className="h-4 w-4" /></button>
++             </div>
++          </div>
++        </section>
++
++        {/* Right Pane (Data) */}
++        <aside className="w-[400px] flex flex-col overflow-auto rounded-xl border border-[#26352c] bg-[#131b16] shadow-2xl">
++          <div className="border-b border-[#26352c] px-6 py-5">
++            <div className="mb-4 flex items-center justify-between"><span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#7e9384]">Automated assessment</span></div>
++            <div className="flex items-start gap-3">
++              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#3b1b1d] text-[#ff7272]"><AlertTriangle className="h-5 w-5" /></div>
++              <div><h1 className="text-xl font-semibold tracking-tight text-white">Pathology Alert</h1><p className="mt-1 text-xs leading-relaxed text-[#9baca0]">Potential early-stage fungal infection detected in canopy sector B.</p></div>
++            </div>
++          </div>
++          <div className="flex-1 px-6 py-5">
++             <div className="mb-5 flex items-end justify-between">
++                <div><p className="text-xs text-[#84988a]">Severity index</p><p className="mt-1 font-mono text-4xl font-medium tracking-tight text-[#ff7878]">0.74 <span className="text-sm text-[#a5b3a9]">/ 1.00</span></p></div>
++             </div>
++             <div className="overflow-hidden rounded-lg border border-[#2b3a30] bg-[#101711]">
++               <div className="grid grid-cols-2 divide-x divide-[#2b3a30] border-b border-[#2b3a30]">{metrics.slice(0, 2).map((metric) => <Metric key={metric.label} {...metric} />)}</div>
++               <div className="grid grid-cols-2 divide-x divide-[#2b3a30]">{metrics.slice(2).map((metric) => <Metric key={metric.label} {...metric} />)}</div>
++             </div>
++          </div>
++          <div className="border-t border-[#26352c] p-6">
++            <Button onClick={() => setMarked(!marked)} className={`flex items-center justify-center h-11 w-full gap-2 font-semibold shadow-lg ${marked ? 'bg-[#294e3a] text-emerald-100' : 'bg-emerald-500 text-[#07100b]'}`}>
++              <FileText className="h-4 w-4" />{marked ? 'Marked for follow-up' : 'Mark for follow-up'}
++            </Button>
++          </div>
++        </aside>
++      </div>
++    </main>
++  )
++}
++
++function Metric({ label, value, unit, status }: { label: string; value: string; unit: string; status: string }) {
++  return <div className="p-3.5"><p className="text-[10px] uppercase tracking-wide text-[#718478]">{label}</p><p className={`mt-1 font-mono text-lg ${status === 'elevated' ? 'text-[#ff8585]' : 'text-[#d8eadc]'}`}>{value}<span className="ml-1 text-[10px] text-[#829489]">{unit}</span></p></div>
++}
+diff --git a/prototypes/jules-design-lab/minimal-navigation-sidebar.tsx b/prototypes/jules-design-lab/minimal-navigation-sidebar.tsx
+new file mode 100644
+index 0000000..5aa9da7
+--- /dev/null
++++ b/prototypes/jules-design-lab/minimal-navigation-sidebar.tsx
+@@ -0,0 +1,78 @@
++'use client'
++
++import { useState } from 'react'
++import {
++  BrainCircuit,
++  Boxes,
++  CircleUserRound,
++  Command,
++  Gauge,
++  Settings,
++  SlidersHorizontal,
++} from 'lucide-react'
++
++// Dummy utility to replace the actual cn import
++function cn(...classes: (string | boolean | undefined | null)[]) {
++  return classes.filter(Boolean).join(' ')
++}
++
++const navigationItems = [
++  { label: 'Overview', icon: Gauge },
++  { label: 'Control', icon: SlidersHorizontal },
++  { label: 'Intelligence', icon: BrainCircuit },
++  { label: 'Spatial', icon: Boxes },
++  { label: 'Execution', icon: Command },
++]
++
++export function MinimalNavigationSidebar() {
++  const [activeItem, setActiveItem] = useState('Overview')
++
++  return (
++    <aside
++      aria-label="Primary navigation"
++      className="fixed left-4 top-1/2 z-50 flex -translate-y-1/2 flex-col items-center gap-2 rounded-[2rem] border border-white/[0.08] bg-[#16201B]/80 p-2 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:left-6"
++    >
++      <nav className="flex flex-col items-center gap-1" aria-label="Workspace sections">
++        {navigationItems.map(({ label, icon: Icon }) => {
++          const isActive = activeItem === label
++
++          return (
++            <button
++              key={label}
++              type="button"
++              aria-label={label}
++              aria-current={isActive ? 'page' : undefined}
++              title={label}
++              onClick={() => setActiveItem(label)}
++              className={cn(
++                'group relative flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all duration-200 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10B981] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101612]',
++                isActive && 'bg-[#10B981]/12 text-[#10B981] shadow-[inset_0_0_0_1px_rgba(16,185,129,0.14)]',
++              )}
++            >
++              <Icon aria-hidden="true" className="h-[18px] w-[18px]" strokeWidth={isActive ? 2.25 : 1.8} />
++              <span
++                aria-hidden="true"
++                className={cn(
++                  'absolute -left-2 h-5 w-0.5 rounded-full bg-[#10B981] opacity-0 transition-opacity',
++                  isActive && 'opacity-100',
++                )}
++              />
++            </button>
++          )
++        })}
++      </nav>
++
++      <div className="my-1 h-px w-6 bg-white/[0.09]" />
++
++      <button
++        type="button"
++        aria-label="Profile and settings"
++        title="Profile and settings"
++        className="group relative flex h-11 w-11 items-center justify-center rounded-full text-white/45 transition-all duration-200 hover:bg-white/[0.08] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#10B981] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101612]"
++      >
++        <CircleUserRound aria-hidden="true" className="h-[19px] w-[19px]" strokeWidth={1.8} />
++        <Settings aria-hidden="true" className="absolute h-2.5 w-2.5 opacity-0 transition-opacity group-hover:opacity-100" strokeWidth={2.25} />
++      </button>
++    </aside>
++  )
++}
+diff --git a/prototypes/jules-design-lab/scenario-controls.tsx b/prototypes/jules-design-lab/scenario-controls.tsx
+new file mode 100644
+index 0000000..191ec43
+--- /dev/null
++++ b/prototypes/jules-design-lab/scenario-controls.tsx
+@@ -0,0 +1,67 @@
++'use client'
++
++import { useState } from 'react'
++import { CloudSun, Droplets, Layers3, Leaf, ThermometerSun, Wind } from 'lucide-react'
++
++// Dummy components to simulate shadcn/ui for the isolated prototype
++const Slider = (props: any) => <input type="range" {...props} className="w-full accent-[#10B981]" />
++const Switch = (props: any) => <input type="checkbox" {...props} className="accent-[#10B981]" />
++
++const layers = [
++  { id: 'irrigation', label: 'Irrigation Layers', detail: 'Water coverage', icon: Droplets, defaultChecked: true },
++  { id: 'thermal', label: 'Thermal Overlays', detail: 'Crop heat stress', icon: ThermometerSun, defaultChecked: true },
++  { id: 'wind', label: 'Wind Vectors', detail: 'Current conditions', icon: Wind, defaultChecked: false },
++]
++
++export function ScenarioControls() {
++  const [enabledLayers, setEnabledLayers] = useState(
++    Object.fromEntries(layers.map((layer) => [layer.id, layer.defaultChecked])),
++  )
++  const [forecast, setForecast] = useState([62])
++
++  const forecastHour = Math.round((forecast[0] / 100) * 24)
++  const forecastLabel = forecastHour === 0 ? 'Now' : `+${forecastHour}h`
++
++  return (
++    <aside className="w-full max-w-[352px] rounded-[22px] border border-white/[0.09] bg-[#16201B]/90 p-5 text-[#F0F5F2] shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur-2xl" aria-label="Scenario controls">
++      <div className="mb-5 flex items-start justify-between">
++        <div className="flex items-start gap-3">
++          <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-[#10B981]/10 text-[#10B981] ring-1 ring-inset ring-[#10B981]/20">
++            <Leaf className="h-[18px] w-[18px]" aria-hidden="true" />
++          </div>
++          <div>
++            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8A9D92]">Field intelligence</p>
++            <h2 className="mt-1 text-[17px] font-medium tracking-tight">Scenario Controls</h2>
++          </div>
++        </div>
++        <span className="mt-1 h-2 w-2 rounded-full bg-[#10B981] shadow-[0_0_12px_#10B981]" aria-label="Live" />
++      </div>
++
++      <div className="mb-5 rounded-2xl border border-white/[0.06] bg-[#090D0B]/35 p-3.5">
++        <div className="mb-3 flex items-center justify-between">
++          <div className="flex items-center gap-2 text-sm font-medium">
++            <CloudSun className="h-4 w-4 text-[#10B981]" aria-hidden="true" />
++            Time / Forecast
++          </div>
++          <span className="rounded-md bg-[#10B981]/10 px-2 py-1 font-mono text-[11px] font-medium text-[#63E6B0]">{forecastLabel}</span>
++        </div>
++        <Slider aria-label="Time and forecast" value={forecast} onChange={(e: any) => setForecast([Number(e.target.value)])} max={100} step={1} />
++        <div className="mt-2 flex justify-between font-mono text-[10px] text-[#71847A]"><span>NOW</span><span>+12H</span><span>+24H</span></div>
++      </div>
++
++      <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#71847A]"><Layers3 className="h-3.5 w-3.5" aria-hidden="true" /> Map layers</div>
++      <div className="space-y-1">
++        {layers.map(({ id, label, detail, icon: Icon }) => (
++          <label key={id} className="flex cursor-pointer items-center justify-between rounded-xl px-2 py-3 transition-colors hover:bg-white/[0.04]">
++            <span className="flex items-center gap-3">
++              <Icon className={`h-[17px] w-[17px] ${enabledLayers[id] ? 'text-[#10B981]' : 'text-[#71847A]'}`} aria-hidden="true" />
++              <span><span className="block text-sm text-[#DCE8E1]">{label}</span><span className="mt-0.5 block text-[11px] text-[#71847A]">{detail}</span></span>
++            </span>
++            <Switch checked={enabledLayers[id]} onChange={(e: any) => setEnabledLayers((current) => ({ ...current, [id]: e.target.checked }))} aria-label={`Toggle ${label}`} />
++          </label>
++        ))}
++      </div>
++      <div className="mt-4 flex items-center gap-2 border-t border-white/[0.07] pt-4 text-[11px] text-[#71847A]"><span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" /> Simulation synced <span className="ml-auto font-mono text-[10px]">LIVE</span></div>
++    </aside>
++  )
++}
+--
+2.53.0
