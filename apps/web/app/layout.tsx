@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Instrument_Serif, Manrope, JetBrains_Mono } from 'next/font/google';
+import { Instrument_Serif, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { AppShell } from '@/components/layout/AppShell';
@@ -12,7 +12,7 @@ const instrumentSerif = Instrument_Serif({
   display: 'swap',
 });
 
-const manrope = Manrope({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
@@ -50,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`min-h-screen bg-[#090D0B] ${manrope.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} font-sans antialiased text-[#F1F5F2]`}>
+      <body className={`min-h-screen bg-[#090D0B] ${plusJakartaSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} font-sans antialiased text-[#F1F5F2]`}>
         <QueryProvider>
           <AppShell>{children}</AppShell>
         </QueryProvider>

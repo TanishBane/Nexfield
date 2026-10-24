@@ -23,10 +23,10 @@ export function NexfieldLogo({
   subtitle,
 }: NexfieldLogoProps) {
   const sizeMap = {
-    sm: { box: 28, img: 24, text: 'text-sm', sub: 'text-[9px]' },
-    md: { box: 36, img: 32, text: 'text-base', sub: 'text-[10px]' },
-    lg: { box: 48, img: 44, text: 'text-xl', sub: 'text-xs' },
-    xl: { box: 64, img: 58, text: 'text-2xl', sub: 'text-xs' },
+    sm: { box: 28, img: 24, text: 'text-sm', sub: 'text-[11px]' },
+    md: { box: 36, img: 32, text: 'text-base font-bold', sub: 'text-xs' },
+    lg: { box: 48, img: 44, text: 'text-xl font-bold', sub: 'text-xs' },
+    xl: { box: 64, img: 58, text: 'text-2xl font-bold', sub: 'text-sm' },
   };
 
   const { box, text, sub } = sizeMap[size];
@@ -35,7 +35,7 @@ export function NexfieldLogo({
     <div
       className={cn(
         'relative flex items-center justify-center shrink-0 rounded-xl overflow-hidden shadow-sm transition-transform duration-200 group-hover:scale-105',
-        badgeMode === 'authentic' && 'bg-[#F5EEE6] border border-[#273C30]/50 ring-1 ring-emerald-500/20',
+        badgeMode === 'authentic' && 'bg-[#F9F6ED] border border-[#2D6546]/40 ring-1 ring-[#D7B678]/30',
         badgeMode === 'dark' && 'bg-[#111714] border border-[#273C30] p-1',
         badgeMode === 'ghost' && 'bg-transparent'
       )}
@@ -61,22 +61,22 @@ export function NexfieldLogo({
           <div className="flex items-center gap-1.5">
             <span
               className={cn(
-                'font-extrabold tracking-tight text-[#F0F5F2] group-hover:text-emerald-400 transition-colors',
+                'font-extrabold tracking-tight text-[#FAF8F2] group-hover:text-[#D7B678] transition-colors',
                 text
               )}
             >
               NEXFIELD
             </span>
-            <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold tracking-wider uppercase bg-emerald-950/80 text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-[#163B2A] text-[#D7B678] border border-[#D7B678]/40">
               OS
             </span>
           </div>
           {subtitle ? (
-            <span className={cn('text-[#9BB1A4] font-medium tracking-wide uppercase', sub)}>
+            <span className={cn('text-[#8FA396] font-medium tracking-wide', sub)}>
               {subtitle}
             </span>
           ) : (
-            <span className={cn('text-[#63796E] font-medium tracking-wide uppercase', sub)}>
+            <span className={cn('text-[#7D9487] font-medium tracking-wide', sub)}>
               Agricultural Intelligence
             </span>
           )}

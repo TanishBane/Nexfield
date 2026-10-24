@@ -25,11 +25,15 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
   }, [onComplete]);
 
   useEffect(() => {
-    // 1. Honor prefers-reduced-motion
+    // 1. Honor prefers-reduced-motion, skipIntro param, or previous play
     if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const skipParam = urlParams.get('skipIntro') === 'true';
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const seen = window.sessionStorage.getItem('nexfield_earth_intro_played');
-      if (prefersReduced || seen === 'true') {
+      const seen =
+        window.sessionStorage.getItem('nexfield_earth_intro_played') === 'true' ||
+        window.localStorage.getItem('nexfield_earth_intro_played') === 'true';
+      if (skipParam || prefersReduced || seen) {
         setVisible(false);
         onComplete?.();
         return;

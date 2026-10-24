@@ -4,6 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
+import { MobileNavBar } from './MobileNavBar';
 import { PublicNavbar } from './PublicNavbar';
 import { PublicFooter } from './PublicFooter';
 import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
@@ -54,15 +55,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           'flex flex-col min-h-screen transition-all duration-200',
-          isSidebarOpen ? 'lg:pl-64' : 'lg:pl-20'
+          isSidebarOpen ? 'md:pl-60' : 'md:pl-18'
         )}
       >
         <Header />
-        <main className="flex-1 p-4 md:p-6 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 max-w-7xl w-full mx-auto">
           <Breadcrumbs />
           {children}
         </main>
       </div>
+      <MobileNavBar />
     </div>
   );
 }
