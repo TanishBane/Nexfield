@@ -42,9 +42,19 @@ const config: Config = {
         border: '#202E25',
         input: '#1A261F',
         ring: '#10B981',
+        // Project Earth Editorial Tokens
+        earth: {
+          ivory: '#F3E9D6',
+          forest: '#173C2C',
+          charcoal: '#101713',
+          gold: '#C2A06A',
+          sage: '#A7B5A0',
+          white: '#FAF8F2',
+        },
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Instrument Serif', 'Georgia', 'serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       borderRadius: {

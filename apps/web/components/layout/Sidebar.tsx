@@ -14,55 +14,85 @@ import {
   ShieldCheck,
   UploadCloud,
   PlusCircle,
+  Command,
 } from 'lucide-react';
 import { cn } from '@nexfield/ui';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { NexfieldLogo } from '@/components/branding/NexfieldLogo';
 
-export const NAVIGATION_ITEMS = [
+export const NAVIGATION_SECTIONS = [
   {
-    name: 'NEXFIELD Control',
-    href: '/control',
-    icon: LayoutDashboard,
-    badge: 'HQ',
-    description: 'Farm Command Center',
+    category: 'Observation & Twin',
+    items: [
+      {
+        name: 'Overview',
+        href: '/control',
+        icon: LayoutDashboard,
+        badge: 'HQ',
+        description: 'Command Center & Priorities',
+      },
+      {
+        name: 'Crop Health',
+        href: '/fieldsight',
+        icon: ScanEye,
+        badge: 'Vision',
+        description: 'Pathology & Grad-CAM',
+      },
+      {
+        name: 'Digital Twin',
+        href: '/twin',
+        icon: Layers,
+        badge: '3D Sim',
+        description: 'Biophysical Hydrology',
+      },
+    ],
   },
   {
-    name: 'FieldSight AI',
-    href: '/fieldsight',
-    icon: ScanEye,
-    badge: 'Vision',
-    description: 'Crop Pathology & Heatmaps',
+    category: 'Intelligence & Ops',
+    items: [
+      {
+        name: 'Insights',
+        href: '/intelligence',
+        icon: Sparkles,
+        badge: 'Copilot',
+        description: 'Agronomic AI Assistant',
+      },
+      {
+        name: 'Operations',
+        href: '/ops',
+        icon: ClipboardList,
+        badge: 'Ledger',
+        description: 'Work Orders & Storage',
+      },
+      {
+        name: 'Markets',
+        href: '/markets',
+        icon: TrendingUp,
+        badge: 'Mandi',
+        description: 'APMC Price Arbitrage',
+      },
+    ],
   },
   {
-    name: 'NEXFIELD Twin',
-    href: '/twin',
-    icon: Layers,
-    badge: 'Sim',
-    description: 'Biophysical Simulator',
+    category: 'Data & Settings',
+    items: [
+      {
+        name: 'Farm Data',
+        href: '/data-center',
+        icon: UploadCloud,
+        badge: 'Ingest',
+        description: 'CSV / GeoJSON / IoT',
+      },
+      {
+        name: 'Add Farm',
+        href: '/onboarding',
+        icon: PlusCircle,
+        badge: 'New',
+        description: 'Register Acreage',
+      },
+    ],
   },
-  {
-    name: 'NEXFIELD Intelligence',
-    href: '/intelligence',
-    icon: Sparkles,
-    badge: 'LLM',
-    description: 'Agronomic Copilot',
-  },
-  {
-    name: 'NEXFIELD Ops',
-    href: '/ops',
-    icon: ClipboardList,
-    badge: 'Ops',
-    description: 'Tasks, Stocks & Harvests',
-  },
-  {
-    name: 'NEXFIELD Markets',
-    href: '/markets',
-    icon: TrendingUp,
-    badge: 'Mandi',
-    description: 'Prices & Arbitrage',
-  },
-] as const;
+];
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -76,8 +106,8 @@ export function Sidebar() {
         isSidebarOpen ? 'w-64' : 'w-20'
       )}
     >
-      {/* Brand Header — Fixed Height: 56px with Official Logo */}
-      <div className="flex h-14 items-center border-b border-[#1B2921] px-4 overflow-hidden">
+      {/* Brand Header */}
+      <div className="flex h-16 items-center border-b border-[#1B2921] px-4 overflow-hidden shrink-0">
         <NexfieldLogo
           size={isSidebarOpen ? 'md' : 'sm'}
           showWordmark={isSidebarOpen}
@@ -86,136 +116,76 @@ export function Sidebar() {
         />
       </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
-        <div className="px-3 pb-2">
-          {isSidebarOpen ? (
-            <span className="text-[10px] font-semibold tracking-wider text-[#5A7365] uppercase">
-              {isDemo ? 'Demo Modules' : 'Core Modules'}
-            </span>
-          ) : (
-            <div className="h-px bg-[#18261E] my-1" />
-          )}
-        </div>
+      {/* Navigation Sections */}
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+        {NAVIGATION_SECTIONS.map((section) => (
+          <div key={section.category} className="space-y-1">
+            {isSidebarOpen ? (
+              <div className="px-3 pb-1.5 pt-1 text-[10px] font-mono uppercase tracking-wider text-[#5A7365]">
+                {section.category}
+              </div>
+            ) : (
+              <div className="h-px bg-[#18261E] my-2" />
+            )}
 
-        {NAVIGATION_ITEMS.map((item) => {
-          const targetHref = isDemo ? `/demo${item.href}` : item.href;
-          const isActive = pathname === targetHref || pathname.startsWith(targetHref + '/');
-          const Icon = item.icon;
+            {section.items.map((item) => {
+              const targetHref = isDemo ? `/demo${item.href}` : item.href;
+              const isActive =
+                pathname === targetHref || (targetHref !== '/control' && pathname.startsWith(targetHref + '/'));
+              const Icon = item.icon;
 
-          return (
-            <Link
-              key={item.href}
-              href={targetHref}
-              className={cn(
-                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-colors',
-                isActive
-                  ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] shadow-inner font-semibold'
-                  : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
-              )}
-              title={!isSidebarOpen ? item.name : undefined}
-            >
-              <Icon
-                className={cn(
-                  'h-4 w-4 shrink-0 transition-colors',
-                  isActive ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
-                )}
-              />
+              return (
+                <Link
+                  key={item.href}
+                  href={targetHref}
+                  className={cn(
+                    'group relative flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-colors',
+                    isActive
+                      ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] shadow-sm font-semibold'
+                      : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
+                  )}
+                  title={!isSidebarOpen ? item.name : undefined}
+                >
+                  <Icon
+                    className={cn(
+                      'h-4 w-4 shrink-0 transition-colors',
+                      isActive ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
+                    )}
+                  />
 
-              {isSidebarOpen ? (
-                <div className="flex flex-1 items-center justify-between overflow-hidden">
-                  <div className="flex flex-col truncate">
-                    <span className="truncate">{item.name}</span>
-                    <span className="text-[10px] text-[#5C7467] group-hover:text-[#7A9687] font-normal truncate">
-                      {item.description}
-                    </span>
-                  </div>
-                  {isActive ? (
-                    <ChevronRight className="h-3.5 w-3.5 text-emerald-400 shrink-0 ml-1" />
+                  {isSidebarOpen ? (
+                    <div className="flex flex-1 items-center justify-between overflow-hidden">
+                      <div className="flex flex-col truncate">
+                        <span className="truncate">{item.name}</span>
+                        <span className="text-[10px] text-[#5C7467] group-hover:text-[#7A9687] font-normal truncate">
+                          {item.description}
+                        </span>
+                      </div>
+                      {isActive ? (
+                        <ChevronRight className="h-3.5 w-3.5 text-emerald-400 shrink-0 ml-1" />
+                      ) : null}
+                    </div>
                   ) : null}
-                </div>
-              ) : null}
-            </Link>
-          );
-        })}
-
-        {/* Data & Farm Management Section */}
-        <div className="pt-3 pb-1 px-3">
-          {isSidebarOpen ? (
-            <span className="text-[10px] font-semibold tracking-wider text-[#5A7365] uppercase">
-              Management
-            </span>
-          ) : (
-            <div className="h-px bg-[#18261E] my-1" />
-          )}
-        </div>
-
-        <Link
-          href="/data-center"
-          className={cn(
-            'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
-            pathname === '/data-center'
-              ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] font-semibold'
-              : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
-          )}
-          title={!isSidebarOpen ? 'Data Ingestion Center' : undefined}
-        >
-          <UploadCloud
-            className={cn(
-              'h-4 w-4 shrink-0 transition-colors',
-              pathname === '/data-center' ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
-            )}
-          />
-          {isSidebarOpen ? (
-            <div className="flex flex-col truncate">
-              <span className="truncate">Data Ingestion</span>
-              <span className="text-[10px] text-[#5C7467] font-normal truncate">
-                CSV / XLSX / GeoJSON
-              </span>
-            </div>
-          ) : null}
-        </Link>
-
-        <Link
-          href="/onboarding"
-          className={cn(
-            'group relative flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors',
-            pathname === '/onboarding'
-              ? 'bg-[#14231A] text-emerald-300 border border-[#21382A] font-semibold'
-              : 'text-[#96ACA0] hover:bg-[#101A14] hover:text-[#E2ECE5] border border-transparent'
-          )}
-          title={!isSidebarOpen ? 'Register New Farm' : undefined}
-        >
-          <PlusCircle
-            className={cn(
-              'h-4 w-4 shrink-0 transition-colors',
-              pathname === '/onboarding' ? 'text-emerald-400' : 'text-[#647C6E] group-hover:text-emerald-400'
-            )}
-          />
-          {isSidebarOpen ? (
-            <div className="flex flex-col truncate">
-              <span className="truncate">Add New Farm</span>
-              <span className="text-[10px] text-[#5C7467] font-normal truncate">
-                Onboarding Wizard
-              </span>
-            </div>
-          ) : null}
-        </Link>
+                </Link>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
-      {/* Footer System Status — Fixed Chrome */}
-      <div className="border-t border-[#1B2921] p-3">
+      {/* Footer System Status */}
+      <div className="border-t border-[#1B2921] p-3 shrink-0">
         {isSidebarOpen ? (
-          <div className="rounded-lg bg-[#0F1713] border border-[#1E2E25] p-3 text-xs">
+          <div className="rounded-xl bg-[#0F1713] border border-[#1E2E25] p-2.5 text-xs">
             <div className="flex items-center justify-between text-[11px] text-[#869E90]">
               <span className="flex items-center gap-1.5 font-medium text-emerald-400">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                ADAPPT 5.0 R2
+                ADAPPT 5.0
               </span>
               <span className="font-mono text-[10px] text-[#597365]">Domain 2</span>
             </div>
-            <p className="mt-1 text-[11px] text-[#71897C] leading-relaxed">
-              AI in Food Technology & Agronomic Operations
+            <p className="mt-1 text-[10px] text-[#71897C] leading-snug">
+              AI in Food Technology & Crop Intelligence
             </p>
           </div>
         ) : (
