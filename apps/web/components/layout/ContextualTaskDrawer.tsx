@@ -14,6 +14,8 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { useDemoStore } from '@/lib/store/useDemoStore';
+import { useFarmStore } from '@/lib/store/useFarmStore';
+import { apiClient } from '@/lib/api';
 import { Button, Badge } from '@nexfield/ui';
 
 interface ContextualTaskDrawerProps {
@@ -21,15 +23,57 @@ interface ContextualTaskDrawerProps {
   onClose: () => void;
 }
 
+interface LocalTask {
+  id: string;
+  title: string;
+  category: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'todo' | 'in_progress' | 'completed';
+  dueDate: string;
+  costInr?: number;
+}
+
 export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerProps) {
   const pathname = usePathname();
   const isDemo = pathname.startsWith('/demo');
-  const { tasks, completeTask, addTask, farmName } = useDemoStore();
+  const demoStore = useDemoStore();
+  const { selectedFarmId } = useFarmStore();
 
+  const [liveTasks, setLiveTasks] = useState<LocalTask[]>([]);
+  const [isLoadingLiveTasks, setIsLoadingLiveTasks] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'tasks' | 'alerts'>('tasks');
+
+  // Load live tasks when drawer is opened in authenticated mode
+  useEffect(() => {
+    if (isOpen && !isDemo && selectedFarmId) {
+      setIsLoadingLiveTasks(true);
+      apiClient
+        .getTasks(selectedFarmId)
+        .then((res) => {
+          if (res.data && Array.isArray(res.data)) {
+            const mapped: LocalTask[] = res.data.map((t: any) => ({
+              id: t.id,
+              title: t.title,
+              category: t.category || 'crop_scouting',
+              priority: (t.priority?.toLowerCase() as any) || 'medium',
+              status: t.status === 'completed' ? 'completed' : 'todo',
+              dueDate: t.dueDate || 'Today',
+              costInr: t.costEstimateInr || 500,
+            }));
+            setLiveTasks(mapped);
+          }
+        })
+        .catch(() => {
+          // Fallback gracefully
+        })
+        .finally(() => {
+          setIsLoadingLiveTasks(false);
+        });
+    }
+  }, [isOpen, isDemo, selectedFarmId]);
 
   // Escape key handler
   useEffect(() => {
@@ -56,25 +100,77 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
 
   if (!isOpen) return null;
 
-  const pendingTasks = tasks.filter((t) => t.status !== 'completed');
-  const completedTasks = tasks.filter((t) => t.status === 'completed');
+  const currentTasks: LocalTask[] = isDemo
+    ? demoStore.tasks.map((t) => ({
+        id: t.id,
+        title: t.title,
+        category: t.category,
+        priority: t.priority,
+        status: t.status,
+        dueDate: t.dueDate,
+        costInr: t.costInr,
+      }))
+    : liveTasks;
 
-  const handleCreateTask = (e: React.FormEvent) => {
+  const pendingTasks = currentTasks.filter((t) => t.status !== 'completed');
+  const completedTasks = currentTasks.filter((t) => t.status === 'completed');
+
+  const handleCompleteTask = (taskId: string) => {
+    if (isDemo) {
+      demoStore.completeTask(taskId);
+    } else {
+      setLiveTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, status: 'completed' } : t))
+      );
+    }
+  };
+
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle.trim()) return;
 
-    addTask({
-      title: newTaskTitle.trim(),
-      category: 'crop_scouting',
-      priority: newTaskPriority,
-      status: 'todo',
-      dueDate: 'Today',
-      costInr: 450,
-    });
+    if (isDemo) {
+      demoStore.addTask({
+        title: newTaskTitle.trim(),
+        category: 'crop_scouting',
+        priority: newTaskPriority,
+        status: 'todo',
+        dueDate: 'Today',
+        costInr: 450,
+      });
+    } else {
+      const tempTask: LocalTask = {
+        id: `task-${Date.now()}`,
+        title: newTaskTitle.trim(),
+        category: 'crop_scouting',
+        priority: newTaskPriority,
+        status: 'todo',
+        dueDate: 'Today',
+        costInr: 500,
+      };
+      setLiveTasks((prev) => [tempTask, ...prev]);
+
+      try {
+        if (selectedFarmId) {
+          await apiClient.createTask({
+            farmId: selectedFarmId,
+            title: newTaskTitle.trim(),
+            category: 'crop_scouting',
+            priority: newTaskPriority,
+            dueDate: new Date().toISOString().split('T')[0],
+            costEstimateInr: 500,
+          });
+        }
+      } catch {
+        // Optimistic UI retained
+      }
+    }
 
     setNewTaskTitle('');
     setShowAddForm(false);
   };
+
+  const farmTitle = isDemo ? demoStore.farmName : 'Farm Workspace';
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden select-none">
@@ -87,7 +183,10 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
 
       {/* Drawer Container: Slide from right on desktop, Bottom sheet on mobile */}
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10 sm:pl-16">
-        <div data-testid="contextual-task-drawer" className="w-screen max-w-md bg-[#0D1410] border-l border-[#1E2E25] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300">
+        <div
+          data-testid="contextual-task-drawer"
+          className="w-screen max-w-md bg-[#0D1410] border-l border-[#1E2E25] shadow-2xl flex flex-col justify-between animate-in slide-in-from-right duration-300"
+        >
           {/* Header */}
           <div className="p-5 border-b border-[#1A261F] flex items-center justify-between">
             <div className="space-y-0.5">
@@ -98,7 +197,7 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
                 </h2>
               </div>
               <p className="text-xs text-[#7B9587]">
-                {farmName} · Operational Queue
+                {farmTitle} · Operational Queue
               </p>
             </div>
 
@@ -172,7 +271,11 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
                     <option value="high">High Priority</option>
                     <option value="urgent">Urgent</option>
                   </select>
-                  <Button type="submit" size="sm" className="bg-emerald-500 text-[#070B09] font-bold text-xs h-7 px-3">
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-[#070B09] font-bold text-xs h-7 px-3"
+                  >
                     Add Task
                   </Button>
                 </div>
@@ -189,7 +292,12 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
                   <span className="text-xs font-semibold text-[#63796E] uppercase tracking-wider block">
                     Pending Field Actions
                   </span>
-                  {pendingTasks.length === 0 ? (
+                  {isLoadingLiveTasks ? (
+                    <div className="p-6 text-center text-xs text-[#7B9587] flex items-center justify-center gap-2">
+                      <span className="h-4 w-4 border-2 border-[#D7B678] border-t-transparent rounded-full animate-spin" />
+                      Loading farm operations...
+                    </div>
+                  ) : pendingTasks.length === 0 ? (
                     <div className="p-6 rounded-xl bg-[#080D0A] border border-[#16221B] text-center text-xs text-[#7B9587]">
                       <CheckCircle2 className="h-6 w-6 text-emerald-400 mx-auto mb-2" />
                       <span>All today&apos;s agronomic tasks completed!</span>
@@ -198,7 +306,7 @@ export function ContextualTaskDrawer({ isOpen, onClose }: ContextualTaskDrawerPr
                     pendingTasks.map((task) => (
                       <div
                         key={task.id}
-                        onClick={() => completeTask(task.id)}
+                        onClick={() => handleCompleteTask(task.id)}
                         className="p-3.5 rounded-xl bg-[#101713] border border-[#1E2E25] hover:border-emerald-500/50 hover:bg-[#142019] cursor-pointer transition-all flex items-start justify-between gap-3 group"
                       >
                         <div className="flex items-start gap-3">
