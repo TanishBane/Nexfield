@@ -12,14 +12,23 @@ import {
   Command,
   ClipboardList,
   Sparkles,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@nexfield/ui';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './Sidebar';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useDemoStore } from '@/lib/store/useDemoStore';
+import { apiClient } from '@/lib/api';
 import { CommandPalette } from '@/components/navigation/CommandPalette';
 import { ContextualTaskDrawer } from './ContextualTaskDrawer';
+
+interface FarmRecord {
+  id: string;
+  name: string;
+  state?: string;
+  district?: string;
+}
 
 export function Header() {
   const pathname = usePathname();
@@ -28,39 +37,70 @@ export function Header() {
   const { toggleSidebar, selectedFarmId, setSelectedFarmId } = useFarmStore();
   const demoStore = useDemoStore();
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [farms, setFarms] = useState<FarmRecord[]>([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
 
   useEffect(() => {
     if (isSupabaseConfigured() && !isDemo) {
-      const supabase = createClient();
-      supabase.auth.getUser().then(({ data }) => {
-        if (data.user?.email) {
-          setUserEmail(data.user.email);
-        }
-      });
+      try {
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data }) => {
+          if (data.user?.email) {
+            setUserEmail(data.user.email);
+          } else {
+            setUserEmail(null);
+          }
+        });
 
-      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUserEmail(session?.user?.email || null);
-      });
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+          setUserEmail(session?.user?.email || null);
+        });
 
-      return () => {
-        authListener.subscription.unsubscribe();
-      };
-    } else if (isDemo) {
-      setUserEmail(null);
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
+      } catch {
+        setUserEmail(null);
+      }
     } else {
-      setUserEmail('operator@nexfield.ag');
+      setUserEmail(null);
     }
   }, [isDemo]);
 
+  // Load authorized farms dynamically for the user
+  useEffect(() => {
+    if (!isDemo) {
+      apiClient
+        .getFarms()
+        .then((res) => {
+          if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+            setFarms(res.data);
+            if (!res.data.some((f: any) => f.id === selectedFarmId)) {
+              setSelectedFarmId(res.data[0].id);
+            }
+          } else {
+            setFarms([]);
+          }
+        })
+        .catch(() => {
+          setFarms([]);
+        });
+    }
+  }, [isDemo, selectedFarmId, setSelectedFarmId]);
+
   const handleSignOut = async () => {
     if (isSupabaseConfigured()) {
-      const supabase = createClient();
-      await supabase.auth.signOut();
+      try {
+        const supabase = createClient();
+        await supabase.auth.signOut();
+      } catch {
+        // Safe fallback
+      }
     }
     setUserEmail(null);
     router.push('/login');
+    router.refresh();
   };
 
   const allItems = useMemo(() => [...PRIMARY_NAV_ITEMS, ...SECONDARY_NAV_ITEMS], []);
@@ -73,7 +113,9 @@ export function Header() {
     );
   }, [pathname, isDemo, allItems]);
 
-  const pendingTasksCount = demoStore.tasks.filter((t) => t.status !== 'completed').length;
+  const pendingTasksCount = isDemo
+    ? demoStore.tasks.filter((t) => t.status !== 'completed').length
+    : 0;
 
   return (
     <>
@@ -124,22 +166,30 @@ export function Header() {
                 {demoStore.farmName}
               </span>
             </div>
-          ) : (
+          ) : farms.length > 0 ? (
             <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
               <MapPin className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
               <select
                 value={selectedFarmId}
                 onChange={(e) => setSelectedFarmId(e.target.value)}
-                className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D7B678]/80 rounded cursor-pointer pr-1 text-xs"
+                className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D7B678]/80 rounded cursor-pointer pr-1 text-xs max-w-[180px] truncate"
               >
-                <option value="f47ac10b-58cc-4372-a567-0e02b2c3d479" className="bg-[#111A15] text-[#E1ECE5]">
-                  Punjab Agrohub (Khanna)
-                </option>
-                <option value="e83b2a19-47dc-4921-b830-2f91a0c84102" className="bg-[#111A15] text-[#E1ECE5]">
-                  Maharashtra Precision Estate (Amravati)
-                </option>
+                {farms.map((farm) => (
+                  <option key={farm.id} value={farm.id} className="bg-[#111A15] text-[#E1ECE5]">
+                    {farm.name} {farm.district ? `(${farm.district})` : ''}
+                  </option>
+                ))}
               </select>
             </div>
+          ) : (
+            <Link
+              href="/onboarding"
+              className="flex items-center gap-1.5 rounded-lg bg-[#14231A] border border-[#2D6546] px-2.5 py-1 text-xs text-[#D7B678] hover:bg-[#1A3324] transition-colors font-medium"
+              title="Register Farm Property"
+            >
+              <Plus className="h-3.5 w-3.5 text-[#D7B678]" />
+              <span className="hidden sm:inline">Register Farm</span>
+            </Link>
           )}
 
           {/* Contextual Tasks Drawer Trigger */}
@@ -175,7 +225,7 @@ export function Header() {
                   className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#121B16] border border-[#1F2F24] text-xs text-[#BDD1C5]"
                   title={`Signed in as ${userEmail}`}
                 >
-                  <UserIcon className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  <UserIcon className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
                   <span className="hidden md:inline-block max-w-[120px] truncate">{userEmail}</span>
                 </div>
                 <Button

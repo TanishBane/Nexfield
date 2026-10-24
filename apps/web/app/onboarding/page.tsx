@@ -31,6 +31,20 @@ import { useFarmStore } from '@/lib/store/useFarmStore';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { apiClient } from '@/lib/api';
 
+const DISTRICT_CENTROIDS: Record<string, { lat: number; lng: number }> = {
+  Nashik: { lat: 19.9975, lng: 73.7898 },
+  Pune: { lat: 18.5204, lng: 73.8567 },
+  Amravati: { lat: 20.9374, lng: 77.7796 },
+  Nagpur: { lat: 21.1458, lng: 79.0882 },
+  Khanna: { lat: 30.7046, lng: 76.2163 },
+  Ludhiana: { lat: 30.9010, lng: 75.8573 },
+  Bathinda: { lat: 30.2110, lng: 74.9455 },
+  Anand: { lat: 22.5645, lng: 72.9289 },
+  Mandya: { lat: 12.5218, lng: 76.8951 },
+  Karnal: { lat: 29.6857, lng: 76.9905 },
+  Varanasi: { lat: 25.3176, lng: 82.9739 },
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { setSelectedFarmId } = useFarmStore();
@@ -38,6 +52,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<number>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDetectingGps, setIsDetectingGps] = useState<boolean>(false);
+  const [gpsStatus, setGpsStatus] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -54,6 +70,9 @@ export default function OnboardingPage() {
     soilType: 'alluvial',
     primaryIrrigation: 'drip_irrigation',
     pinCode: '422003',
+    latitude: 19.9975,
+    longitude: 73.7898,
+    gpsDetected: false,
 
     // Step 3: First Field Parcel
     fieldCode: 'F-101',
@@ -72,8 +91,60 @@ export default function OnboardingPage() {
     baselineMoisturePercent: 40.0,
   });
 
+  // Verify user is authenticated when Supabase is configured
+  useEffect(() => {
+    if (isSupabaseConfigured()) {
+      try {
+        const supabase = createClient();
+        supabase.auth.getUser().then(({ data, error }) => {
+          if (error || !data.user) {
+            router.push('/login?redirectTo=/onboarding');
+          }
+        });
+      } catch {
+        // Safe fallback
+      }
+    }
+  }, [router]);
+
   const handleInputChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: value };
+      if (field === 'district' && !prev.gpsDetected) {
+        const centroid = DISTRICT_CENTROIDS[value] || DISTRICT_CENTROIDS['Nashik'];
+        updated.latitude = centroid.lat;
+        updated.longitude = centroid.lng;
+      }
+      return updated;
+    });
+  };
+
+  const handleDetectGPS = () => {
+    if (typeof window !== 'undefined' && 'geolocation' in navigator) {
+      setIsDetectingGps(true);
+      setGpsStatus('Acquiring device GPS coordinates...');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = Number(pos.coords.latitude.toFixed(6));
+          const lng = Number(pos.coords.longitude.toFixed(6));
+          setFormData((prev) => ({
+            ...prev,
+            latitude: lat,
+            longitude: lng,
+            gpsDetected: true,
+          }));
+          setIsDetectingGps(false);
+          setGpsStatus(`GPS Acquired: ${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E`);
+        },
+        () => {
+          setIsDetectingGps(false);
+          setGpsStatus('Location access not permitted. Regional district centroid retained.');
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    } else {
+      setGpsStatus('Geolocation unavailable on device.');
+    }
   };
 
   const handleNext = () => {
@@ -106,9 +177,12 @@ export default function OnboardingPage() {
       // 1. Verify user authentication session if Supabase is configured
       if (isSupabaseConfigured()) {
         const supabase = createClient();
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (!sessionData?.session?.user) {
-          router.push('/login?redirect=/onboarding');
+        const {
+          data: { user },
+          error: authError,
+        } = await supabase.auth.getUser();
+        if (authError || !user) {
+          router.push('/login?redirectTo=/onboarding');
           return;
         }
       }
@@ -117,8 +191,8 @@ export default function OnboardingPage() {
       const farmRes = await apiClient.createFarm({
         name: formData.farmName.trim(),
         location: {
-          latitude: 20.0059,
-          longitude: 73.7901,
+          latitude: Number(formData.latitude),
+          longitude: Number(formData.longitude),
           address: `${formData.district}, ${formData.state}`,
           state: formData.state,
           district: formData.district,
@@ -133,6 +207,7 @@ export default function OnboardingPage() {
       if (!farmId) {
         throw new Error('Farm creation did not return a valid identifier from backend.');
       }
+
 
       // 3. Persist Initial Field Parcel
       const fieldRes = await apiClient.createField(farmId, {
@@ -371,6 +446,56 @@ export default function OnboardingPage() {
                     className="w-full px-3 py-2.5 rounded-xl bg-[#080D0A] border border-[#203227] text-[#F1F6F3] text-sm font-mono focus:outline-none focus:border-emerald-500"
                   />
                 </div>
+              </div>
+
+              {/* Geographic Coordinates & Real-time GPS Detection */}
+              <div className="p-3 rounded-xl bg-[#080D0A] border border-[#1C2C22] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-[#BDD1C6] flex items-center gap-1.5">
+                    <Compass className="h-3.5 w-3.5 text-[#D7B678]" />
+                    Spatial Centroid & GPS Coordinates
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleDetectGPS}
+                    disabled={isDetectingGps}
+                    className="px-2.5 py-1 rounded-lg bg-[#14231A] border border-[#2D6546] text-[#D7B678] hover:bg-[#1A3324] text-[11px] font-semibold transition-colors flex items-center gap-1"
+                  >
+                    {isDetectingGps ? (
+                      <span className="h-3 w-3 border-2 border-[#D7B678] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <MapPin className="h-3 w-3" />
+                    )}
+                    <span>Detect Device GPS</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] text-[#789384] block mb-1">Latitude (°N)</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={formData.latitude}
+                      onChange={(e) => handleInputChange('latitude', Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#0C1410] border border-[#203227] text-[#FAF8F2] font-mono text-xs focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-[#789384] block mb-1">Longitude (°E)</label>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      value={formData.longitude}
+                      onChange={(e) => handleInputChange('longitude', Number(e.target.value))}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-[#0C1410] border border-[#203227] text-[#FAF8F2] font-mono text-xs focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {gpsStatus && (
+                  <p className="text-[11px] text-[#D7B678] font-mono leading-tight">{gpsStatus}</p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

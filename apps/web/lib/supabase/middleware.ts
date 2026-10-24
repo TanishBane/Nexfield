@@ -2,6 +2,28 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
+ * Checks if live Supabase credentials are configured in middleware environment.
+ */
+function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) return false;
+  const trimmedUrl = url.trim().toLowerCase();
+  const trimmedKey = key.trim().toLowerCase();
+  if (
+    trimmedUrl.includes('placeholder') ||
+    trimmedUrl.includes('your-project') ||
+    trimmedKey.includes('placeholder') ||
+    trimmedKey.includes('your-anon')
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Refreshes Supabase auth token cookies and enforces protected routes.
  */
 export async function updateSession(request: NextRequest) {
@@ -9,19 +31,40 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const pathname = request.nextUrl.pathname;
 
-  // If Supabase credentials are not configured, allow local dev / fixture mode through
-  if (
-    !supabaseUrl ||
-    !supabaseKey ||
-    supabaseUrl.includes('placeholder') ||
-    supabaseUrl.includes('your-project')
-  ) {
+  // Protected application routes (Real farmer workspace)
+  const protectedPrefixes = [
+    '/control',
+    '/twin',
+    '/fieldsight',
+    '/markets',
+    '/ops',
+    '/intelligence',
+    '/data-center',
+    '/onboarding',
+  ];
+  const isProtectedRoute = protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+
+  // /demo routes and landing page (/) are always public
+  const isDemoRoute = pathname.startsWith('/demo');
+
+  // If Supabase credentials are not configured
+  if (!isSupabaseConfigured()) {
+    // If accessing protected routes without Supabase configured, redirect to /login with unconfigured error
+    if (isProtectedRoute && !isDemoRoute) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/login';
+      redirectUrl.searchParams.set('error', 'supabase_unconfigured');
+      redirectUrl.searchParams.set('redirectTo', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
     return supabaseResponse;
   }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey = (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)!;
 
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
@@ -45,44 +88,24 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-
-  // Protected application routes (Real farmer workspace)
-  const protectedPrefixes = [
-    '/control',
-    '/twin',
-    '/fieldsight',
-    '/markets',
-    '/ops',
-    '/intelligence',
-    '/data-center',
-  ];
-  const isProtectedRoute = protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
-
-  // /demo routes and landing page (/) are always public
-  const isDemoRoute = pathname.startsWith('/demo');
-
   // If unauthenticated user tries to access a protected route
   if (!user && isProtectedRoute && !isDemoRoute) {
-    // If running in development fixture mode without live Supabase, allow browsing
-    if (process.env.NEXT_PUBLIC_USE_FIXTURES === 'true' && !request.cookies.get('sb-enforce-auth')) {
-      return supabaseResponse;
-    }
-
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/login';
     redirectUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // If authenticated user navigates to /login, redirect to /control
-  if (user && pathname === '/login') {
+  // If authenticated user navigates to /login or /forgot-password, redirect to /control
+  const isAuthRoute = pathname === '/login' || pathname === '/forgot-password';
+  if (user && isAuthRoute) {
     const redirectUrl = request.nextUrl.clone();
     const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/control';
-    redirectUrl.pathname = redirectTo;
+    redirectUrl.pathname = redirectTo.startsWith('/') ? redirectTo : '/control';
     redirectUrl.searchParams.delete('redirectTo');
     return NextResponse.redirect(redirectUrl);
   }
 
   return supabaseResponse;
 }
+

@@ -1,5 +1,5 @@
 import { fixturesAdapter } from './fixtures-adapter';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import type {
   FarmControlOverview,
   CropAssessment,
@@ -33,7 +33,7 @@ export interface ApiError extends Error {
  */
 async function getAuthHeaders(): Promise<Record<string, string>> {
   try {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isSupabaseConfigured()) {
       const supabase = createClient();
       const { data } = await supabase.auth.getSession();
       if (data?.session?.access_token) {
