@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -63,10 +63,11 @@ export function Header() {
     router.refresh();
   };
 
-  const currentModule =
-    NAVIGATION_ITEMS.find((item) =>
+  const currentModule = useMemo(() => {
+    return NAVIGATION_ITEMS.find((item) =>
       isDemo ? pathname.startsWith(`/demo${item.href}`) : pathname.startsWith(item.href)
     ) || NAVIGATION_ITEMS[0];
+  }, [pathname, isDemo]);
 
   return (
     <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[#1B2921] bg-[#0A0F0D]/95 px-4 backdrop-blur-md select-none">

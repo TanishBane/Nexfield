@@ -15,6 +15,11 @@ export const metadata: Metadata = {
     'Mandi Prices',
     'Food Technology',
   ],
+  icons: {
+    icon: '/favicon-32x32.png',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({
