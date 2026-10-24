@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "project": {
+    "name": "NEXFIELD",
+    "productType": "Agricultural Intelligence Operating System",
+    "stack": [
+      "Next.js 15.5 App Router",
+      "React 19",
+      "TypeScript",
+      "Tailwind CSS v3",
+      "React Three Fiber (Three.js)",
+      "GSAP + ScrollTrigger",
+      "Motion (Framer Motion)",
+      "ECharts",
+      "Supabase"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "packages/ui/src/tokens.ts",
+      "apps/web/tailwind.config.ts",
+      "apps/web/app/globals.css"
+    ],
+    "components": [
+      "packages/ui/src",
+      "apps/web/components"
+    ],
+    "assets": [
+      "apps/web/public/branding/nexfield-logo.jpg",
+      "apps/web/public/branding/nexfield-logo.png"
+    ],
+    "instructions": [
+      "AGENTS.md"
+    ]
+  },
+  "design": {
+    "colorMode": "dark-and-light-editorial",
+    "colors": {
+      "warmIvory": "#F3E9D6",
+      "forestGreen": "#173C2C",
+      "deepCharcoal": "#101713",
+      "obsidian": "#090D0B",
+      "mutedGold": "#C2A06A",
+      "softSage": "#A7B5A0",
+      "warmWhite": "#FAF8F2",
+      "emeraldCore": "#10B981",
+      "cardSurface": "#111714",
+      "borderSubtle": "#1F2E25",
+      "borderDefault": "#273C30"
+    },
+    "typography": {
+      "editorialDisplay": "Instrument Serif",
+      "interfaceSans": "Manrope",
+      "technicalMono": "JetBrains Mono"
+    },
+    "radius": {
+      "card": "0.75rem",
+      "button": "0.5rem",
+      "badge": "9999px"
+    },
+    "density": "comfortable-editorial"
+  },
+  "constraints": {
+    "must": [
+      "Use official NEXFIELD N-leaf logo proportions and recognition",
+      "Follow APCA high-contrast text ratios (Lc > 90 for primary text)",
+      "Use tabular numbers (tabular-nums) for all metrics, coordinates, and prices",
+      "Enforce nested radius invariant: child_r <= parent_r - padding",
+      "Support prefers-reduced-motion and high-performance WebGL fallbacks",
+      "Maintain stable persistent chrome heights without reflow"
+    ],
+    "avoid": [
+      "Generic AI glowing neon green borders and arbitrary glassmorphism",
+      "Random decorative floating blobs or meaningless particles",
+      "Unexplained agricultural jargon and overcrowded sidebars",
+      "Tiny unreadable low-contrast labels",
+      "Scroll hijacking and un-interruptible animations"
+    ]
+  },
+  "decisions": [
+    "Editorial agricultural identity blending natural warm ivory, forest green, muted gold and deep obsidian",
+    "Instrument Serif for editorial storytelling headings + Manrope for high-legibility interface + JetBrains Mono for telemetry",
+    "Progressive disclosure in Command Center: clear Farm Hero, Today's Priorities, Simple Health, with deep metrics in subpages",
+    "GSAP ScrollTrigger for narrative storytelling + React Three Fiber for interactive 3D farm explorer",
+    "Dedicated public multi-page routes (/platform/*, /how-it-works, /solutions, /about, /demo, /login)"
+  ],
+  "generatedAt": "2026-10-24T00:05:00.000Z"
+}

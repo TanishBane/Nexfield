@@ -24,12 +24,19 @@ export const tokens = {
       muted: '#63796E',     // Disabled / Microtext
       accent: '#34D399',    // Key data highlights
     },
-    // Brand Agronomic Green
+    // Brand Agronomic Green & Editorial Earth
     brand: {
       primary: '#10B981',   // Emerald Core
       bright: '#34D399',    // Hover / Highlights
       dark: '#059669',      // Active / Clicked
       forest: '#142E20',    // Badge Backgrounds
+      // Project Earth Editorial Tokens
+      warmIvory: '#F3E9D6',   // Editorial surface & hero highlight
+      forestGreen: '#173C2C', // Deep agricultural richness
+      deepCharcoal: '#101713',// Foundation charcoal
+      mutedGold: '#C2A06A',   // Harvest & grain accent
+      softSage: '#A7B5A0',    // Muted flora & secondary meta
+      warmWhite: '#FAF8F2',   // High-contrast editorial text
     },
     // Domain Semantic Accents
     semantic: {
@@ -62,6 +69,7 @@ export const tokens = {
   },
   typography: {
     fontSans: 'var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)',
+    fontSerif: 'var(--font-serif, "Instrument Serif", Georgia, serif)',
     fontMono: 'var(--font-mono, "JetBrains Mono", "Fira Code", monospace)',
   },
   radius: {
