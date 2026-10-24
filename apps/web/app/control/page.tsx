@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Sprout,
@@ -54,6 +54,15 @@ export default function ControlPage() {
       return res;
     },
   });
+
+  const filteredCycles = useMemo(() => {
+    const cycles = data?.data?.activeCycles || [];
+    return cycles.filter((c) => {
+      if (activeFieldFilter && c.fieldId !== activeFieldFilter) return false;
+      if (activeSeasonFilter && c.season !== activeSeasonFilter) return false;
+      return true;
+    });
+  }, [data?.data?.activeCycles, activeFieldFilter, activeSeasonFilter]);
 
   if (isLoading) {
     return <ModuleLoadingState message="Connecting to farm IoT gateway, soil sensors & satellite feed..." />;
@@ -111,15 +120,11 @@ export default function ControlPage() {
     relevantMandiPrices,
   } = overview;
 
-  // Filter cycles
-  const filteredCycles = activeCycles.filter((c) => {
-    if (activeFieldFilter && c.fieldId !== activeFieldFilter) return false;
-    if (activeSeasonFilter && c.season !== activeSeasonFilter) return false;
-    return true;
-  });
+  // Filter cycles (moved up)
 
   // Filter alerts
-  const visibleAlerts = activeAlerts.filter((a) => !dismissedAlertIds.includes(a.id));
+  const dismissedAlertsSet = new Set(dismissedAlertIds);
+  const visibleAlerts = activeAlerts.filter((a) => !dismissedAlertsSet.has(a.id));
 
   const toggleTaskCompletion = (taskId: string) => {
     setCompletedTaskIds((prev) =>

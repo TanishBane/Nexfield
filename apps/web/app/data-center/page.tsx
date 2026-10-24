@@ -150,10 +150,13 @@ export default function DataCenterPage() {
   const autoMapColumns = (cols: string[], cat: IngestionCategory) => {
     const newMap: { [targetField: string]: string } = {};
 
+    const lowerCols = cols.map(c => c.toLowerCase());
+
     const findMatch = (targets: string[]): string => {
       for (const t of targets) {
-        const found = cols.find((c) => c.toLowerCase() === t.toLowerCase() || c.toLowerCase().includes(t.toLowerCase()));
-        if (found) return found;
+        const lowerT = t.toLowerCase();
+        const foundIdx = lowerCols.findIndex((c) => c === lowerT || c.includes(lowerT));
+        if (foundIdx !== -1) return cols[foundIdx];
       }
       return cols[0] || '';
     };

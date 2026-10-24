@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -62,11 +62,14 @@ export function Header() {
     router.push('/login');
   };
 
-  const allItems = NAVIGATION_SECTIONS.flatMap((s) => s.items);
-  const currentModule =
-    allItems.find((item) =>
-      isDemo ? pathname.startsWith(`/demo${item.href}`) : pathname.startsWith(item.href)
-    ) || allItems[0];
+  const currentModule = useMemo(() => {
+    const allItems = NAVIGATION_SECTIONS.flatMap((s) => s.items);
+    return (
+      allItems.find((item) =>
+        isDemo ? pathname.startsWith(`/demo${item.href}`) : pathname.startsWith(item.href)
+      ) || allItems[0]
+    );
+  }, [pathname, isDemo]);
 
   return (
     <>

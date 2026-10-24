@@ -69,6 +69,7 @@ export default function DemoControlPage() {
   const [showDeepTelemetry, setShowDeepTelemetry] = useState<boolean>(false);
 
   // Today's Top Priorities (Strictly Max 3 Actionable Cards)
+  const dismissedPrioritiesSet = new Set(dismissedPriorities);
   const priorities = [
     {
       id: 'p-1',
@@ -107,7 +108,7 @@ export default function DemoControlPage() {
       badgeColor: 'text-emerald-400 border-emerald-500/30 bg-emerald-950/20',
       icon: TrendingUp,
     },
-  ].filter((p) => !dismissedPriorities.includes(p.id));
+  ].filter((p) => !dismissedPrioritiesSet.has(p.id));
 
   // Recent Activity Feed
   const recentActivities = [
@@ -133,7 +134,6 @@ export default function DemoControlPage() {
       source: 'Weather Station NW',
     },
   ];
-
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* =========================================================================

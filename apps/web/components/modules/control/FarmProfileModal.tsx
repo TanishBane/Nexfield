@@ -54,6 +54,7 @@ export function FarmProfileModal({ farm, isOpen, onClose }: FarmProfileModalProp
             size="icon"
             onClick={onClose}
             className="h-8 w-8 text-[#8BA193] hover:text-[#F1F6F3]"
+            aria-label="Close modal"
           >
             <X className="h-4 w-4" />
           </Button>

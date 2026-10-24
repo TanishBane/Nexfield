@@ -42,6 +42,8 @@ import { useFarmStore } from '@/lib/store/useFarmStore';
 import type { FarmTask, InventoryTransaction } from '@nexfield/contracts';
 import Link from 'next/link';
 
+const UNDERSCORE_REGEX = /_/g;
+
 export default function OpsPage() {
   const queryClient = useQueryClient();
   const { selectedFarmId, selectedFieldId } = useFarmStore();
@@ -303,7 +305,7 @@ export default function OpsPage() {
 
                   <div className="flex items-center gap-2 shrink-0">
                     <Badge variant={task.status === 'completed' ? 'success' : 'outline'} size="sm">
-                      {task.status.replace(/_/g, ' ')}
+                      {task.status.replace(UNDERSCORE_REGEX, ' ')}
                     </Badge>
                   </div>
                 </div>
@@ -340,7 +342,7 @@ export default function OpsPage() {
                       <tr key={item.id} className="hover:bg-[#121B16] transition-colors">
                         <td className="py-3 font-semibold text-[#F1F6F3]">{item.itemName}</td>
                         <td className="py-3 capitalize text-[#8DA295]">
-                          {item.itemType.replace(/_/g, ' ')}
+                          {item.itemType.replace(UNDERSCORE_REGEX, ' ')}
                         </td>
                         <td className="py-3 font-mono text-[11px] text-[#748F80]">
                           {item.batchNumber || '—'}
@@ -442,7 +444,7 @@ export default function OpsPage() {
                         {batch.cropName} ({batch.variety})
                       </span>
                       <Badge variant="success" size="sm">
-                        {batch.qualityGrade.replace(/_/g, ' ')}
+                        {batch.qualityGrade.replace(UNDERSCORE_REGEX, ' ')}
                       </Badge>
                     </div>
 
@@ -498,6 +500,7 @@ export default function OpsPage() {
                 size="icon"
                 onClick={() => setIsNewTaskModalOpen(false)}
                 className="h-6 w-6 text-[#7F998B]"
+                aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -597,6 +600,7 @@ export default function OpsPage() {
                 size="icon"
                 onClick={() => setIsNewTransactionModalOpen(false)}
                 className="h-6 w-6 text-[#7F998B]"
+                aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
               </Button>
