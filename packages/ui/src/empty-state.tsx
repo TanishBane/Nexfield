@@ -23,12 +23,12 @@ export function EmptyState({
     >
       <CardContent className="flex flex-col items-center justify-center p-8 text-center">
         {icon ? (
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] text-[#46604D] mb-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-[#D1DDCD] text-[#048547] mb-4 shadow-xs">
             {icon}
           </div>
         ) : null}
         <h4 className="text-base font-semibold text-[#09251A]">{title}</h4>
-        <p className="mt-1 text-sm text-[#46604D] max-w-sm">{description}</p>
+        <p className="mt-1.5 text-sm text-[#46604D] max-w-sm leading-relaxed">{description}</p>
         {action ? <div className="mt-5">{action}</div> : null}
       </CardContent>
     </Card>

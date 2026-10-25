@@ -36,7 +36,7 @@ export function StatCard({
   return (
     <Card
       className={cn(
-        "relative overflow-hidden transition-all",
+        "relative overflow-hidden transition-all duration-150",
         borderVariants[variant],
         className,
       )}
@@ -46,7 +46,7 @@ export function StatCard({
           <p className="text-sm font-semibold tracking-wide text-[#46604D]">
             {label}
           </p>
-          {icon ? <div className="text-emerald-700">{icon}</div> : null}
+          {icon ? <div className="text-[#048547] flex items-center justify-center">{icon}</div> : null}
         </div>
 
         <div className="mt-3 flex items-baseline gap-2">
@@ -61,18 +61,18 @@ export function StatCard({
         {trendValue || subValue ? (
           <div className="mt-3 flex items-center justify-between text-sm">
             {subValue ? (
-              <span className="text-[#46604D] truncate">{subValue}</span>
+              <span className="text-[#46604D] truncate text-xs">{subValue}</span>
             ) : (
               <span />
             )}
             {trendValue ? (
               <span
                 className={cn(
-                  "font-mono font-semibold tabular-nums px-2 py-0.5 rounded text-xs",
+                  "font-mono font-semibold tabular-nums px-2 py-0.5 rounded text-xs inline-flex items-center gap-1",
                   trend === "up" &&
-                    "text-emerald-700 bg-emerald-50/80 border border-emerald-800/60",
+                    "text-[#005B36] bg-[#E5F2CF] border border-[#B8D494]",
                   trend === "down" &&
-                    "text-rose-700 bg-rose-50/80 border border-rose-800/60",
+                    "text-[#991B1B] bg-[#FBE0E8] border border-[#E9B4C4]",
                   trend === "neutral" &&
                     "text-[#46604D] bg-[#F7FAF2] border border-[#D1DDCD]",
                 )}

@@ -43,14 +43,18 @@ export function Tabs({
 export function TabsList({
   children,
   className,
+  "aria-label": ariaLabel,
 }: {
   children: React.ReactNode;
   className?: string;
+  "aria-label"?: string;
 }) {
   return (
     <div
+      role="tablist"
+      aria-label={ariaLabel}
       className={cn(
-        "inline-flex h-9 items-center justify-center rounded-lg bg-[#F7FAF2] p-1 text-[#46604D] border border-[#D1DDCD]",
+        "inline-flex min-h-[44px] items-center justify-start rounded-xl bg-[#F7FAF2] p-1 text-[#46604D] border border-[#D1DDCD] gap-1 overflow-x-auto max-w-full",
         className,
       )}
     >
@@ -76,12 +80,15 @@ export function TabsTrigger({
   return (
     <button
       type="button"
+      role="tab"
+      aria-selected={isActive}
+      tabIndex={isActive ? 0 : -1}
       onClick={() => context.setActiveTab(value)}
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-xs md:text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] cursor-pointer min-h-[36px] select-none",
         isActive
           ? "bg-[#FFFFFF] text-[#09251A] shadow-sm font-semibold border border-[#D1DDCD]"
-          : "text-[#46604D] hover:text-[#46604D] hover:bg-[#F7FAF2]",
+          : "text-[#46604D] hover:text-[#09251A] hover:bg-[#FFFFFF]/60",
         className,
       )}
     >
@@ -105,7 +112,11 @@ export function TabsContent({
   if (context.activeTab !== value) return null;
 
   return (
-    <div className={cn("mt-3 focus-visible:outline-none", className)}>
+    <div
+      role="tabpanel"
+      tabIndex={0}
+      className={cn("mt-4 focus-visible:outline-none animate-fadeIn", className)}
+    >
       {children}
     </div>
   );

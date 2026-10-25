@@ -18,19 +18,19 @@ export function ErrorDisplay({
   className,
 }: ErrorDisplayProps) {
   return (
-    <Card className={cn("border-rose-900/50 bg-[#F7FAF2]", className)}>
+    <Card className={cn("border-[#E9B4C4] bg-[#FBE0E8]/40", className)}>
       <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50/60 border border-rose-800/60 text-rose-700 mb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FBE0E8] border border-[#E9B4C4] text-[#991B1B] mb-4 shadow-xs">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h4 className="text-base font-semibold text-rose-700">{title}</h4>
-        <p className="mt-1 text-sm text-[#46604D] max-w-md">{message}</p>
+        <h4 className="text-base font-semibold text-[#991B1B]">{title}</h4>
+        <p className="mt-1.5 text-sm text-[#46604D] max-w-md leading-relaxed">{message}</p>
         {onRetry ? (
           <Button
             onClick={onRetry}
             variant="outline"
             size="sm"
-            className="mt-5 border-rose-800/60 text-rose-700 hover:bg-rose-50/50 gap-2"
+            className="mt-5 border-[#E9B4C4] text-[#991B1B] hover:bg-[#FBE0E8] gap-2 min-h-[44px]"
           >
             <RefreshCw className="h-4 w-4" />
             Retry Connection

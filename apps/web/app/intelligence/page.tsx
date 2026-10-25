@@ -204,13 +204,13 @@ In offline development mode without external API keys configured, automated reas
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#09251A] flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-emerald-700" />
+              <Sparkles className="h-6 w-6 text-[#048547]" />
               Farm insights
             </h1>
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-emerald-700 border-emerald-800/40"
+              className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
               Tool Calling LLM
             </Badge>
@@ -221,11 +221,11 @@ In offline development mode without external API keys configured, automated reas
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs font-mono">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-mono shadow-2xs">
+          <span className="h-2 w-2 rounded-full bg-[#048547] motion-safe:animate-pulse" />
           <span className="text-[#46604D]">
             Grounding:{" "}
-            <strong className="text-emerald-700 font-medium">
+            <strong className="text-[#005B36] font-semibold">
               Khanna Agrohub Live Telemetry
             </strong>
           </span>
@@ -236,7 +236,7 @@ In offline development mode without external API keys configured, automated reas
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (8 cols): Interactive Conversation UI */}
         <div className="lg:col-span-8">
-          <Card className="flex flex-col h-[650px] border-[#D1DDCD]">
+          <Card className="flex flex-col h-[650px] border-[#D1DDCD] bg-white shadow-xs">
             {/* Messages Stream */}
             <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages.map((msg) => (
@@ -245,32 +245,32 @@ In offline development mode without external API keys configured, automated reas
                   className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-lg bg-emerald-50 border border-emerald-500/40 text-emerald-700">
-                      <Bot className="h-4 w-4" />
+                    <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-xl bg-[#E5F2CF] border border-[#B8D494] text-[#005B36] shadow-2xs">
+                      <Bot className="h-4 w-4 text-[#048547]" />
                     </div>
                   ) : null}
 
                   <div
-                    className={`max-w-2xl rounded-xl p-4 text-xs md:text-sm leading-relaxed border space-y-2.5 ${
+                    className={`max-w-2xl rounded-2xl p-4 text-xs md:text-sm leading-relaxed border space-y-2.5 shadow-2xs ${
                       msg.role === "user"
-                        ? "bg-emerald-50/40 border-emerald-800/40 text-[#09251A]"
+                        ? "bg-[#E5F2CF] border-[#B8D494] text-[#09251A] font-medium"
                         : "bg-[#F7FAF2] border-[#D1DDCD] text-[#09251A]"
                     }`}
                   >
-                    <div className="prose prose-invert prose-sm max-w-none whitespace-pre-line">
+                    <div className="prose prose-sm max-w-none whitespace-pre-line text-[#09251A]">
                       {msg.content}
                     </div>
 
                     {/* Tool Execution Result Display */}
                     {msg.toolExecution ? (
-                      <div className="rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] p-2.5 font-mono text-[11px] space-y-1">
-                        <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                          <Wrench className="h-3 w-3" />
+                      <div className="rounded-xl bg-white border border-[#D1DDCD] p-3 font-mono text-[11px] space-y-1 shadow-2xs">
+                        <div className="flex items-center gap-1.5 text-[#005B36] font-bold">
+                          <Wrench className="h-3.5 w-3.5 text-[#048547]" />
                           <span>
                             Tool Executed: {msg.toolExecution.toolName}()
                           </span>
                         </div>
-                        <p className="text-[#46604D]">
+                        <p className="text-[#46604D] leading-relaxed">
                           {msg.toolExecution.output}
                         </p>
                       </div>
@@ -278,10 +278,10 @@ In offline development mode without external API keys configured, automated reas
 
                     {/* Interactive Action Confirmation Card */}
                     {msg.requiresConfirmation ? (
-                      <div className="rounded-lg bg-[#F7FAF2] border border-emerald-600/50 p-3 space-y-2 text-xs">
+                      <div className="rounded-xl bg-white border border-[#B8D494] p-3.5 space-y-2 text-xs shadow-xs">
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-emerald-700 flex items-center gap-1.5">
-                            <AlertCircle className="h-3.5 w-3.5" />
+                          <span className="font-bold text-[#005B36] flex items-center gap-1.5">
+                            <AlertCircle className="h-3.5 w-3.5 text-[#048547]" />
                             {msg.requiresConfirmation.actionType}
                           </span>
                           {msg.requiresConfirmation.confirmed ? (
@@ -294,7 +294,7 @@ In offline development mode without external API keys configured, automated reas
                             </Badge>
                           )}
                         </div>
-                        <p className="text-[#46604D]">
+                        <p className="text-[#46604D] leading-relaxed">
                           {msg.requiresConfirmation.details}
                         </p>
                         {!msg.requiresConfirmation.confirmed ? (
@@ -303,7 +303,7 @@ In offline development mode without external API keys configured, automated reas
                               variant="primary"
                               size="sm"
                               onClick={() => confirmAction(msg.id)}
-                              className="h-7 text-xs gap-1"
+                              className="h-8 text-xs gap-1.5 bg-[#048547] text-white hover:bg-[#005B36] font-semibold cursor-pointer shadow-xs"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
                               Approve & Dispatch Order
@@ -316,16 +316,16 @@ In offline development mode without external API keys configured, automated reas
                     {/* Citations */}
                     {msg.citations && msg.citations.length > 0 ? (
                       <div className="mt-3 pt-2.5 border-t border-[#D1DDCD] space-y-1">
-                        <span className="text-[10px] uppercase font-semibold text-[#46604D] tracking-wider block">
+                        <span className="text-[10px] uppercase font-bold text-[#46604D] tracking-wider block">
                           Agronomic Citations & References
                         </span>
                         {msg.citations.map((cite, i) => (
                           <div
                             key={i}
-                            className="flex items-center gap-1.5 text-[11px] text-[#46604D] hover:text-emerald-700 cursor-pointer"
+                            className="flex items-center gap-1.5 text-[11px] text-[#46604D] hover:text-[#005B36] cursor-pointer"
                           >
-                            <BookOpen className="h-3 w-3 text-emerald-500 shrink-0" />
-                            <span>{cite.title}</span>
+                            <BookOpen className="h-3 w-3 text-[#048547] shrink-0" />
+                            <span className="font-medium">{cite.title}</span>
                             <span className="text-[#46604D]">
                               ({cite.source})
                             </span>
@@ -341,10 +341,10 @@ In offline development mode without external API keys configured, automated reas
                           <button
                             key={i}
                             onClick={() => handleSendMessage(action)}
-                            className="rounded-full bg-[#F7FAF2] hover:bg-[#FFFFFF] text-emerald-700 border border-[#D1DDCD] px-2.5 py-1 text-[11px] font-medium transition-colors inline-flex items-center gap-1"
+                            className="rounded-full bg-white hover:bg-[#EAF1E7] text-[#005B36] border border-[#B8D494] px-3 py-1.5 text-[11px] font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-2xs"
                           >
-                            {action}
-                            <ArrowRight className="h-2.5 w-2.5" />
+                            <span>{action}</span>
+                            <ArrowRight className="h-3 w-3 text-[#048547]" />
                           </button>
                         ))}
                       </div>
@@ -352,7 +352,7 @@ In offline development mode without external API keys configured, automated reas
                   </div>
 
                   {msg.role === "user" ? (
-                    <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-lg bg-[#FFFFFF] border border-[#D1DDCD] text-[#46604D]">
+                    <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-xl bg-white border border-[#D1DDCD] text-[#09251A] shadow-2xs">
                       <User className="h-4 w-4" />
                     </div>
                   ) : null}
@@ -361,8 +361,8 @@ In offline development mode without external API keys configured, automated reas
 
               {chatMutation.isPending ? (
                 <div className="flex gap-3 items-center text-xs text-[#46604D] italic">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 border border-emerald-500/40 text-emerald-700">
-                    <Bot className="h-4 w-4 animate-spin" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E5F2CF] border border-[#B8D494] text-[#005B36]">
+                    <Bot className="h-4 w-4 motion-safe:animate-spin text-[#048547]" />
                   </div>
                   <span>
                     Synthesizing farm context, executing tool queries, and
@@ -385,7 +385,7 @@ In offline development mode without external API keys configured, automated reas
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Ask about crop health, spray dosages, irrigation withholding, or Mandi arbitrage..."
-                  className="flex-1 bg-[#F7FAF2]"
+                  className="flex-1 bg-white border-[#D1DDCD]"
                   disabled={chatMutation.isPending}
                 />
                 <Button
@@ -393,7 +393,7 @@ In offline development mode without external API keys configured, automated reas
                   variant="primary"
                   size="sm"
                   disabled={!inputText.trim() || chatMutation.isPending}
-                  className="gap-1.5"
+                  className="gap-1.5 bg-[#048547] text-white hover:bg-[#005B36] font-semibold min-h-[44px] cursor-pointer shadow-xs"
                 >
                   <Send className="h-4 w-4" />
                   Send
@@ -405,10 +405,10 @@ In offline development mode without external API keys configured, automated reas
 
         {/* Right Column (4 cols): Active Grounding Context Snapshot */}
         <div className="lg:col-span-4 space-y-4">
-          <Card className="border-[#D1DDCD]">
+          <Card className="border-[#D1DDCD] bg-white shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-700" />
+                <ShieldCheck className="h-4 w-4 text-[#048547]" />
                 Live Grounding Context
               </CardTitle>
               <CardDescription>
@@ -417,17 +417,17 @@ In offline development mode without external API keys configured, automated reas
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-xs font-mono">
-              <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
-                <span className="text-[#46604D] block text-[10px]">
+              <div className="p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
+                <span className="text-[#46604D] block text-[10px] font-semibold">
                   SELECTED ESTATE
                 </span>
-                <span className="text-[#09251A] font-bold">
+                <span className="text-[#09251A] font-bold text-sm">
                   {demoStore.farmName}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
-                <span className="text-[#46604D] block text-[10px]">
+              <div className="p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
+                <span className="text-[#46604D] block text-[10px] font-semibold">
                   ESTATE LOCATION
                 </span>
                 <span className="text-[#09251A] font-bold">
@@ -435,62 +435,62 @@ In offline development mode without external API keys configured, automated reas
                 </span>
               </div>
 
-              <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
-                <span className="text-[#46604D] block text-[10px]">
+              <div className="p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
+                <span className="text-[#46604D] block text-[10px] font-semibold">
                   CROP & PHENOLOGY
                 </span>
-                <span className="text-emerald-700 font-bold">
+                <span className="text-[#005B36] font-bold">
                   {demoStore.cropName} ({demoStore.cropVariety}) •{" "}
                   {demoStore.growthStage}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
-                <span className="text-[#46604D] block text-[10px]">
+              <div className="p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
+                <span className="text-[#46604D] block text-[10px] font-semibold">
                   SOIL HYDROLOGY
                 </span>
-                <span className="text-sky-700">
+                <span className="text-[#0284C7] font-semibold tabular-nums">
                   Moisture: {demoStore.soilMoisture}% • pH: {demoStore.soilPh} •
                   N: {demoStore.nitrogenPpm} ppm
                 </span>
               </div>
 
-              <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
-                <span className="text-[#46604D] block text-[10px]">
+              <div className="p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] space-y-0.5">
+                <span className="text-[#46604D] block text-[10px] font-semibold">
                   MANDI BENCHMARK
                 </span>
-                <span className="text-amber-700">
+                <span className="text-[#92400E] font-semibold tabular-nums">
                   Khanna APMC: ₹2,580/q • Rajpura: ₹2,640/q
                 </span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-[#D1DDCD]">
+          <Card className="border-[#D1DDCD] bg-white shadow-xs">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold uppercase tracking-wider text-[#46604D]">
                 Available Tool Capabilities
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-xs">
-              <div className="p-2 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                <code className="text-emerald-700 text-[11px] block">
+              <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                <code className="text-[#005B36] font-bold text-[11px] block">
                   query_field_telemetry
                 </code>
                 <span className="text-[#46604D] text-[11px]">
                   Inspect real-time rootzone sensor metrics
                 </span>
               </div>
-              <div className="p-2 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                <code className="text-emerald-700 text-[11px] block">
+              <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                <code className="text-[#005B36] font-bold text-[11px] block">
                   fieldsight_disease_lookup
                 </code>
                 <span className="text-[#46604D] text-[11px]">
                   Query CNN disease classification & spray dosage
                 </span>
               </div>
-              <div className="p-2 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                <code className="text-emerald-700 text-[11px] block">
+              <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                <code className="text-[#005B36] font-bold text-[11px] block">
                   calculate_spatial_arbitrage
                 </code>
                 <span className="text-[#46604D] text-[11px]">

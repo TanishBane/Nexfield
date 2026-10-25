@@ -112,17 +112,17 @@ export function TransportCalculator({
   const netRealizationPct = (netRealizationPerQuintal / modalPrice) * 100;
 
   return (
-    <Card className="border-[#D1DDCD] bg-[#F7FAF2]">
+    <Card className="border-[#D1DDCD] bg-white shadow-xs">
       <CardHeader className="pb-3 border-b border-[#D1DDCD]">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2 text-[#09251A]">
-            <Calculator className="h-4 w-4 text-emerald-700" />
+            <Calculator className="h-4 w-4 text-[#048547]" />
             Multi-Factor Freight & Net Realization Engine
           </CardTitle>
           <Badge
             variant="outline"
             size="sm"
-            className="font-mono text-[11px] border-emerald-800 text-emerald-700"
+            className="font-mono text-[11px] border-[#B8D494] text-[#005B36] bg-[#E5F2CF]"
           >
             Target: {selectedMandiName}
           </Badge>
@@ -131,7 +131,7 @@ export function TransportCalculator({
       <CardContent className="space-y-4 pt-4 text-xs">
         {/* Vehicle Selection Tabs */}
         <div>
-          <label className="text-[11px] text-[#46604D] font-medium block mb-1.5">
+          <label className="text-[11px] text-[#46604D] font-bold block mb-1.5">
             Transport Haulage Vehicle
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -146,16 +146,16 @@ export function TransportCalculator({
                     setVehicleType(vKey);
                     setDriverBhatta(v.defaultBhatta);
                   }}
-                  className={`p-2 rounded-lg border text-left transition-all ${
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#FFFFFF] border-emerald-500/60 text-[#09251A]"
-                      : "bg-[#F7FAF2] border-[#D1DDCD] text-[#46604D] hover:border-[#D1DDCD]"
+                      ? "bg-[#E5F2CF] border-[#B8D494] text-[#005B36] shadow-2xs font-semibold"
+                      : "bg-white border-[#D1DDCD] text-[#46604D] hover:bg-[#F7FAF2] hover:text-[#09251A]"
                   }`}
                 >
                   <span className="font-semibold text-[11px] block truncate">
                     {v.name}
                   </span>
-                  <span className="text-[10px] text-[#46604D] block">
+                  <span className="text-[10px] text-[#46604D] block font-mono">
                     {v.capacity}q cap • {v.kmPerLiter} km/L
                   </span>
                 </button>
@@ -167,7 +167,7 @@ export function TransportCalculator({
         {/* Core Logistics Parameters */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Haulage (One-way km)
             </label>
             <Input
@@ -176,12 +176,12 @@ export function TransportCalculator({
               onChange={(e) =>
                 setDistanceKm(Math.max(0, Number(e.target.value)))
               }
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Lot Weight (Quintals)
             </label>
             <Input
@@ -190,31 +190,31 @@ export function TransportCalculator({
               onChange={(e) =>
                 setBatchQuantityQuintals(Math.max(1, Number(e.target.value)))
               }
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Diesel Price (₹/L)
             </label>
             <Input
               type="number"
               value={dieselPrice}
               onChange={(e) => setDieselPrice(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Driver Bhatta (₹/trip)
             </label>
             <Input
               type="number"
               value={driverBhatta}
               onChange={(e) => setDriverBhatta(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
         </div>
@@ -222,31 +222,31 @@ export function TransportCalculator({
         {/* Secondary Deductions: Tolls, Hamali, Cess & Shrinkage */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 border-t border-[#D1DDCD]">
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Tolls (₹/trip)
             </label>
             <Input
               type="number"
               value={tollsInr}
               onChange={(e) => setTollsInr(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Hamali Labor (₹/q)
             </label>
             <Input
               type="number"
               value={hamaliPerQuintal}
               onChange={(e) => setHamaliPerQuintal(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               APMC Cess (%)
             </label>
             <Input
@@ -254,12 +254,12 @@ export function TransportCalculator({
               step="0.1"
               value={mandiCessPercent}
               onChange={(e) => setMandiCessPercent(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[#46604D] font-medium block">
+            <label className="text-[#09251A] font-medium block">
               Shrinkage Loss (%)
             </label>
             <Input
@@ -267,73 +267,73 @@ export function TransportCalculator({
               step="0.1"
               value={shrinkagePercent}
               onChange={(e) => setShrinkagePercent(Number(e.target.value))}
-              className="bg-[#F7FAF2] font-mono text-xs"
+              className="bg-white border-[#D1DDCD] font-mono text-xs tabular-nums"
             />
           </div>
         </div>
 
         {/* Itemized Deductions Ledger */}
-        <div className="p-3 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] font-mono space-y-1 text-[11px]">
+        <div className="p-3.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] font-mono space-y-1.5 text-[11px] tabular-nums">
           <div className="flex justify-between text-[#46604D]">
             <span>
               Trips Required ({trips} × {distanceKm * 2} km round-trip):
             </span>
-            <span>{totalRoundTripKm} km total</span>
+            <span className="font-semibold text-[#09251A]">{totalRoundTripKm} km total</span>
           </div>
           <div className="flex justify-between text-[#46604D]">
             <span>
               Fuel ({fuelLiters.toFixed(1)} L diesel @ ₹{dieselPrice}/L):
             </span>
-            <span className="text-rose-700">₹{fuelCostPerQ.toFixed(2)}/q</span>
+            <span className="text-[#991B1B] font-semibold">₹{fuelCostPerQ.toFixed(2)}/q</span>
           </div>
           <div className="flex justify-between text-[#46604D]">
             <span>Driver Bhatta + Tolls:</span>
-            <span className="text-rose-700">
+            <span className="text-[#991B1B] font-semibold">
               ₹{(driverPerQ + tollsPerQ).toFixed(2)}/q
             </span>
           </div>
           <div className="flex justify-between text-[#46604D]">
             <span>Hamali Loading/Unloading:</span>
-            <span className="text-rose-700">₹{hamaliPerQ.toFixed(2)}/q</span>
+            <span className="text-[#991B1B] font-semibold">₹{hamaliPerQ.toFixed(2)}/q</span>
           </div>
           <div className="flex justify-between text-[#46604D]">
             <span>
               Mandi Cess ({mandiCessPercent}%) + Transit Shrinkage (
               {shrinkagePercent}%):
             </span>
-            <span className="text-rose-700">
+            <span className="text-[#991B1B] font-semibold">
               ₹{(mandiCessPerQ + shrinkagePerQ).toFixed(2)}/q
             </span>
           </div>
-          <div className="flex justify-between pt-1 border-t border-[#D1DDCD] font-bold text-xs text-rose-700">
+          <div className="flex justify-between pt-1.5 border-t border-[#D1DDCD] font-bold text-xs text-[#991B1B]">
             <span>Total Logistics Deductions:</span>
             <span>-₹{totalDeductionsPerQuintal.toFixed(2)}/quintal</span>
           </div>
         </div>
 
         {/* Outcome Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] font-mono">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] font-mono tabular-nums">
           <div>
-            <span className="text-[10px] text-[#46604D] block">
+            <span className="text-[10px] text-[#46604D] block font-bold">
               GROSS MODAL PRICE
             </span>
-            <span className="text-sm font-bold text-[#09251A]">
+            <span className="text-base font-bold text-[#09251A]">
               ₹{modalPrice}/q
             </span>
           </div>
           <div>
-            <span className="text-[10px] text-rose-700 block">
+            <span className="text-[10px] text-[#991B1B] block font-bold">
               TOTAL LOGISTICS EXPENSE
             </span>
-            <span className="text-sm font-bold text-rose-700">
+            <span className="text-base font-bold text-[#991B1B]">
               -₹{totalDeductionsPerQuintal.toFixed(1)}/q
             </span>
           </div>
           <div className="sm:border-l sm:border-[#D1DDCD] sm:pl-3">
-            <span className="text-[10px] text-emerald-700 block font-semibold">
+            <span className="text-[10px] text-[#005B36] block font-bold">
               ESTIMATED NET REALIZATION
             </span>
-            <span className="text-base font-bold text-emerald-700">
+            <span className="text-lg font-extrabold text-[#005B36]">
               ₹{netRealizationPerQuintal.toFixed(1)}/quintal
             </span>
             <span className="text-[10px] text-[#46604D] block">
@@ -345,7 +345,7 @@ export function TransportCalculator({
         <div className="flex items-center justify-between pt-1 text-[11px] text-[#46604D]">
           <span>
             Net Consignment Revenue ({batchQuantityQuintals} quintals):{" "}
-            <strong className="text-emerald-700 font-mono">
+            <strong className="text-[#005B36] font-mono font-bold tabular-nums">
               ₹{Math.round(totalNetRevenue).toLocaleString("en-IN")}
             </strong>
           </span>

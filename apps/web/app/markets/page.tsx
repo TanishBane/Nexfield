@@ -91,13 +91,13 @@ export default function MarketsPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#09251A] flex items-center gap-2">
-              <TrendingUp className="h-6 w-6 text-emerald-700" />
+              <TrendingUp className="h-6 w-6 text-[#048547]" />
               Market prices
             </h1>
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-emerald-700 border-emerald-800/40"
+              className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
               Agmarknet Telemetry
             </Badge>
@@ -109,17 +109,17 @@ export default function MarketsPage() {
         </div>
 
         {/* Provenance & Freshness Badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs font-mono">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-mono shadow-2xs">
           <span
-            className={`h-2 w-2 rounded-full ${pricesQuery.data?.meta?.isFixture ? "bg-amber-400" : "bg-emerald-400 animate-pulse"}`}
+            className={`h-2 w-2 rounded-full motion-safe:animate-pulse ${pricesQuery.data?.meta?.isFixture ? "bg-[#D97706]" : "bg-[#048547]"}`}
           />
           <span className="text-[#46604D]">
             Feed:{" "}
             <strong
               className={
                 pricesQuery.data?.meta?.isFixture
-                  ? "text-amber-700 font-medium"
-                  : "text-emerald-700 font-medium"
+                  ? "text-[#92400E] font-semibold"
+                  : "text-[#005B36] font-semibold"
               }
             >
               {pricesQuery.data?.meta?.isFixture
@@ -136,7 +136,7 @@ export default function MarketsPage() {
       </div>
 
       {/* Commodity & Geography Filter Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white border border-[#D1DDCD] shadow-xs">
         {/* Commodity Selection Buttons */}
         <div className="flex flex-wrap items-center gap-1.5">
           {["Wheat", "Basmati Rice", "Soybean", "All"].map((crop) => (
@@ -145,7 +145,7 @@ export default function MarketsPage() {
               variant={selectedCommodity === crop ? "primary" : "secondary"}
               size="sm"
               onClick={() => setSelectedCommodity(crop)}
-              className="text-xs h-8"
+              className={`text-xs h-8 cursor-pointer font-semibold ${selectedCommodity === crop ? "bg-[#048547] text-white hover:bg-[#005B36]" : "border-[#D1DDCD]"}`}
             >
               {crop}
             </Button>
@@ -154,32 +154,32 @@ export default function MarketsPage() {
 
         {/* State Filter & Search */}
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg px-2.5 py-1 text-xs">
-            <MapPin className="h-3.5 w-3.5 text-emerald-700" />
-            <span className="text-[#46604D]">State:</span>
+          <div className="flex items-center gap-1.5 bg-[#F7FAF2] border border-[#D1DDCD] rounded-xl px-3 py-1.5 text-xs">
+            <MapPin className="h-3.5 w-3.5 text-[#048547]" />
+            <span className="text-[#46604D] font-medium">State:</span>
             <select
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
-              className="bg-transparent text-[#09251A] font-medium focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#09251A] font-semibold focus:outline-none focus-visible:ring-1 focus-visible:ring-[#048547] rounded cursor-pointer"
             >
-              <option value="All" className="bg-[#F7FAF2] text-[#09251A]">
+              <option value="All" className="bg-white text-[#09251A]">
                 All States
               </option>
-              <option value="Punjab" className="bg-[#F7FAF2] text-[#09251A]">
+              <option value="Punjab" className="bg-white text-[#09251A]">
                 Punjab
               </option>
-              <option value="Haryana" className="bg-[#F7FAF2] text-[#09251A]">
+              <option value="Haryana" className="bg-white text-[#09251A]">
                 Haryana
               </option>
               <option
                 value="Maharashtra"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Maharashtra
               </option>
               <option
                 value="Madhya Pradesh"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Madhya Pradesh
               </option>
@@ -192,7 +192,7 @@ export default function MarketsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search mandi or district..."
-              className="h-8 pl-8 w-44 md:w-56 text-xs bg-[#F7FAF2]"
+              className="h-9 pl-8 w-44 md:w-56 text-xs bg-white border-[#D1DDCD]"
             />
           </div>
         </div>
@@ -200,15 +200,15 @@ export default function MarketsPage() {
 
       {/* Spatial Arbitrage Engine Hero Card */}
       {comparison ? (
-        <Card className="border-emerald-700/50 bg-gradient-to-br from-[#F7FAF2] via-[#F7FAF2] to-[#F7FAF2] shadow-sm">
-          <CardHeader className="pb-3">
+        <Card className="border-[#B8D494] bg-white shadow-xs">
+          <CardHeader className="pb-3 border-b border-[#D1DDCD]">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <span className="text-xs uppercase tracking-wider text-emerald-700 font-semibold font-mono flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" />
+                <span className="text-xs uppercase tracking-wider text-[#005B36] font-bold font-mono flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-[#048547]" />
                   Real-Time Spatial Arbitrage Engine
                 </span>
-                <CardTitle className="text-lg md:text-xl text-[#09251A] mt-0.5">
+                <CardTitle className="text-lg md:text-xl text-[#09251A] mt-1 font-bold">
                   Arbitrage Optimization for {comparison.commodity}
                 </CardTitle>
                 <CardDescription>
@@ -217,13 +217,13 @@ export default function MarketsPage() {
                 </CardDescription>
               </div>
 
-              <div className="flex items-center gap-2 bg-emerald-50/80 border border-emerald-500/40 rounded-lg p-2.5">
-                <Truck className="h-5 w-5 text-emerald-700" />
+              <div className="flex items-center gap-2 bg-[#E5F2CF] border border-[#B8D494] rounded-xl p-3 shadow-2xs">
+                <Truck className="h-5 w-5 text-[#048547]" />
                 <div className="text-left font-mono">
-                  <span className="text-[10px] text-[#46604D] block">
+                  <span className="text-[10px] text-[#46604D] block font-bold">
                     RECOMMENDED DESTINATION
                   </span>
-                  <span className="text-emerald-700 font-bold text-sm">
+                  <span className="text-[#005B36] font-bold text-sm tabular-nums">
                     {comparison.optimalDecision.suggestedMarket} (+₹
                     {comparison.optimalDecision.expectedNetProfitDeltaInr}/q
                     Net)
@@ -232,9 +232,9 @@ export default function MarketsPage() {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-xs text-[#46604D] bg-[#F7FAF2] p-3 rounded-lg border border-[#D1DDCD] leading-relaxed">
-              <span className="text-emerald-700 font-semibold">
+          <CardContent className="space-y-4 pt-4">
+            <p className="text-xs text-[#46604D] bg-[#F7FAF2] p-3.5 rounded-xl border border-[#D1DDCD] leading-relaxed">
+              <span className="text-[#005B36] font-bold">
                 Agronomic AI Rationale:
               </span>{" "}
               {comparison.optimalDecision.rationale}
@@ -245,15 +245,15 @@ export default function MarketsPage() {
               {comparison.opportunities.map((opp, idx) => (
                 <div
                   key={idx}
-                  className={`rounded-lg p-3.5 border text-xs space-y-2 ${
+                  className={`rounded-xl p-4 border text-xs space-y-2 shadow-2xs ${
                     opp.recommendation === "transport_arbitrage_profitable"
-                      ? "bg-[#F7FAF2] border-emerald-600/40"
-                      : "bg-[#F7FAF2] border-[#D1DDCD]"
+                      ? "bg-[#E5F2CF]/30 border-[#B8D494]"
+                      : "bg-white border-[#D1DDCD]"
                   }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-semibold text-sm text-[#09251A]">
+                      <h4 className="font-bold text-sm text-[#09251A]">
                         {opp.marketName}
                       </h4>
                       <p className="text-[11px] text-[#46604D]">
@@ -275,7 +275,7 @@ export default function MarketsPage() {
                     </Badge>
                   </div>
 
-                  <div className="space-y-1 font-mono text-[11px] pt-1 border-t border-[#D1DDCD]">
+                  <div className="space-y-1 font-mono text-[11px] pt-2 border-t border-[#D1DDCD] tabular-nums">
                     <div className="flex justify-between">
                       <span className="text-[#46604D]">Modal Price:</span>
                       <span className="text-[#09251A] font-bold">
@@ -284,9 +284,9 @@ export default function MarketsPage() {
                     </div>
                     <div className="flex justify-between text-[#46604D]">
                       <span>Gross Spread:</span>
-                      <span>+₹{opp.grossSpreadPerQuintalInr}</span>
+                      <span className="font-semibold">+₹{opp.grossSpreadPerQuintalInr}</span>
                     </div>
-                    <div className="flex justify-between text-rose-700">
+                    <div className="flex justify-between text-[#991B1B]">
                       <span>Freight & Mandi Cess:</span>
                       <span>
                         -₹
@@ -294,7 +294,7 @@ export default function MarketsPage() {
                           opp.mandiFeePerQuintalInr}
                       </span>
                     </div>
-                    <div className="flex justify-between pt-1 border-t border-[#D1DDCD] font-bold text-xs text-emerald-700">
+                    <div className="flex justify-between pt-1 border-t border-[#D1DDCD] font-bold text-xs text-[#005B36]">
                       <span>Net Arbitrage Profit:</span>
                       <span>
                         +₹{opp.netArbitrageProfitPerQuintalInr}/quintal
@@ -323,12 +323,12 @@ export default function MarketsPage() {
       ) : null}
 
       {/* Official CACP Minimum Support Price (MSP) Matrix */}
-      <Card className="border-[#D1DDCD] bg-[#F7FAF2]">
+      <Card className="border-[#D1DDCD] bg-white shadow-xs overflow-hidden max-w-full">
         <CardHeader className="pb-3 border-b border-[#D1DDCD]">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <CardTitle className="text-base flex items-center gap-2 text-[#09251A]">
-                <ShieldCheck className="h-4 w-4 text-emerald-700" />
+              <CardTitle className="text-base flex items-center gap-2 text-[#09251A] font-bold">
+                <ShieldCheck className="h-4 w-4 text-[#048547]" />
                 CACP Official Minimum Support Price (MSP) Reference Matrix
               </CardTitle>
               <CardDescription>
@@ -340,156 +340,156 @@ export default function MarketsPage() {
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-[11px] border-emerald-800 text-emerald-700"
+              className="font-mono text-[11px] border-[#B8D494] text-[#005B36] bg-[#E5F2CF]"
             >
               Government Gazette Benchmarks
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-4">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+        <CardContent className="pt-4 max-w-full overflow-hidden">
+          <div className="overflow-x-auto w-full max-w-full min-w-0">
+            <table className="w-full text-left text-xs min-w-[600px]">
               <thead className="border-b border-[#D1DDCD] text-[#46604D] uppercase font-mono text-[10px]">
                 <tr>
-                  <th className="pb-2.5">Commodity & Variety</th>
-                  <th className="pb-2.5">Season & Year</th>
-                  <th className="pb-2.5">Statutory MSP</th>
-                  <th className="pb-2.5">Cost A2+FL</th>
-                  <th className="pb-2.5">Margin Over Cost</th>
-                  <th className="pb-2.5">Procurement Agency</th>
-                  <th className="pb-2.5">Statutory Regime</th>
+                  <th className="pb-3">Commodity & Variety</th>
+                  <th className="pb-3">Season & Year</th>
+                  <th className="pb-3">Statutory MSP</th>
+                  <th className="pb-3">Cost A2+FL</th>
+                  <th className="pb-3">Margin Over Cost</th>
+                  <th className="pb-3">Procurement Agency</th>
+                  <th className="pb-3">Statutory Regime</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#D1DDCD] text-[#09251A] font-mono">
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+              <tbody className="divide-y divide-[#D1DDCD] text-[#09251A] font-mono tabular-nums">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Wheat (Standard / Milling)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">RMS 2026-27</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">RMS 2026-27</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹2,585 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹1,260 / q</td>
-                  <td className="py-2.5 text-emerald-700">+105.2%</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">₹1,260 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+105.2%</td>
+                  <td className="py-3 font-sans text-xs">
                     Food Corporation of India (FCI)
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Approved by CCEA
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Wheat (Standard / Milling)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">RMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-[#09251A]">
+                  <td className="py-3 text-[#46604D]">RMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#09251A]">
                     ₹2,275 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹1,128 / q</td>
-                  <td className="py-2.5 text-emerald-700">+101.7%</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">₹1,128 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+101.7%</td>
+                  <td className="py-3 font-sans text-xs">
                     Food Corporation of India (FCI)
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Historical Benchmark
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Paddy (Common)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">KMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">KMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹2,300 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹1,438 / q</td>
-                  <td className="py-2.5 text-emerald-700">+60.0%</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">₹1,438 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+60.0%</td>
+                  <td className="py-3 font-sans text-xs">
                     FCI / State Civil Supplies
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Active Kharif Floor
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Paddy (Grade A)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">KMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">KMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹2,320 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹1,438 / q</td>
-                  <td className="py-2.5 text-emerald-700">+61.3%</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">₹1,438 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+61.3%</td>
+                  <td className="py-3 font-sans text-xs">
                     FCI / State Civil Supplies
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Active Kharif Floor
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Gram / Chana
                   </td>
-                  <td className="py-2.5 text-[#46604D]">RMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">RMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹5,440 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹3,400 / q</td>
-                  <td className="py-2.5 text-emerald-700">+60.0%</td>
-                  <td className="py-2.5 font-sans text-xs">NAFED (PSS)</td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 text-[#46604D]">₹3,400 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+60.0%</td>
+                  <td className="py-3 font-sans text-xs">NAFED (PSS)</td>
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Active Rabi Floor
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Mustard / Rapeseed
                   </td>
-                  <td className="py-2.5 text-[#46604D]">RMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">RMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹5,650 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹2,855 / q</td>
-                  <td className="py-2.5 text-emerald-700">+97.9%</td>
-                  <td className="py-2.5 font-sans text-xs">NAFED</td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 text-[#46604D]">₹2,855 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+97.9%</td>
+                  <td className="py-3 font-sans text-xs">NAFED</td>
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Active Rabi Floor
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#09251A]">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#09251A]">
                     Soybean (Yellow)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">KMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-700">
+                  <td className="py-3 text-[#46604D]">KMS 2024-25</td>
+                  <td className="py-3 font-bold text-[#005B36]">
                     ₹4,892 / q
                   </td>
-                  <td className="py-2.5 text-[#46604D]">₹3,261 / q</td>
-                  <td className="py-2.5 text-emerald-700">+50.0%</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">₹3,261 / q</td>
+                  <td className="py-3 font-bold text-[#005B36]">+50.0%</td>
+                  <td className="py-3 font-sans text-xs">
                     NAFED / State Agencies
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#46604D]">
+                  <td className="py-3 font-sans text-[11px] text-[#46604D]">
                     Active Kharif Floor
                   </td>
                 </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-amber-700">
+                <tr className="hover:bg-[#F7FAF2] transition-colors">
+                  <td className="py-3 font-sans font-bold text-[#D97706]">
                     Tomato (Horticulture)
                   </td>
-                  <td className="py-2.5 text-[#46604D]">Continuous</td>
-                  <td className="py-2.5 font-sans text-xs text-amber-700">
+                  <td className="py-3 text-[#46604D]">Continuous</td>
+                  <td className="py-3 font-sans text-xs text-[#D97706] font-semibold">
                     Non-MSP Produce
                   </td>
-                  <td className="py-2.5 text-[#46604D]">—</td>
-                  <td className="py-2.5 text-[#46604D]">—</td>
-                  <td className="py-2.5 font-sans text-xs">
+                  <td className="py-3 text-[#46604D]">—</td>
+                  <td className="py-3 text-[#46604D]">—</td>
+                  <td className="py-3 font-sans text-xs">
                     Operation Greens / TOP Buffer
                   </td>
-                  <td className="py-2.5 font-sans text-[11px] text-amber-700/80">
+                  <td className="py-3 font-sans text-[11px] text-[#D97706]">
                     Market Intervention Scheme (MIS)
                   </td>
                 </tr>
@@ -500,12 +500,12 @@ export default function MarketsPage() {
       </Card>
 
       {/* Detailed APMC Mandi Commodity Arrival & Price Table */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="bg-white border-[#D1DDCD] shadow-xs overflow-hidden max-w-full">
+        <CardHeader className="pb-3 border-b border-[#D1DDCD]">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Landmark className="h-4 w-4 text-emerald-700" />
+              <CardTitle className="text-base flex items-center gap-2 font-bold text-[#09251A]">
+                <Landmark className="h-4 w-4 text-[#048547]" />
                 Live APMC Mandi Commodity Arrivals & Prices
               </CardTitle>
               <CardDescription>
@@ -516,26 +516,26 @@ export default function MarketsPage() {
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-[11px]"
+              className="font-mono text-[11px] border-[#B8D494] text-[#005B36] bg-[#E5F2CF]"
             >
               {filteredPrices.length} Markets
             </Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+        <CardContent className="pt-4 max-w-full overflow-hidden">
+          <div className="overflow-x-auto w-full max-w-full min-w-0">
+            <table className="w-full text-left text-xs min-w-[650px]">
               <thead className="border-b border-[#D1DDCD] text-[#46604D] uppercase font-mono text-[10px]">
                 <tr>
-                  <th className="pb-2.5">Mandi / Terminal</th>
-                  <th className="pb-2.5">Commodity & Variety</th>
-                  <th className="pb-2.5">Arrival Volume</th>
-                  <th className="pb-2.5">Min Price</th>
-                  <th className="pb-2.5">Max Price</th>
-                  <th className="pb-2.5">Modal Price</th>
-                  <th className="pb-2.5">24h Trend</th>
-                  <th className="pb-2.5">Reported Date</th>
-                  <th className="pb-2.5 text-right">Action</th>
+                  <th className="pb-3">Mandi / Terminal</th>
+                  <th className="pb-3">Commodity & Variety</th>
+                  <th className="pb-3">Arrival Volume</th>
+                  <th className="pb-3">Min Price</th>
+                  <th className="pb-3">Max Price</th>
+                  <th className="pb-3">Modal Price</th>
+                  <th className="pb-3">24h Trend</th>
+                  <th className="pb-3">Reported Date</th>
+                  <th className="pb-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#D1DDCD] text-[#09251A]">
@@ -546,59 +546,59 @@ export default function MarketsPage() {
                       key={m.id}
                       onClick={() => setActiveObservation(m)}
                       className={`cursor-pointer transition-colors ${
-                        isSelected ? "bg-[#F7FAF2]" : "hover:bg-[#F7FAF2]"
+                        isSelected ? "bg-[#E5F2CF]/40 border-l-4 border-l-[#048547]" : "hover:bg-[#F7FAF2]"
                       }`}
                     >
-                      <td className="py-3">
-                        <span className="font-semibold text-[#09251A] block">
+                      <td className="py-3.5">
+                        <span className="font-bold text-[#09251A] block">
                           {m.marketName}
                         </span>
                         <span className="text-[11px] text-[#46604D]">
                           {m.district}, {m.state}
                         </span>
                       </td>
-                      <td className="py-3">
-                        <span className="font-medium text-emerald-700">
+                      <td className="py-3.5">
+                        <span className="font-semibold text-[#005B36]">
                           {m.commodity}
                         </span>
-                        <span className="text-[11px] text-[#46604D] block">
+                        <span className="text-[11px] text-[#46604D] block font-mono">
                           {m.variety}
                         </span>
                       </td>
-                      <td className="py-3 font-mono">
+                      <td className="py-3.5 font-mono tabular-nums">
                         {m.arrivalQuantityTons.toLocaleString()} MT
                       </td>
-                      <td className="py-3 font-mono text-[#46604D]">
+                      <td className="py-3.5 font-mono text-[#46604D] tabular-nums">
                         ₹{m.minPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono text-[#46604D]">
+                      <td className="py-3.5 font-mono text-[#46604D] tabular-nums">
                         ₹{m.maxPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono font-bold text-sm text-[#09251A]">
+                      <td className="py-3.5 font-mono font-bold text-sm text-[#09251A] tabular-nums">
                         ₹{m.modalPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono">
+                      <td className="py-3.5 font-mono tabular-nums">
                         <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                             m.dailyChangeInr > 0
-                              ? "text-emerald-700 bg-emerald-50/60 border border-emerald-900/40"
+                              ? "text-[#005B36] bg-[#E5F2CF] border border-[#B8D494]"
                               : m.dailyChangeInr < 0
-                                ? "text-rose-700 bg-rose-50/60 border border-rose-900/40"
-                                : "text-[#46604D] bg-[#F7FAF2]"
+                                ? "text-[#991B1B] bg-[#FBE0E8] border border-[#E9B4C4]"
+                                : "text-[#46604D] bg-[#F7FAF2] border border-[#D1DDCD]"
                           }`}
                         >
                           {m.dailyChangeInr > 0 ? "+" : ""}
                           {m.dailyChangeInr} ₹/q
                         </span>
                       </td>
-                      <td className="py-3 text-[11px] font-mono text-[#46604D]">
+                      <td className="py-3.5 text-[11px] font-mono text-[#46604D]">
                         {m.reportedDate}
                       </td>
-                      <td className="py-3 text-right">
+                      <td className="py-3.5 text-right">
                         <Button
                           variant={isSelected ? "primary" : "outline"}
                           size="sm"
-                          className="h-7 text-xs px-2.5"
+                          className={`h-7 text-xs px-2.5 cursor-pointer font-semibold ${isSelected ? "bg-[#048547] text-white hover:bg-[#005B36]" : ""}`}
                         >
                           {isSelected ? "Selected" : "Analyze"}
                         </Button>

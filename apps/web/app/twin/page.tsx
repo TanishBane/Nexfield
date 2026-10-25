@@ -63,8 +63,8 @@ const TwinCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full min-h-[420px] rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] flex flex-col items-center justify-center space-y-3">
-        <div className="h-8 w-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+      <div className="w-full h-full min-h-[420px] rounded-2xl bg-[#F7FAF2] border border-[#D1DDCD] flex flex-col items-center justify-center space-y-3">
+        <div className="h-8 w-8 rounded-full border-2 border-[#048547] border-t-transparent motion-safe:animate-spin" />
         <span className="text-xs text-[#46604D] font-mono">
           Initializing WebGL agricultural mesh buffer...
         </span>
@@ -157,13 +157,13 @@ export default function TwinPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#09251A] flex items-center gap-2">
-              <Layers className="h-6 w-6 text-emerald-700" />
+              <Layers className="h-6 w-6 text-[#048547]" />
               Water planning
             </h1>
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-emerald-700 border-emerald-800/40"
+              className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
               WebGL 3D
             </Badge>
@@ -174,11 +174,11 @@ export default function TwinPage() {
         </div>
 
         {/* Provenance & Scenario Model Badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-mono shadow-2xs">
           <span
-            className={`h-2 w-2 rounded-full ${(runSimulationMutation.data ? (runSimulationMutation.data as any).meta?.isFixture : data?.meta?.isFixture) ? "bg-amber-400" : "bg-emerald-400 animate-pulse"}`}
+            className={`h-2 w-2 rounded-full motion-safe:animate-pulse ${(runSimulationMutation.data ? (runSimulationMutation.data as any).meta?.isFixture : data?.meta?.isFixture) ? "bg-[#D97706]" : "bg-[#048547]"}`}
           />
-          <span className="text-[#849F90]">
+          <span className="text-[#46604D]">
             Model:{" "}
             <strong
               className={
@@ -187,8 +187,8 @@ export default function TwinPage() {
                     ? (runSimulationMutation.data as any).meta?.isFixture
                     : data?.meta?.isFixture
                 )
-                  ? "text-amber-300 font-medium"
-                  : "text-emerald-300 font-medium"
+                  ? "text-[#92400E] font-semibold"
+                  : "text-[#005B36] font-semibold"
               }
             >
               {(
@@ -208,9 +208,9 @@ export default function TwinPage() {
             variant="outline"
             size="sm"
             onClick={() => setIsAssumptionsOpen(true)}
-            className="h-8 text-xs gap-1.5 text-[#46604D] hover:text-[#09251A]"
+            className="h-8 text-xs gap-1.5 text-[#46604D] hover:text-[#09251A] hover:bg-[#F7FAF2] cursor-pointer"
           >
-            <Info className="h-3.5 w-3.5 text-emerald-700" />
+            <Info className="h-3.5 w-3.5 text-[#048547]" />
             Model Assumptions
           </Button>
 
@@ -218,9 +218,9 @@ export default function TwinPage() {
             variant="secondary"
             size="sm"
             onClick={handleSaveScenario}
-            className="h-8 text-xs gap-1.5"
+            className="h-8 text-xs gap-1.5 cursor-pointer"
           >
-            <Save className="h-3.5 w-3.5" />
+            <Save className="h-3.5 w-3.5 text-[#048547]" />
             {saveSuccessMessage ? "Saved!" : "Save Scenario"}
           </Button>
 
@@ -228,7 +228,7 @@ export default function TwinPage() {
             variant="primary"
             size="sm"
             onClick={() => setIsConvertToTaskOpen(true)}
-            className="h-8 text-xs gap-1.5 bg-emerald-600 hover:bg-emerald-500"
+            className="h-8 text-xs gap-1.5 bg-[#048547] text-white hover:bg-[#005B36] font-semibold cursor-pointer shadow-xs"
           >
             <ClipboardCheck className="h-3.5 w-3.5" />
             Convert to Farm Task
@@ -240,19 +240,19 @@ export default function TwinPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (7 cols): 3D Viewport & Visual HUD Controls */}
         <div className="lg:col-span-7 space-y-4">
-          <Card className="overflow-hidden border-[#D1DDCD]">
+          <Card className="overflow-hidden border-[#D1DDCD] bg-white shadow-xs">
             {/* Viewport Control Bar */}
             <CardHeader className="p-3 border-b border-[#D1DDCD] bg-[#F7FAF2]">
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                 {/* Camera Mode Toggle */}
-                <div className="flex items-center gap-1 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg p-0.5">
+                <div className="flex items-center gap-1 bg-white border border-[#D1DDCD] rounded-lg p-0.5 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setCameraMode("isometric")}
-                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                       cameraMode === "isometric"
-                        ? "bg-[#FFFFFF] text-[#09251A] font-semibold"
-                        : "text-[#46604D] hover:text-[#46604D]"
+                        ? "bg-[#E5F2CF] text-[#005B36] border border-[#B8D494] shadow-xs"
+                        : "text-[#46604D] hover:text-[#09251A]"
                     }`}
                   >
                     Isometric 3D
@@ -260,10 +260,10 @@ export default function TwinPage() {
                   <button
                     type="button"
                     onClick={() => setCameraMode("top-down")}
-                    className={`px-2.5 py-1 rounded text-xs font-medium transition-all ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                       cameraMode === "top-down"
-                        ? "bg-[#FFFFFF] text-[#09251A] font-semibold"
-                        : "text-[#46604D] hover:text-[#46604D]"
+                        ? "bg-[#E5F2CF] text-[#005B36] border border-[#B8D494] shadow-xs"
+                        : "text-[#46604D] hover:text-[#09251A]"
                     }`}
                   >
                     Top-Down Plan
@@ -271,7 +271,7 @@ export default function TwinPage() {
                 </div>
 
                 {/* Environmental Overlays */}
-                <div className="flex items-center gap-1 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg p-0.5">
+                <div className="flex items-center gap-1 bg-white border border-[#D1DDCD] rounded-lg p-0.5 shadow-2xs">
                   {(
                     ["moisture", "ndvi", "irrigation"] as VisualOverlayMode[]
                   ).map((mode) => (
@@ -279,10 +279,10 @@ export default function TwinPage() {
                       key={mode}
                       type="button"
                       onClick={() => setOverlayMode(mode)}
-                      className={`px-2 py-1 rounded text-[11px] capitalize font-medium transition-all ${
+                      className={`px-2.5 py-1.5 rounded-md text-[11px] capitalize font-semibold transition-all cursor-pointer ${
                         overlayMode === mode
-                          ? "bg-[#FFFFFF] text-emerald-700 font-semibold"
-                          : "text-[#46604D] hover:text-[#46604D]"
+                          ? "bg-[#E5F2CF] text-[#005B36] border border-[#B8D494] shadow-xs"
+                          : "text-[#46604D] hover:text-[#09251A]"
                       }`}
                     >
                       {mode}
@@ -291,30 +291,33 @@ export default function TwinPage() {
                 </div>
 
                 {/* Weather Sim Lighting */}
-                <div className="flex items-center gap-1 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg p-0.5">
+                <div className="flex items-center gap-1 bg-white border border-[#D1DDCD] rounded-lg p-0.5 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setWeatherSimMode("current")}
                     title="Normal Daylight"
-                    className={`p-1 rounded ${weatherSimMode === "current" ? "bg-[#FFFFFF] text-amber-700" : "text-[#46604D]"}`}
+                    aria-label="Normal Daylight Simulation"
+                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${weatherSimMode === "current" ? "bg-[#FFF0A6] text-[#92400E] border border-[#E7D57A]" : "text-[#46604D] hover:text-[#09251A]"}`}
                   >
-                    <Sun className="h-3.5 w-3.5" />
+                    <Sun className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => setWeatherSimMode("heavy_rain")}
                     title="Simulate Rain Precipitation"
-                    className={`p-1 rounded ${weatherSimMode === "heavy_rain" ? "bg-[#FFFFFF] text-sky-700" : "text-[#46604D]"}`}
+                    aria-label="Simulate Rain Precipitation"
+                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${weatherSimMode === "heavy_rain" ? "bg-[#D5ECFD] text-[#0369A1] border border-[#A2C9E5]" : "text-[#46604D] hover:text-[#09251A]"}`}
                   >
-                    <CloudRain className="h-3.5 w-3.5" />
+                    <CloudRain className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => setWeatherSimMode("heatwave")}
                     title="Simulate Heatwave Atmospheric Stress"
-                    className={`p-1 rounded ${weatherSimMode === "heatwave" ? "bg-[#FFFFFF] text-rose-700" : "text-[#46604D]"}`}
+                    aria-label="Simulate Heatwave Atmospheric Stress"
+                    className={`p-1.5 rounded-md transition-colors cursor-pointer ${weatherSimMode === "heatwave" ? "bg-[#FBE0E8] text-[#991B1B] border border-[#E9B4C4]" : "text-[#46604D] hover:text-[#09251A]"}`}
                   >
-                    <Flame className="h-3.5 w-3.5" />
+                    <Flame className="h-4 w-4" />
                   </button>
                 </div>
 
@@ -323,9 +326,9 @@ export default function TwinPage() {
                   variant={isIrrigationRunning ? "primary" : "outline"}
                   size="sm"
                   onClick={() => setIsIrrigationRunning(!isIrrigationRunning)}
-                  className="h-7 text-xs px-2.5 gap-1.5"
+                  className={`h-8 text-xs px-2.5 gap-1.5 cursor-pointer font-semibold ${isIrrigationRunning ? "bg-[#0284C7] hover:bg-[#0369A1] text-white" : ""}`}
                 >
-                  <Droplets className="h-3 w-3" />
+                  <Droplets className="h-3.5 w-3.5" />
                   {isIrrigationRunning ? "Pumping (Live)" : "Trigger Pulse"}
                 </Button>
               </div>
@@ -338,9 +341,9 @@ export default function TwinPage() {
               </div>
 
               {/* Legend & Parcel Details */}
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#46604D] bg-[#F7FAF2] p-2.5 rounded-lg border border-[#D1DDCD]">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-[#46604D] bg-[#F7FAF2] p-2.5 rounded-xl border border-[#D1DDCD]">
                 <div className="flex items-center gap-3">
-                  <span className="text-[#46604D]">SELECTED:</span>
+                  <span className="text-[#46604D] font-medium">SELECTED:</span>
                   <span className="font-bold text-[#09251A]">
                     {selectedPlotId === "d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c"
                       ? "North Sector Alpha (8.4 ha • Wheat HD-3086)"
@@ -348,11 +351,11 @@ export default function TwinPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px]">
-                  <span className="text-[#46604D]">OVERLAY:</span>
+                  <span className="text-[#46604D] font-medium">OVERLAY:</span>
                   <Badge
                     variant="outline"
                     size="sm"
-                    className="capitalize text-emerald-700"
+                    className="capitalize text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
                   >
                     {overlayMode}
                   </Badge>

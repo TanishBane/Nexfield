@@ -73,6 +73,24 @@
     scroll-padding-top: 100px;
   }
 }
+/* Responsive Layout & Overflow Utilities */
+.overflow-x-auto {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+.overflow-hidden {
+  overflow: hidden !important;
+}
+.max-w-full {
+  max-width: 100% !important;
+}
+.min-w-0 {
+  min-width: 0 !important;
+}
+.w-full {
+  width: 100% !important;
+}
+
 .font-mono {
   font-variant-numeric: tabular-nums;
 }
@@ -863,6 +881,10 @@
 }
 .sidebar-link:hover {
   background: #d4e6c5;
+}
+.sidebar-link:focus-visible {
+  outline: 2px solid var(--leaf);
+  outline-offset: 2px;
 }
 .sidebar-link[aria-current="page"] {
   background: var(--leaf);
