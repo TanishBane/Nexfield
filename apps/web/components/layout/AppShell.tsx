@@ -25,27 +25,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/solutions' ||
     pathname === '/about';
 
-  // Minimal standalone auth/onboarding routes
-  const isMinimalAuthPage =
-    pathname === '/login' ||
-    pathname === '/onboarding' ||
-    pathname === '/forgot-password' ||
-    pathname === '/update-password';
-
   if (isPublicPage) {
     return (
       <div className="min-h-screen bg-[#090D0B] text-[#F1F6F3] flex flex-col">
         <PublicNavbar />
         <main className="w-full flex-1">{children}</main>
         <PublicFooter />
-      </div>
-    );
-  }
-
-  if (isMinimalAuthPage) {
-    return (
-      <div className="min-h-screen bg-[#070B09] text-[#F1F6F3]">
-        <main className="w-full">{children}</main>
       </div>
     );
   }

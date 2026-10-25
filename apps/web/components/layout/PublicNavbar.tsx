@@ -87,10 +87,10 @@ export function PublicNavbar() {
             </Link>
 
             <Link
-              href="/login"
+              href="/control"
               className="hidden sm:inline-flex items-center px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium text-[#F0F5F2] bg-[#111714] hover:bg-[#16201B] border border-[#273C30] transition-colors"
             >
-              Sign In
+              Command Center
             </Link>
 
             {/* Mobile menu trigger */}
@@ -129,11 +129,11 @@ export function PublicNavbar() {
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/login"
+                href="/control"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-medium text-[#F0F5F2] bg-[#111714] border border-[#273C30]"
               >
-                Sign In to Farm Workspace
+                Go to Command Center
               </Link>
             </div>
           </div>

@@ -97,18 +97,19 @@ pnpm dev
 
 ---
 
-## 4. Development Modes: Fixtures vs Live API
+## 4. Development Architecture: Public Demonstration & Offline First
 
-NEXFIELD supports two distinct operational modes:
+NEXFIELD operates as an open, frictionless public demonstration platform:
 
-### Mode A: Offline / Synthetic Fixture Mode (`NEXT_PUBLIC_USE_FIXTURES=true`)
-- Default mode for rapid UI prototyping, offline demonstrations, and standalone evaluation without requiring live Supabase credentials.
+### Mode A: Public Demonstration Mode (`NEXT_PUBLIC_USE_FIXTURES=true` — Default)
+- Default mode for rapid UI evaluation, standalone demonstrations, and open-source exploration with zero cloud credentials or database setup.
 - All telemetry, crop health metrics, work orders, and mandi prices are served from domain-accurate baseline datasets located in `data/fixtures/`.
-- A persistent indicator is rendered in the UI banner: `"Development Mode: Synthetic Agronomic Fixtures"`.
+- Local demonstration interactions (task completion, scenario offsets, and expenses) persist in browser `localStorage` (`nexfield-demo-v1`) with instant "Reset Demo" restoration.
+- A persistent indicator is rendered in the UI banner: `"Public Demo Mode"`.
 
-### Mode B: Live Production SaaS Mode (`NEXT_PUBLIC_USE_FIXTURES=false`)
-- Connects to live Supabase PostgreSQL + PostGIS database and FastAPI backend.
-- Enforces strict user authentication, tenant isolation, and live database persistence.
+### Mode B: Stateless API Mode (`NEXT_PUBLIC_USE_FIXTURES=false`)
+- Connects the Next.js frontend to the local FastAPI backend (`http://localhost:8000`).
+- Provides real-time execution of CPU-optimized ONNX model inference ($5.13\text{ ms}$), FAO-56 Penman-Monteith hydrology equations, and AGMARKNET mandi freight logistics calculations without requiring cloud databases.
 
 ---
 

@@ -1,121 +1,81 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   Menu,
   MapPin,
-  User as UserIcon,
-  LogOut,
-  LogIn,
+  RotateCcw,
   Command,
   ClipboardList,
   Sparkles,
-  Plus,
 } from 'lucide-react';
 import { Button } from '@nexfield/ui';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import { PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from './Sidebar';
-import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useDemoStore } from '@/lib/store/useDemoStore';
-import { apiClient } from '@/lib/api';
 import { CommandPalette } from '@/components/navigation/CommandPalette';
 import { ContextualTaskDrawer } from './ContextualTaskDrawer';
 
-interface FarmRecord {
-  id: string;
-  name: string;
-  state?: string;
-  district?: string;
-}
+const DEMO_ESTATES = [
+  {
+    id: 'farm-nashik-tomato-01',
+    name: 'Nashik Precision Estate',
+    district: 'Nashik, MH',
+    area: 2.4,
+  },
+  {
+    id: 'farm-baramati-cane-02',
+    name: 'Baramati Agro-Canopy',
+    district: 'Pune, MH',
+    area: 42.0,
+  },
+  {
+    id: 'farm-punjab-wheat-03',
+    name: 'Malwa Agronomic Hub',
+    district: 'Ludhiana, PB',
+    area: 18.5,
+  },
+];
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const isDemo = pathname.startsWith('/demo');
-  const { toggleSidebar, selectedFarmId, setSelectedFarmId } = useFarmStore();
+  const { toggleSidebar } = useFarmStore();
   const demoStore = useDemoStore();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [farms, setFarms] = useState<FarmRecord[]>([]);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    if (isSupabaseConfigured() && !isDemo) {
-      try {
-        const supabase = createClient();
-        supabase.auth.getUser().then(({ data }) => {
-          if (data.user?.email) {
-            setUserEmail(data.user.email);
-          } else {
-            setUserEmail(null);
-          }
-        });
-
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-          setUserEmail(session?.user?.email || null);
-        });
-
-        return () => {
-          authListener.subscription.unsubscribe();
-        };
-      } catch {
-        setUserEmail(null);
-      }
-    } else {
-      setUserEmail(null);
-    }
-  }, [isDemo]);
-
-  // Load authorized farms dynamically for the user
-  useEffect(() => {
-    if (!isDemo) {
-      apiClient
-        .getFarms()
-        .then((res) => {
-          if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-            setFarms(res.data);
-            if (!res.data.some((f: any) => f.id === selectedFarmId)) {
-              setSelectedFarmId(res.data[0].id);
-            }
-          } else {
-            setFarms([]);
-          }
-        })
-        .catch(() => {
-          setFarms([]);
-        });
-    }
-  }, [isDemo, selectedFarmId, setSelectedFarmId]);
-
-  const handleSignOut = async () => {
-    if (isSupabaseConfigured()) {
-      try {
-        const supabase = createClient();
-        await supabase.auth.signOut();
-      } catch {
-        // Safe fallback
-      }
-    }
-    setUserEmail(null);
-    router.push('/login');
-    router.refresh();
-  };
+  const [resetFeedback, setResetFeedback] = useState(false);
 
   const allItems = useMemo(() => [...PRIMARY_NAV_ITEMS, ...SECONDARY_NAV_ITEMS], []);
 
   const currentModule = useMemo(() => {
     return (
       allItems.find((item) =>
-        isDemo ? pathname.startsWith(`/demo${item.href}`) : pathname.startsWith(item.href)
+        pathname === item.href || pathname.startsWith(`${item.href}/`) || pathname.startsWith(`/demo${item.href}`)
       ) || allItems[0]
     );
-  }, [pathname, isDemo, allItems]);
+  }, [pathname, allItems]);
 
-  const pendingTasksCount = isDemo
-    ? demoStore.tasks.filter((t) => t.status !== 'completed').length
-    : 0;
+  const pendingTasksCount = demoStore.tasks.filter((t) => t.status !== 'completed').length;
+
+  const handleResetDemo = () => {
+    demoStore.resetDemoState();
+    setResetFeedback(true);
+    setTimeout(() => setResetFeedback(false), 2000);
+  };
+
+  const handleEstateChange = (estateId: string) => {
+    const estate = DEMO_ESTATES.find((e) => e.id === estateId);
+    if (estate) {
+      demoStore.setFarm(
+        estate.id,
+        estate.name,
+        `${estate.district} (${estate.area} ha)`,
+        estate.area
+      );
+    }
+  };
 
   return (
     <>
@@ -142,7 +102,7 @@ export function Header() {
           </div>
         </div>
 
-        {/* Right: Farm Selector, Command Palette, Task Drawer, User */}
+        {/* Right: Farm Selector, Command Palette, Task Drawer, Demo State Reset */}
         <div className="flex items-center gap-2 md:gap-3">
           {/* Command Palette Trigger */}
           <button
@@ -158,39 +118,22 @@ export function Header() {
             </kbd>
           </button>
 
-          {/* Farm Switcher */}
-          {isDemo ? (
-            <div className="flex items-center gap-2 rounded-lg bg-[#14231A] border border-[#2D6546]/50 px-2.5 py-1 text-xs">
-              <MapPin className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
-              <span className="text-[#FAF8F2] font-medium truncate max-w-[150px] sm:max-w-[200px]">
-                {demoStore.farmName}
-              </span>
-            </div>
-          ) : farms.length > 0 ? (
-            <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
-              <MapPin className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
-              <select
-                value={selectedFarmId}
-                onChange={(e) => setSelectedFarmId(e.target.value)}
-                className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D7B678]/80 rounded cursor-pointer pr-1 text-xs max-w-[180px] truncate"
-              >
-                {farms.map((farm) => (
-                  <option key={farm.id} value={farm.id} className="bg-[#111A15] text-[#E1ECE5]">
-                    {farm.name} {farm.district ? `(${farm.district})` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <Link
-              href="/onboarding"
-              className="flex items-center gap-1.5 rounded-lg bg-[#14231A] border border-[#2D6546] px-2.5 py-1 text-xs text-[#D7B678] hover:bg-[#1A3324] transition-colors font-medium"
-              title="Register Farm Property"
+          {/* Demonstration Farm Switcher */}
+          <div className="flex items-center gap-2 rounded-lg bg-[#111A15] border border-[#203026] px-2.5 py-1 text-xs">
+            <MapPin className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
+            <select
+              value={demoStore.farmId || DEMO_ESTATES[0].id}
+              onChange={(e) => handleEstateChange(e.target.value)}
+              className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D7B678]/80 rounded cursor-pointer pr-1 text-xs max-w-[170px] truncate"
+              title="Select demonstration farm estate"
             >
-              <Plus className="h-3.5 w-3.5 text-[#D7B678]" />
-              <span className="hidden sm:inline">Register Farm</span>
-            </Link>
-          )}
+              {DEMO_ESTATES.map((estate) => (
+                <option key={estate.id} value={estate.id} className="bg-[#111A15] text-[#E1ECE5]">
+                  {estate.name} ({estate.district})
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Contextual Tasks Drawer Trigger */}
           <button
@@ -209,48 +152,28 @@ export function Header() {
             )}
           </button>
 
-          {/* Demo Mode Truthful Indicator */}
-          {isDemo && (
-            <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs text-[#849F90]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D7B678]" />
-              <span>Interactive Demo</span>
-            </span>
-          )}
+          {/* Demo Provenance Badge */}
+          <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs text-[#849F90]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D7B678] animate-pulse" />
+            <span>Public Demo Mode</span>
+          </span>
 
-          {/* User Profile / Auth Action */}
+          {/* Reset Demo Action */}
           <div className="flex items-center gap-1.5 pl-1 border-l border-[#1D2B23]">
-            {userEmail ? (
-              <div className="flex items-center gap-1.5">
-                <div
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-[#121B16] border border-[#1F2F24] text-xs text-[#BDD1C5]"
-                  title={`Signed in as ${userEmail}`}
-                >
-                  <UserIcon className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
-                  <span className="hidden md:inline-block max-w-[120px] truncate">{userEmail}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleSignOut}
-                  className="h-7 w-7 text-[#768F81] hover:text-red-400 hover:bg-red-950/30"
-                  title="Sign Out"
-                  aria-label="Sign Out"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ) : (
-              <Link href="/login">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs border-[#2D6546] text-[#D7B678] hover:bg-[#163B2A]/40"
-                >
-                  <LogIn className="h-3.5 w-3.5 mr-1" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetDemo}
+              className={`h-7 text-xs border-[#2D6546] transition-all duration-200 ${
+                resetFeedback
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500'
+                  : 'text-[#D7B678] hover:bg-[#163B2A]/40'
+              }`}
+              title="Reset demonstration state to clean agronomic fixtures"
+            >
+              <RotateCcw className={`h-3.5 w-3.5 mr-1 ${resetFeedback ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">{resetFeedback ? 'Reset Done' : 'Reset Demo'}</span>
+            </Button>
           </div>
         </div>
       </header>

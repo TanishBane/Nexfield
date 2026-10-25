@@ -11,7 +11,7 @@
 
 [![Frontend CI](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/frontend-ci.yml)
 [![Backend CI](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml/badge.svg?branch=main)](https://github.com/TanishBane/Nexfield/actions/workflows/backend-ci.yml)
-[![Backend Tests](https://img.shields.io/badge/Pytest-82%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
+[![Backend Tests](https://img.shields.io/badge/Pytest-83%20Passed-10B981?logo=pytest&logoColor=white)](services/api/tests)
 [![System Smoke Suite](https://img.shields.io/badge/Smoke%20Suite-10%2F10%20Passed-10B981)](tests/e2e-smoke.js)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Vercel Deployment](https://img.shields.io/badge/Vercel-nexfield--agritech.vercel.app-000000?logo=vercel&logoColor=white)](https://nexfield-agritech.vercel.app)
@@ -21,9 +21,9 @@
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![ONNX Runtime](https://img.shields.io/badge/ONNX%20Runtime-CPU%205.1ms-blue?logo=onnx&logoColor=white)](docs/AI_AND_MODELS.md)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20PostGIS-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Public Demo](https://img.shields.io/badge/Architecture-Public%20Demo%20%E2%80%A2%20No%20Login-10B981)](docs/architecture/PUBLIC_DEMO_ARCHITECTURE.md)
 
-[**Live Production App**](https://nexfield-agritech.vercel.app) • [**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security**](SECURITY.md) • [**Contributing**](CONTRIBUTING.md)
+[**Live Production App**](https://nexfield-agritech.vercel.app) • [**Public Demo Architecture**](docs/architecture/PUBLIC_DEMO_ARCHITECTURE.md) • [**Interactive Demo Guide**](docs/DEMO_GUIDE.md) • [**System Architecture**](docs/ARCHITECTURE.md) • [**Product Overview**](docs/PRODUCT_OVERVIEW.md) • [**AI & Models**](docs/AI_AND_MODELS.md) • [**Data Flow**](docs/DATA_FLOW.md) • [**Development Workflow**](docs/DEVELOPMENT_WORKFLOW.md) • [**Cloud Deployment**](docs/DEPLOYMENT.md) • [**Security**](SECURITY.md) • [**Contributing**](CONTRIBUTING.md)
 
 <br/>
 
@@ -241,17 +241,17 @@ The **Clarity Update** resolves interface density and cognitive overload by re-a
 
 ---
 
-### 4.6 Enterprise SaaS, Demo Mode & Mobile Responsiveness
+### 4.6 Public Demonstration, Local State & Mobile Responsiveness
 
-| Authentication & Access Portal (`/login`) | Tenant Farm Onboarding (`/onboarding`) |
+| Public Command Center (`/control`) | Interactive Estate Switcher & State Reset |
 |:---:|:---:|
-| ![Authentication Portal](docs/assets/screenshots/authentication.png) | ![Tenant Onboarding](docs/assets/screenshots/onboarding.png) |
-| *Supabase GoTrue authentication portal supporting secure email/password and multi-tenant session management.* | *Interactive farm setup wizard: parcel boundary definitions, soil profile selection, and crop cycle initialization.* |
+| ![Public Command Center](docs/assets/screenshots/demo-02-control-dashboard.png) | ![State Reset](docs/assets/screenshots/demo-09-reset-state.png) |
+| *Frictionless public access to farm telemetry, active crop cycles, and real-time alerts without login barriers.* | *One-click demonstration state reset with namespaced browser persistence (`nexfield-demo-v1`) and estate switcher.* |
 
-| System Architecture & Data Center (`/data-center`) | Mobile Responsive Viewport (390×844) |
+| Cinematic Entrance (`/`) | Mobile Responsive Viewport (390×844) |
 |:---:|:---:|
-| ![Data Center Architecture](docs/assets/screenshots/data-center.png) | ![Mobile Responsive](docs/assets/screenshots/mobile.png) |
-| *Live telemetry data center displaying ingestion latency, cache hit ratios, and PostGIS spatial query performance.* | *Mobile-first responsive design featuring collapsible navigation, tabular telemetry figures, and touch-optimized controls.* |
+| ![Cinematic Showcase](docs/assets/screenshots/demo-01-homepage.png) | ![Mobile Responsive](docs/assets/screenshots/demo-08-mobile-control.png) |
+| *Cinematic landing experience introducing NEXFIELD's six connected modules and direct platform access.* | *Mobile-first responsive design featuring collapsible navigation, tabular telemetry figures, and touch-optimized controls.* |
 
 ---
 
@@ -346,46 +346,49 @@ sequenceDiagram
 
 ---
 
-### Diagram 2: Multi-Tenant Security & Session Lifecycle
+### Diagram 2: Public Demonstration Routing & Clean Interception Lifecycle
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Farmer as Farm Operator
+    actor Visitor as Public Visitor / Evaluator
     participant Edge as Next.js Edge Middleware
-    participant API as FastAPI Backend
-    participant Auth as Supabase GoTrue Auth
-    participant DB as PostgreSQL + PostGIS (RLS)
+    participant Client as Next.js 15.5 Client Shell
+    participant Store as Local Demo Persistence (nexfield-demo-v1)
+    participant Fixtures as Domain-Accurate Fixtures (data/fixtures/)
 
-    Farmer->>Edge: GET /control (with session cookie)
-    Edge->>Edge: CVE-2025-29927 header normalization & JWT check
-    alt Invalid or Expired Token
-        Edge-->>Farmer: Redirect 302 to /login
-    else Valid Session
-        Edge->>API: Forward request with Bearer JWT
-        API->>Auth: Validate claims (sub = user_id)
-        API->>DB: SELECT * FROM farms WHERE owner_id = :user_id
-        DB->>DB: Evaluate RLS: owner_id == current_user
-        DB-->>API: Return isolated farm record
-        API-->>Farmer: 200 OK (Farm telemetry & field records)
+    alt Accessing Public Module (/control, /twin, /fieldsight, /ops, /markets)
+        Visitor->>Edge: GET /control
+        Edge-->>Visitor: 200 OK (Zero auth barrier, allow public access)
+        Visitor->>Client: Mount Public Workspace Shell
+        Client->>Store: Hydrate non-sensitive local state (tasks, inventory)
+        Client->>Fixtures: Load baseline agronomic datasets
+        Client-->>Visitor: Render Interactive Dashboard
+    else Accessing Legacy Auth Route (/login, /signup, /onboarding)
+        Visitor->>Edge: GET /login
+        Edge-->>Visitor: HTTP 307 Temporary Redirect -> /control
+        Visitor->>Client: Seamlessly load /control Command Center
     end
 ```
 
 ---
 
-### Diagram 3: Live Sensor Feeds vs Synthetic Fixtures
+### Diagram 3: Public Demonstration State Topology & Persistence
 
 ```mermaid
 flowchart TD
-    Req["Frontend Data Request<br/>(e.g., fetchFarmTelemetry)"] --> Switch{"NEXT_PUBLIC_USE_FIXTURES<br/>Enabled?"}
+    Req["Frontend Module Load<br/>(/control, /fieldsight, /twin, /ops, /markets)"] --> StoreCheck{"Check Browser Storage<br/>(nexfield-demo-v1)"}
 
-    Switch -- "true (Offline / Dev Mode)" --> FixtureLoader["Load Synthetic Fixtures<br/>(data/fixtures/*.json)"]
-    FixtureLoader --> AddFlag["Attach Metadata Flag:<br/>isFixture: true"]
-    AddFlag --> RenderDev["Render Dashboard with Persistent Banner:<br/>'Development Mode: Synthetic Agronomic Fixtures'"]
+    StoreCheck -- "Storage Present & Valid" --> LoadStored["Hydrate User Interventions<br/>(Modified tasks, scenario offsets, inventory)"]
+    StoreCheck -- "Fresh Session / Reset Clicked" --> LoadBaseline["Load Agronomic Baseline Fixtures<br/>(Nashik Estate: 2.4 ha, Tomato Abhinav F1)"]
 
-    Switch -- "false (Live Production Mode)" --> APIRequest["Dispatch HTTP Request with Bearer JWT<br/>(FastAPI /api/v1/farms/...)"]
-    APIRequest --> DBQuery["Execute PostGIS Spatial Query<br/>(Supabase PostgreSQL 15)"]
-    DBQuery --> RenderProd["Render Live IoT Telemetry & Sensor Readings"]
+    LoadStored --> RenderUI["Render Interactive Module Interface<br/>(Zero Login Friction · Instant Exploration)"]
+    LoadBaseline --> RenderUI
+
+    UserAction["User Action<br/>(Complete Task / Adjust Drip / Change Scenario)"] --> MutateState["Mutate Zustand Store & Write to localStorage"]
+    MutateState --> UpdateViews["Synchronize All 6 Connected Modules"]
+    ResetClick["Click 'Reset Demo' in Header"] --> RestoreClean["Restore Clean Fixture Baseline Immediately"]
+    RestoreClean --> RenderUI
 ```
 
 ---
@@ -450,7 +453,7 @@ flowchart LR
 | **Data Visualization** | Apache ECharts | `6.1.0` | High-performance interactive yield trajectories and mandi trends |
 | **Client State & Cache** | Zustand / TanStack Query | `5.0` / `5.66` | Synchronous UI state and stale-while-revalidate server caching |
 | **Contracts & Validation** | Zod | `3.24.2` | Runtime request/response payload validation schemas |
-| **Authentication & DB** | Supabase Cloud | PostgreSQL 15 | GoTrue JWT authentication, Row-Level Security, PostGIS |
+| **Data Layer & Persistence** | Browser Local Storage | `nexfield-demo-v1` | Resilient client-side persistence, domain-accurate fixtures, zero cloud DB dependency |
 | **Spatial Engine** | PostGIS / Shapely | Spatial Ext | Spatial field polygon indexing (`GIST`), boundary area calculations |
 | **Backend API Engine** | FastAPI | `0.115` | Asynchronous Python REST endpoints, Pydantic v2 schemas |
 | **Edge ML Serving** | ONNX Runtime | CPU Engine | Edge-optimized model inference (`fieldsight_foliar_v1.onnx`) in **$5.13\text{ ms}$** |
@@ -580,10 +583,11 @@ Copy-Item apps/web/.env.example apps/web/.env.local
 Copy-Item services/api/.env.example services/api/.env
 
 # 5. Run full test verification suites
-py -m pytest services/api/tests   # 78 backend unit & integration tests
-pnpm type-check                   # Zero TypeScript errors
-pnpm test                         # Frontend Vitest suites
-pnpm test:e2e                     # 10-point system smoke suite
+py -m pytest services/api/tests   # 83 backend unit & integration tests
+pnpm type-check                   # Zero TypeScript errors across all packages
+pnpm test                         # Frontend Vitest suites (17 tests)
+pnpm test:e2e                     # 10-point system invariant smoke suite
+node tests/test-public-demo.js    # 10-point Playwright browser verification suite
 
 # 6. Start full-stack development environment concurrently
 pnpm dev
@@ -649,11 +653,11 @@ In food technology, up to 30% of harvested food degrades in storage. NEXFIELD ev
 | **Spatial CAM Heatmaps** | **Implemented** | Conv3 layer activation extraction | Verified bilinear upscaling and color mapping. |
 | **3D WebGL Digital Twin** | **Implemented** | FAO-56 Penman-Monteith physics | Real-time Three.js WebGL canvas with procedural shaders. |
 | **Agronomic Copilot** | **Implemented** | Context-grounded LLM prompts + ICAR | Live farm telemetry injection and tool cards. |
-| **Operations Ledger** | **Implemented** | Reactive state + Supabase schema | Automated inventory balance deductions. |
+| **Operations Ledger** | **Implemented** | Reactive state + Local persistence (`nexfield-demo-v1`) | Automated inventory balance deductions, task lifecycle tracking. |
 | **Mandi Price Arbitrage** | **Implemented** | AGMARKNET daily bulletins & freight math | Haulage distance matrix optimization. |
 | **Post-Harvest Spoilage** | **Implemented** | ICAR & FAO Bulletin 149 criteria | Tomato chilling injury ($<10^\circ\text{C}$), grain moisture ($>14\%$). |
 | **PostGIS Spatial Queries** | **Implemented** | PostgreSQL 15 + PostGIS | Polygon storage, GIST indexing, centroid calculations. |
-| **Tenant Isolation (RLS)** | **Implemented** | Supabase GoTrue + RLS | Cryptographic ownership check (`Farm.owner_id == user.id`). |
+| **Zero-Login Public Demo** | **Implemented** | Next.js Edge Middleware 307 + Fixtures | Instant public access, clean auth redirects, zero cloud database barriers. |
 
 ---
 

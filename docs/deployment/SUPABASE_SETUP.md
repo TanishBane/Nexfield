@@ -1,14 +1,20 @@
-# NEXFIELD — Supabase Cloud Architecture & Authentication Runbook
+# NEXFIELD — Supabase Cloud Architecture (Historical Reference / Migration Archive)
+
+> [!NOTE]
+> **Architecture Update: Public Demo Transition Completed**  
+> NEXFIELD has transitioned from a mandatory Supabase authentication system to an open, frictionless **Public Demonstration Architecture**.  
+> The live platform and demonstration modules no longer require Supabase credentials, cloud projects, or remote databases.  
+> See the active specification in [PUBLIC_DEMO_ARCHITECTURE.md](../architecture/PUBLIC_DEMO_ARCHITECTURE.md).
 
 **Project:** NEXFIELD — The Agricultural Intelligence Operating System  
 **Positioning:** Observe. Predict. Simulate. Optimize. Grow.  
 **Repository:** `https://github.com/TanishBane/Nexfield`  
 **Owner:** Tanish Bane (@TanishBane) & Rohan Panchal (@panchalrohan44)  
-**Status:** PRODUCTION READY
+**Status:** ARCHIVED (Public Demo Mode Active)
 
 ---
 
-## 1. Architectural Overview
+## 1. Historical Architecture Overview
 
 NEXFIELD employs an enterprise-grade Supabase authentication and identity architecture:
 1. **Next.js 15.5 App Router SSR Authentication (`@supabase/ssr`):** Cookie-backed PKCE session lifecycle supporting email/password registration, email verification, Google OAuth, password recovery, and middleware token refresh.

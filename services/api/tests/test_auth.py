@@ -55,3 +55,15 @@ async def test_invalid_supabase_session_is_unauthenticated():
             )
 
     assert caught.value.status == 401
+
+
+@pytest.mark.asyncio
+async def test_public_demo_mode_yields_demo_principal():
+    scope = {
+        "type": "http",
+        "headers": [(b"x-demo-mode", b"public-demonstration")],
+        "app": SimpleNamespace(state=SimpleNamespace(settings=SimpleNamespace(supabase_url=None, supabase_anon_key=None))),
+    }
+    req = Request(scope)
+    principal = await get_principal(req, None)
+    assert principal.user_id == UUID("00000000-0000-0000-0000-000000000001")
