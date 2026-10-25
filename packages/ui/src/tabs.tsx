@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState } from 'react';
-import { cn } from './utils';
+import React, { createContext, useContext, useState } from "react";
+import { cn } from "./utils";
 
 interface TabsContextType {
   activeTab: string;
@@ -23,7 +23,7 @@ export function Tabs({
   children: React.ReactNode;
   className?: string;
 }) {
-  const [internalTab, setInternalTab] = useState(defaultValue || '');
+  const [internalTab, setInternalTab] = useState(defaultValue || "");
   const activeTab = value !== undefined ? value : internalTab;
 
   const setActiveTab = (newTab: string) => {
@@ -35,7 +35,7 @@ export function Tabs({
 
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
-      <div className={cn('w-full', className)}>{children}</div>
+      <div className={cn("w-full", className)}>{children}</div>
     </TabsContext.Provider>
   );
 }
@@ -50,8 +50,8 @@ export function TabsList({
   return (
     <div
       className={cn(
-        'inline-flex h-9 items-center justify-center rounded-lg bg-[#0C120F] p-1 text-[#8FA396] border border-[#1E2E25]',
-        className
+        "inline-flex h-9 items-center justify-center rounded-lg bg-[#F7FAF2] p-1 text-[#46604D] border border-[#D1DDCD]",
+        className,
       )}
     >
       {children}
@@ -69,7 +69,7 @@ export function TabsTrigger({
   className?: string;
 }) {
   const context = useContext(TabsContext);
-  if (!context) throw new Error('TabsTrigger must be used within Tabs');
+  if (!context) throw new Error("TabsTrigger must be used within Tabs");
 
   const isActive = context.activeTab === value;
 
@@ -78,11 +78,11 @@ export function TabsTrigger({
       type="button"
       onClick={() => context.setActiveTab(value)}
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-xs md:text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500',
+        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1 text-xs md:text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
         isActive
-          ? 'bg-[#18261F] text-[#F0F5F2] shadow-sm font-semibold border border-[#2B4034]'
-          : 'text-[#8EA597] hover:text-[#D1E0D7] hover:bg-[#121A15]',
-        className
+          ? "bg-[#FFFFFF] text-[#09251A] shadow-sm font-semibold border border-[#D1DDCD]"
+          : "text-[#46604D] hover:text-[#46604D] hover:bg-[#F7FAF2]",
+        className,
       )}
     >
       {children}
@@ -100,9 +100,13 @@ export function TabsContent({
   className?: string;
 }) {
   const context = useContext(TabsContext);
-  if (!context) throw new Error('TabsContent must be used within Tabs');
+  if (!context) throw new Error("TabsContent must be used within Tabs");
 
   if (context.activeTab !== value) return null;
 
-  return <div className={cn('mt-3 focus-visible:outline-none', className)}>{children}</div>;
+  return (
+    <div className={cn("mt-3 focus-visible:outline-none", className)}>
+      {children}
+    </div>
+  );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   CardHeader,
@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardContent,
   Button,
-} from '@nexfield/ui';
+} from "@nexfield/ui";
 import {
   Sliders,
   RotateCcw,
@@ -15,7 +15,7 @@ import {
   Flame,
   Leaf,
   Play,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ParameterConfigurationPanelProps {
   params: {
@@ -40,18 +40,18 @@ export function ParameterConfigurationPanel({
   isSimulating,
 }: ParameterConfigurationPanelProps) {
   return (
-    <Card className="border-[#273B2F]">
-      <CardHeader className="pb-3 border-b border-[#1E2E25]">
+    <Card className="border-[#D1DDCD]">
+      <CardHeader className="pb-3 border-b border-[#D1DDCD]">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Sliders className="h-4 w-4 text-emerald-400" />
+            <Sliders className="h-4 w-4 text-emerald-700" />
             Scenario Parameter Configuration
           </CardTitle>
           <Button
             variant="ghost"
             size="sm"
             onClick={resetParams}
-            className="h-6 text-[11px] text-[#7B9586] hover:text-[#E2ECE5]"
+            className="h-6 text-[11px] text-[#46604D] hover:text-[#09251A]"
             title="Reset to agronomic baseline"
           >
             <RotateCcw className="h-3 w-3 mr-1" />
@@ -66,11 +66,11 @@ export function ParameterConfigurationPanel({
         {/* Irrigation Volume */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-              <Droplets className="h-3.5 w-3.5 text-sky-400" />
+            <span className="text-[#46604D] font-medium flex items-center gap-1.5">
+              <Droplets className="h-3.5 w-3.5 text-sky-700" />
               Target Irrigation Volume
             </span>
-            <span className="font-mono text-sky-300 font-semibold">
+            <span className="font-mono text-sky-700 font-semibold">
               {params.irrigationVolumeM3PerHa} m³/ha
             </span>
           </div>
@@ -81,16 +81,20 @@ export function ParameterConfigurationPanel({
             step="10"
             aria-label="Target Irrigation Volume in cubic meters per hectare"
             value={params.irrigationVolumeM3PerHa}
-            onChange={(e) => updateParams({ irrigationVolumeM3PerHa: Number(e.target.value) })}
-            className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            onChange={(e) =>
+              updateParams({ irrigationVolumeM3PerHa: Number(e.target.value) })
+            }
+            className="w-full h-1.5 bg-[#FFFFFF] rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         {/* Irrigation Efficiency */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-[#A2B6AA] font-medium">Irrigation Delivery Efficiency</span>
-            <span className="font-mono text-emerald-300 font-semibold">
+            <span className="text-[#46604D] font-medium">
+              Irrigation Delivery Efficiency
+            </span>
+            <span className="font-mono text-emerald-700 font-semibold">
               {params.irrigationEfficiencyPercent}% (Drip System)
             </span>
           </div>
@@ -102,20 +106,22 @@ export function ParameterConfigurationPanel({
             aria-label="Irrigation Delivery Efficiency percentage"
             value={params.irrigationEfficiencyPercent}
             onChange={(e) =>
-              updateParams({ irrigationEfficiencyPercent: Number(e.target.value) })
+              updateParams({
+                irrigationEfficiencyPercent: Number(e.target.value),
+              })
             }
-            className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-full h-1.5 bg-[#FFFFFF] rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         {/* Projected Rainfall */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-              <CloudRain className="h-3.5 w-3.5 text-sky-400" />
+            <span className="text-[#46604D] font-medium flex items-center gap-1.5">
+              <CloudRain className="h-3.5 w-3.5 text-sky-700" />
               10-Day Forecast Rainfall
             </span>
-            <span className="font-mono text-sky-300 font-semibold">
+            <span className="font-mono text-sky-700 font-semibold">
               {params.projectedRainfallMm} mm
             </span>
           </div>
@@ -126,20 +132,22 @@ export function ParameterConfigurationPanel({
             step="2"
             aria-label="10-Day Forecast Rainfall in millimeters"
             value={params.projectedRainfallMm}
-            onChange={(e) => updateParams({ projectedRainfallMm: Number(e.target.value) })}
-            className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            onChange={(e) =>
+              updateParams({ projectedRainfallMm: Number(e.target.value) })
+            }
+            className="w-full h-1.5 bg-[#FFFFFF] rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         {/* Temperature Scenario Delta */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-              <Flame className="h-3.5 w-3.5 text-amber-400" />
+            <span className="text-[#46604D] font-medium flex items-center gap-1.5">
+              <Flame className="h-3.5 w-3.5 text-amber-700" />
               Temperature Scenario Delta
             </span>
-            <span className="font-mono text-amber-300 font-semibold">
-              {params.temperatureScenarioDeltaC >= 0 ? '+' : ''}
+            <span className="font-mono text-amber-700 font-semibold">
+              {params.temperatureScenarioDeltaC >= 0 ? "+" : ""}
               {params.temperatureScenarioDeltaC}°C Stress
             </span>
           </div>
@@ -151,20 +159,22 @@ export function ParameterConfigurationPanel({
             aria-label="Temperature Scenario Delta in degrees Celsius"
             value={params.temperatureScenarioDeltaC}
             onChange={(e) =>
-              updateParams({ temperatureScenarioDeltaC: Number(e.target.value) })
+              updateParams({
+                temperatureScenarioDeltaC: Number(e.target.value),
+              })
             }
-            className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-full h-1.5 bg-[#FFFFFF] rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         {/* Nitrogen Top Dressing */}
         <div className="space-y-1">
           <div className="flex justify-between text-xs">
-            <span className="text-[#A2B6AA] font-medium flex items-center gap-1.5">
-              <Leaf className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-[#46604D] font-medium flex items-center gap-1.5">
+              <Leaf className="h-3.5 w-3.5 text-emerald-700" />
               Nitrogen Top Dressing
             </span>
-            <span className="font-mono text-emerald-300 font-semibold">
+            <span className="font-mono text-emerald-700 font-semibold">
               {params.nitrogenTopDressingKgPerHa} kg N/ha
             </span>
           </div>
@@ -176,19 +186,21 @@ export function ParameterConfigurationPanel({
             aria-label="Nitrogen Top Dressing in kilograms per hectare"
             value={params.nitrogenTopDressingKgPerHa}
             onChange={(e) =>
-              updateParams({ nitrogenTopDressingKgPerHa: Number(e.target.value) })
+              updateParams({
+                nitrogenTopDressingKgPerHa: Number(e.target.value),
+              })
             }
-            className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
+            className="w-full h-1.5 bg-[#FFFFFF] rounded-lg appearance-none cursor-pointer accent-emerald-500"
           />
         </div>
 
         {/* Biostimulant Toggle */}
-        <div className="flex items-center justify-between p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD]">
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[#E1ECE5]">
+            <span className="text-xs font-semibold text-[#09251A]">
               Amino-Acid Biostimulant Spray
             </span>
-            <span className="text-[11px] text-[#71897C]">
+            <span className="text-[11px] text-[#46604D]">
               Protects chlorophyll against terminal heat shock
             </span>
           </div>
@@ -196,11 +208,12 @@ export function ParameterConfigurationPanel({
             type="checkbox"
             aria-label="Amino-Acid Biostimulant Spray application"
             checked={params.biostimulantApplied}
-            onChange={(e) => updateParams({ biostimulantApplied: e.target.checked })}
-            className="h-4 w-4 rounded border-emerald-600 text-emerald-600 focus:ring-emerald-500 bg-[#16221B] cursor-pointer"
+            onChange={(e) =>
+              updateParams({ biostimulantApplied: e.target.checked })
+            }
+            className="h-4 w-4 rounded border-emerald-600 text-emerald-600 focus:ring-emerald-500 bg-[#F7FAF2] cursor-pointer"
           />
         </div>
-
 
         {/* Run Simulation Action */}
         <Button

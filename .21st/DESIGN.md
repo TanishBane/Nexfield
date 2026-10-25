@@ -1,51 +1,21 @@
-# NEXFIELD — Design Context & Editorial System
+# NEXFIELD design
 
-**Positioning:** The Agricultural Intelligence Operating System  
-**Tagline:** Observe. Predict. Simulate. Optimize. Grow.  
-**Lead:** Tanish Bane (@TanishBane)  
-**Hackathon:** ADAPPT 5.0 — Domain 2: AI in Food Technology  
+Updated 25 October 2026 for the requested full visual redesign.
 
----
+## Direction
 
-## 1. Visual Philosophy: Natural, Precise, Immersive, Intelligent
+A vivid farming identity: real field photographs, light surfaces, simple headings, and direct routes into farm tools. The home hero pairs a green copy panel with real farming photography. Tool colors continue through platform pages and workspace headers.
 
-NEXFIELD rejects the generic dark-mode AI SaaS aesthetic of blinding neon lasers, purple blobs, and crowded HUD clutter. 
-Instead, NEXFIELD derives its identity from:
-- **High-End Agricultural & Environmental Editorial:** The warmth of cultivated earth, morning light on foliage, crisp architectural elevations.
-- **Scientific Cartography:** Clean lines, topographic contour gradients, legible geospatial coordinates.
-- **Modern Calm SaaS:** Generous breathing room, clear typographic hierarchies, progressive disclosure.
+## Colors
 
----
+Leaf green #048547, deep green text #09251A, sunflower #FFDB3D, orange #FF9159, sky #B6DDFA, pink #F7C8D8, lilac #DBD0FA, canvas #F7FAF2, white cards, borders #D1DDCD.
 
-## 2. Core Color Palette & Materials
+## Typography
 
-| Token | Hex | Role | Contrast / APCA |
-|---|---|---|---|
-| **Warm Ivory** | `#F3E9D6` | Public editorial accents, hero highlights, light-accent badges | Warm, natural earth tone |
-| **Forest Green** | `#173C2C` | Deep canopy backgrounds, structured cards, secondary brand | Restrained, organic richness |
-| **Deep Charcoal / Obsidian** | `#101713` / `#090D0B` | Foundation canvas, command center background | Lc > 90 contrast against `#F0F5F2` |
-| **Muted Gold** | `#C2A06A` | Harvest markers, grain indicators, subtle badge highlights | Elegant agrarian craft |
-| **Soft Sage** | `#A7B5A0` | Subtitles, secondary metadata, inactive borders | Serene readability |
-| **Warm White** | `#FAF8F2` | Primary typography on dark surfaces | Razor-sharp legibility |
-| **Emerald Core** | `#10B981` | Interactive affordances, status signals, active state | Sparing, disciplined focus |
+Butler by Fabian De Smet for display headings. Gidole by Andreas Larsen for interface, body, and tabular numbers. Both downloaded from DaFont and served locally using next/font/local. Sources and licenses: apps/web/public/fonts/SOURCES.md.
 
----
+## Patterns
 
-## 3. Typographic System
+Photo-led home page, six colored tool cards, sequential setup guidance, native FAQ disclosures, reusable product details, selectable demo introduction. Green workspace navigation, white header, colored module introductions, light cards, persistent sample-data notices throughout the public workspace.
 
-- **Editorial Display:** `Instrument Serif` (Italic & Regular) — for evocative headlines, section introductions, and story markers.
-- **Product Interface:** `Manrope` / `Inter` — geometric precision, open counters, exceptional microtext legibility.
-- **Technical & Scientific:** `JetBrains Mono` / `Geist Mono` with `tabular-nums` — coordinates, sensor telemetry, rupee spreads, soil matrices.
-
----
-
-## 4. Invariants & Rules
-
-1. **The Law of Progressive Disclosure:**
-   Never confront the farmer with 50 telemetry points simultaneously. Surface the farm identity, today's 3 actionable priorities, and composite health first; provide rich nested routes for deep analytical drills.
-2. **The Nested Radius Invariant:**
-   `child_r <= parent_r - padding`. Inner buttons and badges must never have larger corner curvature than their enclosing card.
-3. **Tabular Numerals Invariant:**
-   Every price, percentage, moisture index, and coordinate must use `font-mono tabular-nums`.
-4. **Motion with Intent:**
-   Use GSAP ScrollTrigger for editorial narrative reveals and spring physics for interactive drawer/modal states. Respect `prefers-reduced-motion`.
+Use concise sentence-case headings. Preserve the current public demo data hooks and browser persistence. Label sample data clearly. Preserve visible keyboard focus, reduced motion, and access to every route on mobile.
