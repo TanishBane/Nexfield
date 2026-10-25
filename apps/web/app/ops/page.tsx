@@ -307,9 +307,25 @@ export default function OpsPage() {
                     <Badge variant={task.status === 'completed' ? 'success' : 'outline'} size="sm">
                       {task.status.replace(UNDERSCORE_REGEX, ' ')}
                     </Badge>
+                    {task.status !== 'completed' && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          const { useDemoStore } = require('@/lib/store/useDemoStore');
+                          useDemoStore.getState().completeTask(task.id);
+                          queryClient.invalidateQueries({ queryKey: ['tasks', selectedFarmId] });
+                        }}
+                        className="h-7 text-[11px] px-2 text-emerald-300 hover:text-emerald-200 border-[#22352A]"
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Complete
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}
+
             </CardContent>
           </Card>
         </TabsContent>

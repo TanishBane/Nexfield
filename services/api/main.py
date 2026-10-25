@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from uuid import uuid4
 
-import httpx
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -29,11 +28,9 @@ async def lifespan(app: FastAPI):
     settings = Settings()
     app.state.settings = settings
     app.state.database = Database(settings)
-    app.state.auth_client = httpx.AsyncClient(timeout=httpx.Timeout(10.0, connect=5.0))
     try:
         yield
     finally:
-        await app.state.auth_client.aclose()
         await app.state.database.close()
 
 
@@ -49,7 +46,7 @@ app.add_middleware(
     allow_origins=Settings().cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Confirm-Delete", "X-Request-ID"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Confirm-Delete", "X-Request-ID"],
 )
 
 

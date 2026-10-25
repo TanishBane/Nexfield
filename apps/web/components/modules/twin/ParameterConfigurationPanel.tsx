@@ -79,6 +79,7 @@ export function ParameterConfigurationPanel({
             min="150"
             max="600"
             step="10"
+            aria-label="Target Irrigation Volume in cubic meters per hectare"
             value={params.irrigationVolumeM3PerHa}
             onChange={(e) => updateParams({ irrigationVolumeM3PerHa: Number(e.target.value) })}
             className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
@@ -98,6 +99,7 @@ export function ParameterConfigurationPanel({
             min="50"
             max="98"
             step="2"
+            aria-label="Irrigation Delivery Efficiency percentage"
             value={params.irrigationEfficiencyPercent}
             onChange={(e) =>
               updateParams({ irrigationEfficiencyPercent: Number(e.target.value) })
@@ -122,6 +124,7 @@ export function ParameterConfigurationPanel({
             min="0"
             max="80"
             step="2"
+            aria-label="10-Day Forecast Rainfall in millimeters"
             value={params.projectedRainfallMm}
             onChange={(e) => updateParams({ projectedRainfallMm: Number(e.target.value) })}
             className="w-full h-1.5 bg-[#18261F] rounded-lg appearance-none cursor-pointer accent-emerald-500"
@@ -145,6 +148,7 @@ export function ParameterConfigurationPanel({
             min="-2"
             max="5"
             step="1"
+            aria-label="Temperature Scenario Delta in degrees Celsius"
             value={params.temperatureScenarioDeltaC}
             onChange={(e) =>
               updateParams({ temperatureScenarioDeltaC: Number(e.target.value) })
@@ -169,6 +173,7 @@ export function ParameterConfigurationPanel({
             min="0"
             max="90"
             step="5"
+            aria-label="Nitrogen Top Dressing in kilograms per hectare"
             value={params.nitrogenTopDressingKgPerHa}
             onChange={(e) =>
               updateParams({ nitrogenTopDressingKgPerHa: Number(e.target.value) })
@@ -189,11 +194,13 @@ export function ParameterConfigurationPanel({
           </div>
           <input
             type="checkbox"
+            aria-label="Amino-Acid Biostimulant Spray application"
             checked={params.biostimulantApplied}
             onChange={(e) => updateParams({ biostimulantApplied: e.target.checked })}
             className="h-4 w-4 rounded border-emerald-600 text-emerald-600 focus:ring-emerald-500 bg-[#16221B] cursor-pointer"
           />
         </div>
+
 
         {/* Run Simulation Action */}
         <Button

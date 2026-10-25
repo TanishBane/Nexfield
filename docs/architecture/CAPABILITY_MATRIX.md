@@ -29,9 +29,9 @@
 
 | Component | Target File | Status | Authentication Mode | Isolation Guarantee | Evidence |
 |---|---|---|---|---|---|
-| **Farmer Onboarding** | `apps/web/app/onboarding/page.tsx` | **WORKING** | Supabase Auth Bearer JWT | Writes scoped to `owner_id = user.id` | Tested via `test_isolation.py` |
-| **Data Ingestion Center** | `apps/web/app/data-center/page.tsx` | **WORKING** | Supabase Auth Bearer JWT | Farm ownership check before import | Validates CSV, GeoJSON & JSON schema |
-| **Backend Ingestion API** | `services/api/import_data.py` | **WORKING** | FastAPI `get_principal` | Strict tenant validation `Farm.owner_id == user.user_id` | 51 passing pytest unit tests |
+| **Farmer Profile & Overview** | `apps/web/app/control/page.tsx` | **WORKING** | Public Demo (No Login) | Browser LocalStorage (`nexfield-demo-v1`) | Interactive modal & persistent store |
+| **Data Ingestion Center** | `apps/web/app/data-center/page.tsx` | **WORKING** | Public Demo (No Login) | Sandboxed Local Demo Store | Validates CSV, GeoJSON & JSON schema |
+| **Backend Ingestion API** | `services/api/import_data.py` | **WORKING** | FastAPI `get_current_user` | Strict tenant validation `Farm.owner_id == user.id` | Passing pytest unit tests |
 | **Open-Meteo Integration** | `services/api/control.py` | **WORKING** | Open Public Endpoint (No key required) | Location scoped to farm GPS coordinates | Tested via `test_open_meteo.py` |
 | **Mandi Price Adapters** | `services/api/markets.py` | **PARTIAL** | API Key (`AGMARKNET_API_KEY`) | Scoped to state & district queries | Tested via `test_agmarknet.py` |
 | **Next.js Web Engine** | `apps/web/package.json` | **WORKING** | SSR / SSG | Strict client-server boundaries | Running Next.js 15.5.28 (patched for CVE-2025-29927) |

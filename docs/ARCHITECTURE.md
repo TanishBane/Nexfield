@@ -1,8 +1,8 @@
-# NEXFIELD — System Architecture & Engineering Blueprint
+# NEXFIELD — System Architecture & Technical Specifications
 
 **Project:** NEXFIELD — The Agricultural Intelligence Operating System  
 **Hackathon:** ADAPPT 5.0 — Round 2 — Domain 2: AI in Food Technology  
-**Version:** 2.4.0 (Production Architecture Specification)  
+**Version:** 2.5.0 (Public Demo Architecture)  
 **Authors:** Tanish Bane (@TanishBane) & Rohan Panchal (@panchalrohan44)
 
 ---
@@ -13,7 +13,7 @@ NEXFIELD is built on three uncompromising engineering principles:
 
 1. **Biophysical Grounding Over Pure Heuristics:** In agricultural operations, false predictions cause crop failure and catastrophic financial loss. Machine learning recommendations must be mathematically bound by physical water balance conservation (FAO-56 Penman-Monteith) and validated agricultural extension protocols (ICAR, FAO Bulletin 149).
 2. **Clear Boundary Separation & Contract Integrity:** The user interface (Next.js 15.5 App Router), backend orchestration (FastAPI 0.115), spatial database (PostgreSQL + PostGIS), and edge ML runtime (ONNX Runtime) communicate exclusively through strictly typed TypeScript Zod contracts and Pydantic v2 data transfer objects.
-3. **Multi-Tenant Security & Scientific Honesty:** Farm tenant data is isolated cryptographically through Supabase Row-Level Security (RLS) and application-level ownership verification. Synthetic demo fixtures are explicitly demarcated (`isFixture: true`) and never disguised as live IoT telemetry.
+3. **Demonstration Privacy & Scientific Honesty:** The public platform operates frictionlessly without mandatory login or cloud database barriers. Interactive user state is sandboxed to browser local storage (`nexfield-demo-v1`), eliminating database pollution and cross-tenant leakage. Synthetic fixtures are explicitly demarcated (`isFixture: true`) and never disguised as live IoT telemetry.
 
 ---
 
@@ -24,21 +24,21 @@ flowchart TB
     subgraph Client Tier ["Client Tier (apps/web)"]
         UI["Next.js 15.5 App Router<br/>(React 19, Tailwind CSS, Lucide)"]
         WebGL["3D WebGL Digital Twin<br/>(Three.js, Canvas Engine)"]
-        State["Client State & Caching<br/>(Zustand, React Query SWR)"]
+        State["Client State & Caching<br/>(Zustand 'nexfield-demo-v1', React Query)"]
     end
 
     subgraph Edge Tier ["Edge & Gateway Tier"]
-        VercelEdge["Vercel Edge Network / Middleware<br/>(CVE-2025-29927 Patch, Route Guard)"]
+        VercelEdge["Vercel Edge Network / Middleware<br/>(Frictionless Redirects, Route Guard)"]
         Contracts["Shared Type Contracts<br/>(packages/contracts - Zod Schemas)"]
     end
 
     subgraph Service Tier ["Application & ML Tier (services/api)"]
         FastAPI["FastAPI 0.115 Engine<br/>(Asynchronous ASGI, Pydantic v2)"]
-        RouterAuth["Auth & Tenant Guard<br/>(JWT Claims, Farm Ownership)"]
+        CORSSecurity["Strict CORS Whitelist Guard<br/>(Vercel Production & Localhost)"]
         RouterTwin["Biophysical Twin Router<br/>(FAO-56 Penman-Monteith Engine)"]
         RouterFieldSight["FieldSight Pathology Router<br/>(ONNX Runtime CPU Inference)"]
         RouterMarkets["Mandi Market Router<br/>(APMC Scraper & Haulage Calc)"]
-        RouterOps["Operations & Ledger Router<br/>(Work Orders & Inventory)"]
+        RouterOps["Operations & Ledger Router<br/>(Harvest Spoilage Risk)"]
     end
 
     subgraph Inference Tier ["AI / ML Inference Models"]
@@ -47,90 +47,89 @@ flowchart TB
         BioPhys["Soil Water Balance Model<br/>(Allen et al. 1998 Equations)"]
     end
 
-    subgraph Data Tier ["Persistent Data Tier (Supabase)"]
-        Postgres["PostgreSQL 15 Database<br/>(ACID Transactions, Row-Level Security)"]
+    subgraph Data Tier ["Persistent & Demonstration Data Tier"]
+        LocalStorage["Browser Sandboxed Storage<br/>(Farms, Fields, Crop Cycles, Tasks, Expenses)"]
+        Postgres["Optional PostgreSQL 15 Database<br/>(Self-Hosted Relational Storage)"]
         PostGIS["PostGIS Spatial Extensions<br/>(Polygons, Centroids, Spatial Indices)"]
-        SupaAuth["Supabase GoTrue Auth<br/>(JWT Token Management, User Metadata)"]
-        Storage["Object Storage<br/>(Leaf Pathology Scans, Heatmap Assets)"]
+        Storage["Object Storage / In-Memory Buffer<br/>(Leaf Pathology Scans, Heatmap Assets)"]
     end
 
     %% Connections
     UI <--> VercelEdge
     WebGL <--> State
+    State <--> LocalStorage
     VercelEdge <--> FastAPI
     UI -. Typed DTOs .-> Contracts
     FastAPI -. Validated By .-> Contracts
 
-    FastAPI --> RouterAuth
-    FastAPI --> RouterTwin
-    FastAPI --> RouterFieldSight
-    FastAPI --> RouterMarkets
-    FastAPI --> RouterOps
+    FastAPI --> CORSSecurity
+    CORSSecurity --> RouterTwin
+    CORSSecurity --> RouterFieldSight
+    CORSSecurity --> RouterMarkets
+    CORSSecurity --> RouterOps
 
     RouterFieldSight --> ONNX
     ONNX --> CAM
     RouterTwin --> BioPhys
 
-    RouterAuth <--> SupaAuth
-    RouterTwin <--> Postgres
-    RouterTwin <--> PostGIS
-    RouterOps <--> Postgres
+    RouterTwin -. Optional .- Postgres
+    Postgres -. Extension .- PostGIS
     RouterFieldSight <--> Storage
 ```
 
 ---
 
-## 3. Tier-by-Tier Specification
+## 3. Subsystem Breakdown
 
-### 3.1 Client Tier (`apps/web`)
-- **Framework:** Next.js 15.5.0 with React 19.0.0 and TypeScript 5.7.
-- **Styling Architecture:** Tailwind CSS 3.4 with an agronomic color palette: Base Charcoal (`#0A0F0D`), Surface Card (`#111815`), Emerald Accent (`#10B981`), Amber Warning (`#F59E0B`), and Crimson Emergency (`#EF4444`). Strict adherence to APCA contrast standards and nested corner radii invariants ($r_{\text{child}} \le r_{\text{parent}} - \text{padding}$).
-- **3D Digital Twin Visualization:** Three.js / WebGL hardware-accelerated canvas displaying multi-zone terrain elevations, dynamic soil moisture gradient shaders, crop growth height meshes, and interactive canopy overlays.
-- **Client Cache:** Dual-layer caching combining TanStack React Query for asynchronous server state (stale-while-revalidate) and Zustand for synchronous UI state (selected field, active simulation scenario, modal toggles).
+### 3.1 Client Presentation Layer (`apps/web`)
+- **Framework:** Next.js 15.5 App Router with React 19 concurrent features.
+- **Visual Design System:** Wheat Gold (`#D7B678`) and Forest Green (`#163B2A`) palette, APCA-compliant contrast tokens, Plus Jakarta Sans typography, and 21st.dev component architecture.
+- **3D Spatial Visualization:** React Three Fiber and Three.js 3D viewport featuring terrain elevation meshes, NDVI/moisture shaders, dynamic day/night environmental illumination, and an interactive 2D topological SVG fallback.
+- **Client-Side State Sandboxing:** Zustand store (`useDemoStore`, version 2) persisted to browser `localStorage` under `nexfield-demo-v1`. Encapsulates full entity collections (farms, fields, crop cycles, observations, ops work orders, and input expenses) with zero backend dependency required.
 
-### 3.2 Gateway & Edge Tier
-- **Security Middleware:** Custom Next.js middleware incorporating security mitigations for CVE-2025-29927 (header validation and canonical route verification). Unauthenticated requests to protected routes (`/control`, `/twin`, `/fieldsight`, `/ops`, `/markets`, `/data-center`) are redirected to `/login` with return destination tracking.
-- **Contract Enforcement:** All client-server payloads are validated against `packages/contracts` Zod definitions before dispatch and upon arrival.
+### 3.2 Edge & Routing Layer (`apps/web/middleware.ts`)
+- Canonical URL normalization and automated HTTP 307 redirects from legacy auth paths (`/login`, `/signup`, `/onboarding`) directly to `/control`.
+- Header sanitation preventing proxy header injection.
 
-### 3.3 Application & Service Tier (`services/api`)
-- **Framework:** FastAPI 0.115 running asynchronously on Uvicorn with Pydantic v2 validation.
-- **Dependency Injection:** Database sessions (`get_db`) and authenticated user context (`get_current_user`) are injected at the route handler level, guaranteeing ACID transaction boundaries and tenant isolation.
-- **Spatial Geometry Handling:** Shapely and GeoAlchemy2 handle spatial boundaries, calculating farm acreages, parcel centroids, and spatial intersection tests over PostGIS polygons.
+### 3.3 Application Gateway (`services/api`)
+- **FastAPI 0.115 Engine:** Asynchronous ASGI server with Pydantic v2 schema validation.
+- **Strict CORS Origin Validation:** Enforces explicit origin whitelist (`https://nexfield-agritech.vercel.app`, `http://localhost:3000`, `http://127.0.0.1:3000`). Rejects wildcard `*` origins and unauthorized referrers.
+- **Stateless AI & Calculation Routes:** All public demo endpoints execute statelessly without requiring database write permissions or auth bypass headers.
 
 ### 3.4 Machine Learning & Biophysical Engine
 - **FieldSight Visual Pathology:** CPU-optimized ONNX runtime executing `fieldsight_foliar_v1.onnx` with average latency of 5.13 ms on standard x86 CPU cores. Generates 5-class foliar disease probabilities and extracts Conv3 layer activations to render spatial Class Activation Maps (CAM).
 - **Biophysical Twin Engine:** Implements the complete FAO-56 Penman-Monteith physical equations for Reference Evapotranspiration ($ET_o$), crop coefficient adjustments ($K_c$), rootzone depletion balances ($D_r$), and yield response deficits ($K_y$).
 
-### 3.5 Persistent Data Tier (Supabase)
-- **Engine:** PostgreSQL 15 with PostGIS spatial extensions enabled.
-- **Row-Level Security:** Enforces strict multi-tenancy. Every query executed via client credentials is constrained by tenant identity (`farm.owner_id == auth.uid()`).
-- **Database Schema:** 12 relational tables managed via SQLAlchemy models with Alembic database migrations.
+### 3.5 Persistent & Demonstration Data Tier
+- **Public Demonstration:** Client state persists locally in browser `localStorage` (`nexfield-demo-v1`). Full state resets and sample farm switches operate instantaneously without network latency.
+- **Self-Hosted Backend Engine:** Optional PostgreSQL 15+ with PostGIS spatial extensions for developers wishing to run persistent relational storage with Alembic migrations.
 
 ---
 
-## 4. Multi-Tenant Security & Isolation Model
+## 4. Public Demo Execution & Request Model
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Farmer as Farmer (Browser / Mobile)
+    actor Farmer as Farmer / Judge (Browser)
     participant Edge as Next.js Edge Middleware
-    participant API as FastAPI Backend
-    participant Auth as Supabase GoTrue Auth
-    participant DB as PostgreSQL + PostGIS (RLS)
+    participant Client as Next.js Client App
+    participant LocalStore as Browser LocalStore ('nexfield-demo-v1')
+    participant API as FastAPI Stateless Service
+    participant ONNX as ONNX Runtime Engine
 
-    Farmer->>Edge: GET /control (with session cookie)
-    Edge->>Edge: Verify JWT signature & expiration
-    alt Invalid or Expired Token
-        Edge-->>Farmer: Redirect 302 to /login
-    else Valid Session
-        Edge->>API: Forward request with Bearer JWT
-        API->>Auth: Validate claims (sub = user_id)
-        API->>DB: SELECT * FROM farms WHERE owner_id = :user_id
-        DB->>DB: Evaluate RLS: owner_id == current_user
-        DB-->>API: Return farmer's isolated farm record
-        API-->>Farmer: 200 OK (Farm telemetry & field records)
-    end
+    Farmer->>Edge: GET /control
+    Edge-->>Farmer: 200 OK (Instant Public Dashboard)
+    Client->>LocalStore: Hydrate baseline farm, fields & tasks
+    LocalStore-->>Client: Return active estate telemetry (zero latency)
+    
+    Farmer->>Client: Upload leaf specimen for diagnosis
+    Client->>API: POST /api/v1/fieldsight/diagnose (image multipart)
+    API->>ONNX: Execute in-memory neural inference
+    ONNX-->>API: Class probabilities + Grad-CAM heatmap
+    API-->>Client: 200 OK (DiagnosisResult JSON)
+    Client->>LocalStore: Save diagnosis observation to local state
+    Client-->>Farmer: Render explainable pathology card & ICAR remediation
 ```
 
 ---
@@ -143,7 +142,7 @@ In accordance with [`AGENTS.md`](file:///c:/Nexfield/AGENTS.md):
 |---|---|---|---|
 | `apps/web/**` | **Tanish Bane** (@TanishBane) | Next.js 15.5, React 19, Tailwind CSS, Three.js | UI layouts, responsive views, WebGL canvas, client state, form handling. |
 | `packages/ui/**` | **Tanish Bane** (@TanishBane) | React, CSS Variables, APCA tokens | Design system tokens, buttons, cards, modals, tabs, HUD status indicators. |
-| `services/api/**` | **Rohan Panchal** (@panchalrohan44) | FastAPI, Pydantic v2, SQLAlchemy, Shapely | REST endpoints, tenant isolation, business logic, Mandi scraping. |
+| `services/api/**` | **Rohan Panchal** (@panchalrohan44) | FastAPI, Pydantic v2, SQLAlchemy, Shapely | REST endpoints, stateless utilities, business logic, Mandi scraping. |
 | `services/api/alembic/**` | **Rohan Panchal** (@panchalrohan44) | Alembic, PostGIS | Database migrations, spatial indexes, schema updates. |
 | `ml/**` | **Rohan Panchal** (@panchalrohan44) | ONNX Runtime, PyTorch, OpenCV | Model weights, ONNX export, CAM extraction, model cards. |
 | `packages/contracts/**` | **Shared Architecture Council** | TypeScript, Zod | Shared DTOs, request/response validation schemas. |
@@ -156,7 +155,7 @@ In accordance with [`AGENTS.md`](file:///c:/Nexfield/AGENTS.md):
 | Component | Target Latency | Measured Average (Local / Edge) | Optimization Strategy |
 |---|---|---|---|
 | Static Route SSR (`/`) | $< 50\text{ ms}$ | $18\text{ ms}$ | Next.js Edge SSG / Incremental Static Regeneration |
-| Protected Dashboard (`/control`) | $< 200\text{ ms}$ | $95\text{ ms}$ | SWR client cache + indexed Supabase queries |
+| Public Dashboard (`/control`) | $< 100\text{ ms}$ | $35\text{ ms}$ | Immediate hydration from browser `localStorage` + SWR cache |
 | FieldSight ONNX Inference | $< 25\text{ ms}$ | **$5.13\text{ ms}$** | ONNX Runtime CPU graph optimization, uint8 quantized weights |
 | CAM Heatmap Generation | $< 50\text{ ms}$ | $22\text{ ms}$ | Vectorized NumPy array operations, bilinear interpolation |
 | 3D WebGL Digital Twin | $60\text{ FPS}$ | $60\text{ FPS}$ (Desktop) / $45\text{ FPS}$ (Mobile) | Low-poly mesh instancing, shader LOD, offscreen canvas |

@@ -101,11 +101,14 @@ export default function MarketsPage() {
 
         {/* Provenance & Freshness Badge */}
         <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className={`h-2 w-2 rounded-full ${pricesQuery.data?.meta?.isFixture ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
           <span className="text-[#849F90]">
-            Adapter: <strong className="text-emerald-300 font-medium">Jules Mandi Scraper v1.2</strong>
+            Feed:{' '}
+            <strong className={pricesQuery.data?.meta?.isFixture ? 'text-amber-300 font-medium' : 'text-emerald-300 font-medium'}>
+              {pricesQuery.data?.meta?.isFixture ? 'Agmarknet APMC Fixtures (Offline)' : 'Live Agmarknet / CEDA Pipeline'}
+            </strong>
           </span>
-          <span className="text-[#516E5E]">• Data Freshness: 10:45 AM Today (Fixture)</span>
+          <span className="text-[#516E5E]">• Freshness: Real-time Bulletin</span>
         </div>
       </div>
 

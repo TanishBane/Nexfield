@@ -265,6 +265,7 @@ class TwinSimulateRequest(ContractModel):
     cycle_id: UUID
     title: Annotated[StrictStr, Field(min_length=3, max_length=200)]
     interventions: TwinInterventions
+    field_area_hectares: float | None = 2.4
 
 
 class WaterRequirementEstimate(ContractModel):

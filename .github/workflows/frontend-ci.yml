@@ -63,5 +63,3 @@ jobs:
         run: pnpm --filter web build
         env:
           NEXT_PUBLIC_USE_FIXTURES: 'true'
-          NEXT_PUBLIC_SUPABASE_URL: 'https://placeholder-project.supabase.co'
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'placeholder-anon-key'

@@ -144,9 +144,14 @@ export default function FieldSightPage() {
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className={`h-2 w-2 rounded-full ${(diagnoseMutation.data ? diagnoseMutation.data.meta.isFixture : data?.meta?.isFixture) ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
           <span className="text-[#849F90]">
-            Inference: <strong className="text-emerald-300 font-medium">Developer Z ONNX Pipeline (Fixture Mode)</strong>
+            Inference:{' '}
+            <strong className={(diagnoseMutation.data ? diagnoseMutation.data.meta.isFixture : data?.meta?.isFixture) ? 'text-amber-300 font-medium' : 'text-emerald-300 font-medium'}>
+              {(diagnoseMutation.data ? diagnoseMutation.data.meta.isFixture : data?.meta?.isFixture)
+                ? 'Baseline Agronomic Fixture (Offline)'
+                : 'Active ONNX Runtime Model (Live)'}
+            </strong>
           </span>
         </div>
       </div>

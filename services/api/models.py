@@ -1,4 +1,4 @@
-"""Farm records only. Identity and login remain managed by Supabase Auth."""
+"""Farm and agronomic domain records schema."""
 from datetime import date, datetime
 from typing import Any
 from uuid import UUID, uuid4

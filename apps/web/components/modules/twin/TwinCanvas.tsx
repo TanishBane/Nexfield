@@ -265,6 +265,84 @@ function Scene() {
   );
 }
 
+class CanvasErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.warn('WebGL / Three.js Canvas error caught:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
+
+function TopologicalFallback() {
+  const { selectedPlotId, setSelectedPlotId } = useSimulationStore();
+
+  return (
+    <div className="relative w-full h-full min-h-[420px] rounded-xl overflow-hidden bg-[#070B09] border border-[#1A2920] flex flex-col items-center justify-center p-6 text-center">
+      <div className="max-w-md w-full space-y-4">
+        <div className="flex items-center justify-between text-xs font-mono text-[#849F90] border-b border-[#1E2E25] pb-2">
+          <span>2D Topological Field View</span>
+          <span className="text-amber-400">WebGL Fallback Active</span>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setSelectedPlotId('d1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              selectedPlotId === 'd1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c'
+                ? 'bg-[#152B1E] border-emerald-500 shadow-lg text-[#F1F6F3]'
+                : 'bg-[#0E1511] border-[#1E2E25] text-[#93A79B] hover:border-[#2C4235]'
+            }`}
+          >
+            <div className="text-xs font-mono text-emerald-400 font-semibold mb-1">PARCEL 1</div>
+            <div className="font-bold text-sm text-[#F1F6F3]">Sector Alpha (FLD-N01)</div>
+            <div className="text-xs text-[#7D998B] mt-1 font-mono">Wheat HD-3086 • 8.4 ha</div>
+            <div className="mt-2 text-[11px] font-mono text-[#8CA395]">
+              Moisture: 44.2% • NDVI: 0.74
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedPlotId('b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e')}
+            className={`p-4 rounded-xl border text-left transition-all ${
+              selectedPlotId === 'b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e'
+                ? 'bg-[#112419] border-emerald-500 shadow-lg text-[#F1F6F3]'
+                : 'bg-[#0E1511] border-[#1E2E25] text-[#93A79B] hover:border-[#2C4235]'
+            }`}
+          >
+            <div className="text-xs font-mono text-emerald-400 font-semibold mb-1">PARCEL 2</div>
+            <div className="font-bold text-sm text-[#F1F6F3]">East Basin (FLD-E04)</div>
+            <div className="text-xs text-[#7D998B] mt-1 font-mono">Basmati Rice • 12.1 ha</div>
+            <div className="mt-2 text-[11px] font-mono text-[#8CA395]">
+              Moisture: 38.5% • NDVI: 0.81
+            </div>
+          </button>
+        </div>
+        <p className="text-[11px] text-[#698476]">
+          Interactive 2D spatial telemetry active. Select a parcel above to inspect soil hydrology and simulate agronomic interventions.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function TwinCanvas() {
   const { cameraMode } = useSimulationStore();
 
@@ -273,18 +351,20 @@ export function TwinCanvas() {
     cameraMode === 'top-down' ? [0, 32, 0.1] : [16, 18, 18];
 
   return (
-    <div className="relative w-full h-full min-h-[420px] rounded-xl overflow-hidden bg-[#070B09] border border-[#1A2920]">
-      <Canvas
-        camera={{ position: cameraPosition, fov: 42 }}
-        shadows
-        gl={{
-          powerPreference: 'high-performance',
-          antialias: true,
-        }}
-        dpr={[1, 1.5]}
-      >
-        <Scene />
-      </Canvas>
-    </div>
+    <CanvasErrorBoundary fallback={<TopologicalFallback />}>
+      <div className="relative w-full h-full min-h-[420px] rounded-xl overflow-hidden bg-[#070B09] border border-[#1A2920]">
+        <Canvas
+          camera={{ position: cameraPosition, fov: 42 }}
+          shadows
+          gl={{
+            powerPreference: 'high-performance',
+            antialias: true,
+          }}
+          dpr={[1, 1.5]}
+        >
+          <Scene />
+        </Canvas>
+      </div>
+    </CanvasErrorBoundary>
   );
 }

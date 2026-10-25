@@ -27,10 +27,11 @@ flowchart LR
         Arbitrage["Haulage Optimizer<br/>(Net Realization Math)"]
     end
 
-    subgraph Storage ["Persistent Storage (Supabase)"]
-        PostgreSQL["PostgreSQL 15 (Relational Data)"]
+    subgraph Storage ["Persistent & Demonstration Storage"]
+        LocalStorage["Browser LocalStorage ('nexfield-demo-v1')"]
+        PostgreSQL["Optional PostgreSQL 15 (Relational Data)"]
         PostGIS["PostGIS Spatial Indices (GIST)"]
-        BlobStore["Object Storage (Scans & CAMs)"]
+        BlobStore["Object Storage / In-Memory Buffer"]
     end
 
     subgraph Presentation ["Presentation Tier (Next.js 15)"]
@@ -50,11 +51,11 @@ flowchart LR
     Pydantic --> Arbitrage
 
     ONNX --> BlobStore
-    ONNX --> PostgreSQL
-    BioPhys --> PostgreSQL
+    ONNX --> LocalStorage
+    BioPhys --> LocalStorage
     Pydantic --> PostGIS
 
-    PostgreSQL --> HUD
+    LocalStorage --> HUD
     PostGIS --> Twin3D
     BlobStore --> DiagnosisView
     Arbitrage --> MarketView
@@ -74,7 +75,7 @@ sequenceDiagram
     participant API as FastAPI Ingestion Endpoint (/api/fieldsight/diagnose)
     participant ONNX as ONNX Runtime (fieldsight_foliar_v1.onnx)
     participant CAM as Conv3 Activation Mapper
-    participant Storage as Supabase Storage / DB
+    participant Storage as Client Store (localStorage) / DB
 
     Farmer->>Client: Select or capture leaf image (RGB JPEG/PNG)
     Client->>Client: Client-side dimension & size check (< 10MB)
@@ -86,8 +87,8 @@ sequenceDiagram
     API->>CAM: Extract Conv3 layer activations for dominant class
     CAM->>CAM: Compute weighted spatial activation & upscale to 224x224
     CAM-->>API: Base64-encoded colorized heatmap overlay
-    API->>Storage: Persist diagnosis record (disease_class, confidence, severity, CAM)
     API-->>Client: 200 OK (DiagnosisResult JSON with prescription & CAM)
+    Client->>Storage: Persist observation record (disease_class, confidence, severity, CAM)
     Client-->>Farmer: Render diagnosis card, ICAR treatment, and interactive heatmap
 ```
 

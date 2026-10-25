@@ -126,11 +126,11 @@ flowchart TB
         BioPhys["Soil Hydrology Engine<br/>(Allen et al. 1998 Equations)"]
     end
 
-    subgraph Database ["Persistent Cloud Tier (Supabase)"]
-        Postgres["PostgreSQL 15 Database<br/>(ACID Relational Storage)"]
+    subgraph Storage ["Persistent & Client Data Tier"]
+        Postgres["PostgreSQL 15 Database<br/>(Optional Self-Hosted Relational Storage)"]
         PostGIS["PostGIS Spatial Indices<br/>(Polygon Geometry, GIST)"]
-        SupaAuth["Supabase GoTrue Auth<br/>(JWT Token Management)"]
-        BlobStore["Object Storage<br/>(Specimen Scans & Heatmaps)"]
+        ClientStorage["Client State & Indexed Storage<br/>(Browser LocalStorage 'nexfield-demo-v1')"]
+        BlobStore["Object Storage / Local Cache<br/>(Specimen Scans & Heatmaps)"]
     end
 
     Next <--> EdgeGuard
@@ -148,10 +148,10 @@ flowchart TB
     ONNX --> CAM
     TwinRouter --> BioPhys
 
-    AuthGuard <--> SupaAuth
     TwinRouter <--> Postgres
     TwinRouter <--> PostGIS
     SightRouter <--> BlobStore
+    ClientState <--> ClientStorage
 ```
 
 ---
@@ -327,7 +327,7 @@ sequenceDiagram
     participant API as FastAPI Ingestion Endpoint (/api/fieldsight/diagnose)
     participant ONNX as ONNX Runtime (fieldsight_foliar_v1.onnx)
     participant CAM as Conv3 Activation Mapper
-    participant Storage as Supabase Storage / DB
+    participant Storage as Client Store (localStorage) / DB
 
     Farmer->>Client: Capture or upload leaf image (RGB JPEG/PNG)
     Client->>Client: Validate client dimensions & payload size (< 10MB)
@@ -339,8 +339,8 @@ sequenceDiagram
     API->>CAM: Extract Conv3 layer activations for dominant class
     CAM->>CAM: Compute weighted spatial activation & upscale
     CAM-->>API: Base64-encoded colorized heatmap overlay
-    API->>Storage: Persist diagnosis record (class, confidence, severity, CAM)
     API-->>Client: 200 OK (DiagnosisResult JSON with prescription & CAM)
+    Client->>Storage: Persist observation to demo store (or local DB)
     Client-->>Farmer: Render diagnosis card, ICAR treatment, and CAM heatmap
 ```
 

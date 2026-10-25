@@ -29,7 +29,7 @@ Session = Annotated[AsyncSession, Depends(get_session)]
 
 
 class DiagnoseRequestPayload(ContractModel):
-    field_id: UUID
+    field_id: Optional[UUID] = None
     crop_cycle_id: Optional[UUID] = None
     image_url: str
     crop_species: str
@@ -76,6 +76,7 @@ class DiagnoseCropResponse(ContractModel):
 
 async def fetch_image_bytes(request: Request, image_url: str) -> bytes:
     """Extracts raw bytes from base64 data URI or HTTP URL."""
+    del request
     if image_url.startswith("data:image/"):
         try:
             _, b64_data = image_url.split(",", 1)
@@ -84,14 +85,12 @@ async def fetch_image_bytes(request: Request, image_url: str) -> bytes:
             raise ApiProblem(422, "INVALID_IMAGE_PAYLOAD", "Unable to decode base64 data URI") from exc
 
     if image_url.startswith("http://") or image_url.startswith("https://"):
-        client: httpx.AsyncClient = getattr(request.app.state, "auth_client", None)
-        if client is None:
-            client = httpx.AsyncClient(timeout=10.0)
         try:
-            resp = await client.get(image_url)
-            if resp.status_code != 200:
-                raise ApiProblem(422, "IMAGE_FETCH_FAILED", f"Remote server returned HTTP {resp.status_code}")
-            return resp.content
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(image_url)
+                if resp.status_code != 200:
+                    raise ApiProblem(422, "IMAGE_FETCH_FAILED", f"Remote server returned HTTP {resp.status_code}")
+                return resp.content
         except httpx.RequestError as exc:
             raise ApiProblem(422, "IMAGE_FETCH_FAILED", f"Failed to download image from URL: {exc}") from exc
 
@@ -106,30 +105,15 @@ async def fetch_image_bytes(request: Request, image_url: str) -> bytes:
 async def diagnose(
     body: DiagnoseRequestPayload,
     request: Request,
-    user: User,
-    session: Session,
 ) -> ApiResponse[DiagnoseCropResponse]:
-    # 1. Verify Field Ownership
-    field = await session.scalar(
-        select(Field)
-        .join(Farm, Farm.id == Field.farm_id)
-        .where(
-            Field.id == body.field_id,
-            Farm.owner_id == user.user_id,
-            Farm.archived_at.is_(None),
-        )
-    )
-    if field is None:
-        raise ApiProblem(404, "FIELD_NOT_FOUND", "Field not found or access denied")
-
-    # 2. Extract and Validate Image Bytes
+    # 1. Extract and Validate Image Bytes
     image_bytes = await fetch_image_bytes(request, body.image_url)
     if len(image_bytes) < 100:
         raise ApiProblem(422, "IMAGE_TOO_SMALL", "Image payload is empty or corrupted")
     if len(image_bytes) > 25 * 1024 * 1024:
         raise ApiProblem(422, "IMAGE_TOO_LARGE", "Image size exceeds 25 MB limit")
 
-    # 3. Execute Real ONNX Computer Vision Inference
+    # 2. Execute Real ONNX Computer Vision Inference
     try:
         engine = FieldSightInferenceEngine.get_instance()
         prediction = engine.predict(image_bytes, crop_context=body.crop_species)
@@ -138,7 +122,7 @@ async def diagnose(
     except Exception as exc:
         raise ApiProblem(503, "INFERENCE_FAILED", f"Vision inference runtime error: {exc}") from exc
 
-    # 4. Map Severity to Contract Enum
+    # 3. Map Severity to Contract Enum
     severity_map = {
         "critical": "critical",
         "warning": "moderate",
@@ -147,7 +131,7 @@ async def diagnose(
     severity_level = severity_map.get(prediction["severity"], "moderate")
     affected_area = 14.8 if prediction["severity"] in ("critical", "warning") else 0.0
 
-    # 5. Build Alternative Hypotheses
+    # 4. Build Alternative Hypotheses
     alternatives: List[AlternativeHypothesis] = []
     for top_pred in prediction.get("top_predictions", [])[1:]:
         alternatives.append(
@@ -158,7 +142,7 @@ async def diagnose(
             )
         )
 
-    # 6. Build Assessment DTO
+    # 5. Build Assessment DTO
     assessment_id = uuid4()
     details = DiagnosisDetails(
         pathogen_or_pest=prediction["pathogen"],
@@ -180,7 +164,7 @@ async def diagnose(
 
     assessment = CropAssessmentRead(
         id=assessment_id,
-        field_id=body.field_id,
+        field_id=body.field_id or uuid4(),
         cycle_id=body.crop_cycle_id,
         assessment_type="foliar_disease",
         condition_name=prediction["common_name"],
@@ -194,27 +178,6 @@ async def diagnose(
         assessed_by=prediction["model_version"],
     )
 
-    # 7. Persist Diagnosis Observation to Database
-    try:
-        async with session.begin():
-            obs = Observation(
-                field_id=body.field_id,
-                cycle_id=body.crop_cycle_id,
-                observation_type="scouting_note",
-                observed_at=datetime.now(timezone.utc),
-                metrics={
-                    "pathology_detected": prediction["detected_class"],
-                    "confidence_score": prediction["confidence"],
-                    "severity": severity_level,
-                    "inference_time_ms": prediction["inference_time_ms"],
-                },
-                notes=f"FieldSight AI Assessment: {prediction['common_name']} ({prediction['confidence']*100:.1f}% confidence). {prediction['mitigation_protocol'][:200]}",
-            )
-            session.add(obs)
-            await session.flush()
-    except Exception:
-        pass  # Don't fail inference if telemetry logging encounters transient lock
-
     response_data = DiagnoseCropResponse(
         assessment=assessment,
         alternative_hypotheses=alternatives,
@@ -226,6 +189,7 @@ async def diagnose(
     )
 
     return ApiResponse(data=response_data, meta=ApiMeta(request_id=request.state.request_id))
+
 
 
 @router.get(

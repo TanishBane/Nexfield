@@ -337,10 +337,8 @@ def evaluate_harvest_quality_risk(
 async def assess_quality(
     body: AssessQualityRequest,
     request: Request,
-    user: User,
 ) -> ApiResponse[HarvestQualityAssessment]:
     """Calculates defensible post-harvest quality risk and shelf-life projections."""
-    del user
     assessment = evaluate_harvest_quality_risk(
         commodity=body.commodity,
         temp_c=body.storage_temperature_c,

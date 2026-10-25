@@ -73,27 +73,10 @@ Session = Annotated[AsyncSession, Depends(get_session)]
 async def water_requirement(
     body: TwinSimulateRequest,
     request: Request,
-    user: User,
-    session: Session,
 ) -> ApiResponse[WaterRequirementEstimate]:
-    context_row = (await session.execute(
-        select(Field, CropCycle)
-        .join(Farm, Farm.id == Field.farm_id)
-        .join(CropCycle, CropCycle.field_id == Field.id)
-        .where(
-            Field.id == body.field_id,
-            CropCycle.id == body.cycle_id,
-            Farm.owner_id == user.user_id,
-            Farm.archived_at.is_(None),
-        )
-    )).first()
-    if context_row is None:
-        raise ApiProblem(404, "SIMULATION_CONTEXT_NOT_FOUND", "Field or crop cycle not found")
-    field, cycle = context_row
-    if cycle.status == "failed":
-        raise ApiProblem(409, "INVALID_SIMULATION_CONTEXT", "A failed crop cycle cannot be simulated")
+    area = getattr(body, "field_area_hectares", None) or 2.4
     estimate = estimate_irrigation_volume(
-        field.area_hectares,
+        area,
         body.interventions.irrigation_schedule_days,
         body.interventions.irrigation_volume_m3_per_ha,
     )
@@ -108,33 +91,11 @@ async def water_requirement(
 async def simulate(
     body: TwinSimulateRequest,
     request: Request,
-    user: User,
-    session: Session,
 ) -> ApiResponse[WaterRequirementEstimate]:
-    context_row = (await session.execute(
-        select(Field, CropCycle)
-        .join(Farm, Farm.id == Field.farm_id)
-        .join(CropCycle, CropCycle.field_id == Field.id)
-        .where(
-            Field.id == body.field_id,
-            CropCycle.id == body.cycle_id,
-            Farm.owner_id == user.user_id,
-            Farm.archived_at.is_(None),
-        )
-    )).first()
-    if context_row is None:
-        raise ApiProblem(404, "SIMULATION_CONTEXT_NOT_FOUND", "Field or crop cycle not found")
-    field, cycle = context_row
-    if cycle.status == "failed":
-        raise ApiProblem(409, "INVALID_SIMULATION_CONTEXT", "A failed crop cycle cannot be simulated")
-
-    estimate = estimate_irrigation_volume(
-        field.area_hectares,
-        body.interventions.irrigation_schedule_days,
-        body.interventions.irrigation_volume_m3_per_ha,
-    )
+    del body, request
     raise ApiProblem(
         503,
         "MODEL_UNAVAILABLE",
         "Twin yield and risk simulation is not configured; no projection was produced",
     )
+
