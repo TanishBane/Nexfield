@@ -1,55 +1,24 @@
-'use client';
-
-import React from 'react';
-import Link from 'next/link';
-import { RotateCcw, AlertTriangle, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
-import { useDemoStore } from '@/lib/store/useDemoStore';
-
+﻿"use client";
+import Link from "next/link";
+import { RotateCcw, Sprout, ArrowUpRight } from "lucide-react";
+import { useDemoStore } from "@/lib/store/useDemoStore";
 export function DemoBanner() {
-  const { farmName, location, areaHectares, cropName, resetDemo } = useDemoStore();
-
+  const { resetDemo } = useDemoStore();
   return (
-    <div className="sticky top-0 z-50 bg-[#161D18] border-b border-[#2B3F33] px-3 sm:px-4 py-2 text-xs text-[#E1ECE5] select-none backdrop-blur-md">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-        {/* Left: Indicator & Domain Notice */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#163B2A] text-[#D7B678] font-mono font-semibold text-xs border border-[#D7B678]/40">
-            <Sparkles className="h-3.5 w-3.5" />
-            Interactive Demo — Sample Farm Data
-          </span>
-
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-[#8FA396] px-2 py-0.5 rounded bg-[#0E1511] border border-[#1E2E25]">
-            Development Mode: Synthetic Agronomic Fixtures
-          </span>
-
-          <span className="font-semibold text-[#FAF8F2]">
-            {farmName}
-          </span>
-          <span className="text-[#8FA396] hidden md:inline">
-            ({cropName} · {areaHectares} ha · {location})
-          </span>
-        </div>
-
-        {/* Right: Actions */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={resetDemo}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono text-emerald-400 hover:text-emerald-300 hover:bg-[#1C2C23] border border-[#273E31] transition-colors"
-            title="Reset simulated sensors and tasks back to initial baseline"
-          >
-            <RotateCcw className="h-3 w-3" />
-            <span>Reset Demo</span>
-          </button>
-
-          <Link
-            href="/control"
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-[11px] font-bold bg-[#D7B678] text-[#070B09] hover:bg-[#E5C78D] transition-all shadow-sm"
-          >
-            <span>Launch Command Center</span>
-            <ArrowRight className="h-3 w-3" />
-          </Link>
-        </div>
+    <div className="demo-banner">
+      <div>
+        <Sprout size={18} />
+        <strong>Demo · Sample farm data</strong>
+        <span>Explore the tools with a sample tomato farm.</span>
+      </div>
+      <div>
+        <button onClick={resetDemo}>
+          <RotateCcw size={14} />
+          Reset demo
+        </button>
+        <Link href="/demo">
+          Farm guide <ArrowUpRight size={14} />
+        </Link>
       </div>
     </div>
   );

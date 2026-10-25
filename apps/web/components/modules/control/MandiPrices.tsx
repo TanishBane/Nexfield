@@ -1,7 +1,7 @@
-import React from 'react';
-import Link from 'next/link';
-import { TrendingUp } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@nexfield/ui';
+import React from "react";
+import Link from "next/link";
+import { TrendingUp } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@nexfield/ui";
 
 interface MandiPrice {
   commodity: string;
@@ -20,10 +20,13 @@ export function MandiPrices({ relevantMandiPrices }: MandiPricesProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
+            <TrendingUp className="h-4 w-4 text-emerald-700" />
             Mandi Benchmark Rates
           </CardTitle>
-          <Link href="/markets" className="text-xs text-emerald-400 hover:underline">
+          <Link
+            href="/markets"
+            className="text-xs text-emerald-700 hover:underline"
+          >
             Arbitrage
           </Link>
         </div>
@@ -32,15 +35,23 @@ export function MandiPrices({ relevantMandiPrices }: MandiPricesProps) {
         {relevantMandiPrices.map((mp, i) => (
           <div
             key={i}
-            className="flex items-center justify-between p-2 rounded bg-[#0E1511] border border-[#1E2E25] font-mono"
+            className="flex items-center justify-between p-2 rounded bg-[#F7FAF2] border border-[#D1DDCD] font-mono"
           >
             <div>
-              <span className="text-[#E1ECE5] font-semibold block">{mp.commodity}</span>
-              <span className="text-[11px] text-[#718A7D]">{mp.marketName}</span>
+              <span className="text-[#09251A] font-semibold block">
+                {mp.commodity}
+              </span>
+              <span className="text-[11px] text-[#46604D]">
+                {mp.marketName}
+              </span>
             </div>
             <div className="text-right">
-              <span className="text-emerald-400 font-bold">₹{mp.modalPricePerQuintalInr}/q</span>
-              <span className="text-[10px] text-emerald-500 block">+{mp.dailyChangeInr} ₹/q</span>
+              <span className="text-emerald-700 font-bold">
+                ₹{mp.modalPricePerQuintalInr}/q
+              </span>
+              <span className="text-[10px] text-emerald-500 block">
+                +{mp.dailyChangeInr} ₹/q
+              </span>
             </div>
           </div>
         ))}

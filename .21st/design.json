@@ -11,8 +11,7 @@
       "React Three Fiber (Three.js)",
       "GSAP + ScrollTrigger",
       "Motion (Framer Motion)",
-      "ECharts",
-      "Supabase"
+      "ECharts"
     ]
   },
   "sources": {
@@ -34,24 +33,21 @@
     ]
   },
   "design": {
-    "colorMode": "dark-and-light-editorial",
+    "colorMode": "light-vivid-farming",
     "colors": {
-      "warmIvory": "#F3E9D6",
-      "forestGreen": "#173C2C",
-      "deepCharcoal": "#101713",
-      "obsidian": "#090D0B",
-      "mutedGold": "#C2A06A",
-      "softSage": "#A7B5A0",
-      "warmWhite": "#FAF8F2",
-      "emeraldCore": "#10B981",
-      "cardSurface": "#111714",
-      "borderSubtle": "#1F2E25",
-      "borderDefault": "#273C30"
+      "leaf": "#048547",
+      "ink": "#09251A",
+      "sunflower": "#FFDB3D",
+      "orange": "#FF9159",
+      "sky": "#B6DDFA",
+      "pink": "#F7C8D8",
+      "lilac": "#DBD0FA",
+      "canvas": "#F7FAF2"
     },
     "typography": {
-      "editorialDisplay": "Instrument Serif",
-      "interfaceSans": "Manrope",
-      "technicalMono": "JetBrains Mono"
+      "editorialDisplay": "Butler (DaFont, self-hosted)",
+      "interfaceSans": "Gidole (DaFont, self-hosted)",
+      "numbers": "Gidole, tabular figures"
     },
     "radius": {
       "card": "0.75rem",
@@ -78,11 +74,11 @@
     ]
   },
   "decisions": [
-    "Editorial agricultural identity blending natural warm ivory, forest green, muted gold and deep obsidian",
-    "Instrument Serif for editorial storytelling headings + Manrope for high-legibility interface + JetBrains Mono for telemetry",
-    "Progressive disclosure in Command Center: clear Farm Hero, Today's Priorities, Simple Health, with deep metrics in subpages",
-    "GSAP ScrollTrigger for narrative storytelling + React Three Fiber for interactive 3D farm explorer",
-    "Dedicated public multi-page routes (/platform/*, /how-it-works, /solutions, /about, /demo, /login)"
+    "User-directed complete visual redesign on 2026-10-25: vivid farming colors, real stock photographs, simple headings.",
+    "Butler and Gidole downloaded from DaFont and served locally; no external font requests.",
+    "Photo-led split home hero, colorful tool grid, direct public navigation, light workspace and green sidebar.",
+    "Preserve the current public demo flow and browser persistence; show a sample-data banner throughout the workspace.",
+    "Responsive layouts, visible keyboard focus, reduced motion and clear unavailable states."
   ],
   "generatedAt": "2026-10-24T00:05:00.000Z"
 }
