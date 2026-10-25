@@ -39,6 +39,7 @@ import {
   Input,
   ModuleLoadingState,
   ErrorDisplay,
+  DEMO_PROVENANCE_LABEL,
 } from "@nexfield/ui";
 import { apiClient } from "@/lib/api";
 import { useFarmStore } from "@/lib/store/useFarmStore";
@@ -196,8 +197,8 @@ export default function TwinPage() {
                   ? (runSimulationMutation.data as any).meta?.isFixture
                   : data?.meta?.isFixture
               )
-                ? "Baseline Agronomic Fixture (Demo Mode)"
-                : "Stewart Water-Yield Production Engine (Live)"}
+                ? DEMO_PROVENANCE_LABEL
+                : "Scenario simulation output"}
             </strong>
           </span>
         </div>
@@ -329,7 +330,7 @@ export default function TwinPage() {
                   className={`h-8 text-xs px-2.5 gap-1.5 cursor-pointer font-semibold ${isIrrigationRunning ? "bg-[#0284C7] hover:bg-[#0369A1] text-white" : ""}`}
                 >
                   <Droplets className="h-3.5 w-3.5" />
-                  {isIrrigationRunning ? "Pumping (Live)" : "Trigger Pulse"}
+                  {isIrrigationRunning ? "Pumping simulated pulse" : "Trigger pulse"}
                 </Button>
               </div>
             </CardHeader>

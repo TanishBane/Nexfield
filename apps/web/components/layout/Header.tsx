@@ -173,8 +173,8 @@ export function Header() {
 
           {/* Demo Provenance Badge */}
           <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-medium text-[#46604D] shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#048547] motion-safe:animate-pulse" />
-            <span>Public Demo Mode</span>
+            <span className="w-2 h-2 rounded-full bg-[#D97706] motion-safe:animate-pulse" />
+            <span>Development Mode: Synthetic Agronomic Fixtures</span>
           </span>
 
           {/* Reset Demo Action */}

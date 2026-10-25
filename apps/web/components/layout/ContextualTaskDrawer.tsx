@@ -416,7 +416,7 @@ export function ContextualTaskDrawer({
             <span>
               {isDemo
                 ? "Interactive Demo · Sample Farm Data"
-                : "Live Gateway Synced"}
+                : "Optional API Sync Pending"}
             </span>
             <Button
               variant="outline"

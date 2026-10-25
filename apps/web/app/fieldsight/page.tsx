@@ -30,6 +30,7 @@ import {
   Badge,
   ModuleLoadingState,
   ErrorDisplay,
+  DEMO_PROVENANCE_LABEL,
 } from "@nexfield/ui";
 import { apiClient } from "@/lib/api";
 import { uploadObservationImage } from "@/lib/storage/image-storage";
@@ -203,8 +204,8 @@ export default function FieldSightPage() {
                   ? diagnoseMutation.data.meta.isFixture
                   : data?.meta?.isFixture
               )
-                ? "Baseline Agronomic Fixture (Offline)"
-                : "Active ONNX Runtime Model (Live)"}
+                ? DEMO_PROVENANCE_LABEL
+                : "Scenario model output"}
             </strong>
           </span>
         </div>

@@ -9,6 +9,7 @@ import {
   Compass,
   ShieldCheck,
 } from "lucide-react";
+import { DEMO_PROVENANCE_DETAIL, DEMO_PROVENANCE_LABEL } from "@nexfield/ui";
 
 interface MetricItem {
   label: string;
@@ -69,9 +70,9 @@ export function MetricTickerBar() {
       {/* Ticker Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#D1DDCD] text-xs font-mono">
         <div className="flex items-center gap-2.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-emerald-700 font-bold uppercase tracking-wider text-xs">
-            Live Telemetry Stream
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+          <span className="text-amber-700 font-bold uppercase tracking-wider text-xs">
+            {DEMO_PROVENANCE_LABEL}
           </span>
           <span className="text-[#46604D]">·</span>
           <span className="text-[#46604D]">
@@ -79,7 +80,7 @@ export function MetricTickerBar() {
           </span>
         </div>
         <span className="text-xs text-[#46604D]">
-          Sentinel-2 MSI & LoRa Probe Synced · Verified Fixtures
+          {DEMO_PROVENANCE_DETAIL}
         </span>
       </div>
 

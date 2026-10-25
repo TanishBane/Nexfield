@@ -1,5 +1,26 @@
+import React from 'react';
 import { describe, it, expect } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { cn } from './utils';
+import { DEMO_PROVENANCE_LABEL } from './demo-provenance';
+import { StatusIndicator } from './status-indicator';
+
+describe('StatusIndicator', () => {
+  it('shows the synthetic fixture provenance banner label in demo mode', () => {
+    const html = renderToStaticMarkup(React.createElement(StatusIndicator, { status: 'fixture' }));
+    expect(html).toContain(DEMO_PROVENANCE_LABEL);
+  });
+
+  it('does not describe the public demo as live telemetry', () => {
+    const html = renderToStaticMarkup(React.createElement(StatusIndicator, { status: 'online' }));
+    expect(html).not.toContain('Live Telemetry Active');
+    expect(html).toContain(DEMO_PROVENANCE_LABEL);
+  });
+
+  it('uses the canonical public demo provenance label everywhere', () => {
+    expect(DEMO_PROVENANCE_LABEL).toBe('Development Mode: Synthetic Agronomic Fixtures');
+  });
+});
 
 describe('cn', () => {
   it('should merge class names correctly', () => {

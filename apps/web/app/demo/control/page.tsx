@@ -528,7 +528,7 @@ export default function DemoControlPage() {
                 Recent Activity
               </h3>
             </div>
-            <span className="text-xs text-[#46604D] font-mono">Live feed</span>
+            <span className="text-xs text-[#46604D] font-mono">Demo snapshot</span>
           </div>
 
           <div className="space-y-3">
@@ -562,7 +562,7 @@ export default function DemoControlPage() {
                 Deep Agronomic Data
               </h3>
               <p className="text-xs text-[#46604D]">
-                Specialized sub-system telemetry
+                Synthetic sub-system context
               </p>
             </div>
 

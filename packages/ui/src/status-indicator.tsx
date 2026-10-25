@@ -1,4 +1,5 @@
 import React from "react";
+import { DEMO_PROVENANCE_LABEL } from "./demo-provenance";
 import { cn } from "./utils";
 
 export interface StatusIndicatorProps {
@@ -20,7 +21,7 @@ export function StatusIndicator({
       ping: "bg-[#048547]",
       text: "text-[#005B36]",
       bg: "bg-[#E5F2CF] border-[#B8D494]",
-      defaultLabel: "Live Telemetry Active",
+      defaultLabel: DEMO_PROVENANCE_LABEL,
     },
     warning: {
       dot: "bg-[#D97706]",
@@ -48,7 +49,7 @@ export function StatusIndicator({
       ping: "bg-[#D97706]",
       text: "text-[#92400E]",
       bg: "bg-[#FFF0A6] border-[#E7D57A]",
-      defaultLabel: "Synthetic Baseline Fixtures",
+      defaultLabel: DEMO_PROVENANCE_LABEL,
     },
   };
 

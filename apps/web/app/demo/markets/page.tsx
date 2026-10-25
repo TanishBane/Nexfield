@@ -299,11 +299,11 @@ export default function DemoMarketsPage() {
               variant="outline"
               className="text-emerald-700 border-emerald-500/40 font-mono text-xs px-2.5 py-0.5"
             >
-              Agmarknet Daily Feeds
+              Synthetic Market Scenario
             </Badge>
           </div>
           <p className="text-sm text-[#46604D] mt-1">
-            {farmName} · Real-time wholesale mandi rates, transport freight
+            {farmName} · Synthetic wholesale mandi scenarios, transport freight
             optimization, and net realization models
           </p>
         </div>
@@ -370,9 +370,9 @@ export default function DemoMarketsPage() {
             </span>
           </div>
           <p className="text-sm text-[#46604D] leading-relaxed">
-            By diverting your harvest to{" "}
+            In this synthetic market scenario, diverting your harvest to{" "}
             <strong className="text-[#09251A]">{bestMandi.mandi}</strong>{" "}
-            instead of the nearest local gate, you realize an additional{" "}
+            instead of the nearest local gate yields an additional{" "}
             <strong className="text-emerald-700 font-mono">
               +₹{arbitrageSpread}/qtl
             </strong>{" "}
@@ -415,15 +415,15 @@ export default function DemoMarketsPage() {
               Regional Mandi Rates & Net Returns Matrix
             </CardTitle>
             <CardDescription className="text-xs text-[#46604D]">
-              Modal prices, daily arrivals, freight distance, diesel cost
-              factor, and real net money in hand
+              Synthetic modal prices, daily arrivals, freight distance, diesel
+              cost factor, and net realization estimates
             </CardDescription>
           </div>
           <Badge
             variant="outline"
             className="text-emerald-700 border-emerald-500/30 text-xs font-mono self-start sm:self-auto"
           >
-            Source: Agmarknet API Feeds
+            Source: Synthetic Market Scenario
           </Badge>
         </CardHeader>
 
