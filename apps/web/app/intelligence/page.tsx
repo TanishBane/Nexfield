@@ -28,6 +28,8 @@ import {
   Button,
   Input,
   Badge,
+  DEMO_PROVENANCE_LABEL,
+  DEMO_PROVENANCE_DETAIL,
 } from "@nexfield/ui";
 import { apiClient } from "@/lib/api";
 import { useFarmStore } from "@/lib/store/useFarmStore";
@@ -53,9 +55,9 @@ const INITIAL_MESSAGES: ExtendedMessage[] = [
   {
     id: "msg-init-1",
     role: "assistant",
-    content: `Hello! I am **NEXFIELD Intelligence**, an agronomic reasoning engine grounded in your real-time farm sensor feeds, weather microclimate forecasts, and APMC Mandi market intelligence.
+    content: `Hello! I am **NEXFIELD Intelligence** in public demo mode. This experience is grounded in a synthetic agronomic snapshot, browser-local demo state, and fixture-backed market assumptions.
 
-Active Context: **GreenValley Bio-Research Agrohub (Punjab)**. North Sector Alpha (FLD-N01) is currently in anthesis flowering stage (Wheat HD-3086). How may I assist your cultivation, spray schedules, or market timing today?`,
+Active Context: **GreenValley Bio-Research Agrohub (Punjab)** is a demo farm profile used for the public workspace. North Sector Alpha (FLD-N01) is currently in anthesis flowering stage (Wheat HD-3086). How may I assist with cultivation, spray timing, or market scenario review today?`,
     timestamp: "2026-10-24T00:30:00Z",
     suggestedActions: [
       "Query rootzone soil telemetry for Sector Alpha",
@@ -156,9 +158,9 @@ export default function IntelligencePage() {
       const offlineReply: ExtendedMessage = {
         id: `err-${Date.now()}`,
         role: "assistant",
-        content: `**Intelligence Engine Notice**: The external LLM provider is currently unconfigured or unreachable on this server.
+        content: `**Intelligence Engine Notice**: The optional external LLM provider is not configured or is unreachable in this deployment.
         
-In offline development mode without external API keys configured, automated reasoning is suspended. You can directly inspect live agronomic telemetry across **FieldSight**, **Twin**, **Ops**, and **Markets**.`,
+This public demo continues in synthetic mode, so the UI is intentionally grounded in demo fixtures and browser-local state. Review the fixture-labelled outputs across **FieldSight**, **Twin**, **Ops**, and **Markets** for the current scenario assumptions.`,
         timestamp: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, offlineReply]);
@@ -212,21 +214,20 @@ In offline development mode without external API keys configured, automated reas
               size="sm"
               className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
-              Tool Calling LLM
+              Fixture-grounded demo
             </Badge>
           </div>
           <p className="text-xs md:text-sm text-[#46604D] mt-1">
-            Real-time tool execution, live telemetry grounding, cited ICAR
-            research, and operational dispatch confirmation.
+            {DEMO_PROVENANCE_DETAIL}
           </p>
         </div>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-mono shadow-2xs">
-          <span className="h-2 w-2 rounded-full bg-[#048547] motion-safe:animate-pulse" />
+          <span className="h-2 w-2 rounded-full bg-[#D97706] motion-safe:animate-pulse" />
           <span className="text-[#46604D]">
             Grounding:{" "}
-            <strong className="text-[#005B36] font-semibold">
-              Khanna Agrohub Live Telemetry
+            <strong className="text-[#92400E] font-semibold">
+              {DEMO_PROVENANCE_LABEL}
             </strong>
           </span>
         </div>
@@ -409,11 +410,11 @@ In offline development mode without external API keys configured, automated reas
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#048547]" />
-                Live Grounding Context
+                Synthetic Demo Grounding Context
               </CardTitle>
               <CardDescription>
-                Telemetry parameters injected into every LLM agronomic inference
-                call.
+                Fixture-backed parameters used in the public demo context and
+                scenario prompts.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-xs font-mono">
@@ -478,7 +479,7 @@ In offline development mode without external API keys configured, automated reas
                   query_field_telemetry
                 </code>
                 <span className="text-[#46604D] text-[11px]">
-                  Inspect real-time rootzone sensor metrics
+                  Inspect synthetic rootzone sensor metrics in demo mode
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">

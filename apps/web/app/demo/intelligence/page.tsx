@@ -103,7 +103,7 @@ export default function DemoIntelligencePage() {
         lower.includes("harvest") ||
         lower.includes("price")
       ) {
-        reply = `Live Agmarknet telemetry indicates Nashik APMC is trading at ₹2,450/quintal (+8.4% above regional modal). Because your fruit set began on Day 42, first flush breaker-stage harvest is anticipated in 14-16 days. Scheduling dispatch on Tuesday or Friday mornings historically yields the lowest transit spoilage and captures peak wholesaler auction volume.`;
+        reply = `Demo market scenario data indicates Nashik APMC is trading at ₹2,450/quintal (+8.4% above regional modal) in this synthetic scenario. Because your fruit set began on Day 42, first flush breaker-stage harvest is anticipated in 14-16 days. Scheduling dispatch on Tuesday or Friday mornings historically yields the lowest transit spoilage and captures peak wholesaler auction volume.`;
       } else if (
         lower.includes("heatwave") ||
         lower.includes("temperature") ||
@@ -111,7 +111,7 @@ export default function DemoIntelligencePage() {
       ) {
         reply = `Under ambient temperatures of ${ambientTemperature}°C or higher, tomato flowers risk style exertion and pollen desiccation. To protect fruit set: pulse drip irrigation for 20 minutes at 11:30 AM to induce evaporative cooling in the boundary layer, and apply Kaolin foliar clay (30g/L) to reflect excessive infrared radiation.`;
       } else {
-        reply = `I have cross-referenced your telemetry: Soil Moisture ${soilMoisture}%, pH ${soilPh}, and Canopy NDVI ${canopyNdvi}. For ${cropVariety} in Nashik, all vital biophysical parameters are currently within normal operating thresholds. If you adjust irrigation or weather in the 3D Twin simulator, I will immediately update my recommendations.`;
+        reply = `I have cross-referenced your synthetic crop context: Soil Moisture ${soilMoisture}%, pH ${soilPh}, and Canopy NDVI ${canopyNdvi}. For ${cropVariety} in this demo scenario, all vital biophysical parameters remain within normal operating thresholds. If you adjust irrigation or weather in the 3D Twin simulator, I will update my recommendations for the next scenario.`;
       }
 
       const assistantMsg: ChatMessage = {
@@ -146,7 +146,7 @@ export default function DemoIntelligencePage() {
             </Badge>
           </div>
           <p className="text-xs text-[#46604D] mt-0.5">
-            Real-time telemetry-conditioned agronomic reasoning for {farmName}
+            Synthetic agronomic scenario reasoning for {farmName}
           </p>
         </div>
 
@@ -252,7 +252,7 @@ export default function DemoIntelligencePage() {
               <div className="p-3.5 rounded-2xl bg-[#F7FAF2] border border-[#D1DDCD] text-xs text-[#46604D] flex items-center gap-2 font-mono">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
                 <span>
-                  Evaluating agronomic telemetry & formulating response...
+                  Evaluating synthetic agronomic context & formulating response...
                 </span>
               </div>
             </div>

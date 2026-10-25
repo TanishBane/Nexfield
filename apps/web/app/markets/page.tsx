@@ -33,6 +33,7 @@ import {
   Input,
   ModuleLoadingState,
   ErrorDisplay,
+  DEMO_PROVENANCE_LABEL,
 } from "@nexfield/ui";
 import { apiClient } from "@/lib/api";
 import { MarketTrendChart } from "@/components/modules/markets/MarketTrendChart";
@@ -99,12 +100,12 @@ export default function MarketsPage() {
               size="sm"
               className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
-              Agmarknet Telemetry
+              Synthetic mandi scenarios
             </Badge>
           </div>
           <p className="text-xs md:text-sm text-[#46604D] mt-1">
-            Real APMC terminal prices, commodity arrival tonnages, transport
-            expense models, and net realization arbitrage.
+            Fixture-backed mandi prices, arrival assumptions, transport cost
+            scenarios, and net realization comparisons for the public demo.
           </p>
         </div>
 
@@ -123,14 +124,14 @@ export default function MarketsPage() {
               }
             >
               {pricesQuery.data?.meta?.isFixture
-                ? "Agmarknet APMC Fixtures (Offline)"
-                : "Live Agmarknet / CEDA Pipeline"}
+                ? DEMO_PROVENANCE_LABEL
+                : "Operational market data feed"}
             </strong>
           </span>
           <span className="text-[#46604D]">
             {pricesQuery.data?.meta?.isFixture
-              ? "Sample prices"
-              : "Check each price date"}
+              ? "Scenario snapshot"
+              : "Check source freshness"}
           </span>
         </div>
       </div>
@@ -206,7 +207,7 @@ export default function MarketsPage() {
               <div>
                 <span className="text-xs uppercase tracking-wider text-[#005B36] font-bold font-mono flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-[#048547]" />
-                  Real-Time Spatial Arbitrage Engine
+                  Scenario-based arbitrage engine
                 </span>
                 <CardTitle className="text-lg md:text-xl text-[#09251A] mt-1 font-bold">
                   Arbitrage Optimization for {comparison.commodity}

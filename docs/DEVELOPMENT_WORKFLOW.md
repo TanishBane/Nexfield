@@ -105,7 +105,7 @@ NEXFIELD operates as an open, frictionless public demonstration platform:
 - Default mode for rapid UI evaluation, standalone demonstrations, and open-source exploration with zero cloud credentials or database setup.
 - All telemetry, crop health metrics, work orders, and mandi prices are served from domain-accurate baseline datasets located in `data/fixtures/`.
 - Local demonstration interactions (task completion, scenario offsets, and expenses) persist in browser `localStorage` (`nexfield-demo-v1`) with instant "Reset Demo" restoration.
-- A persistent indicator is rendered in the UI banner: `"Public Demo Mode"`.
+- A persistent indicator is rendered in the UI banner: `"Development Mode: Synthetic Agronomic Fixtures"`.
 
 ### Mode B: Stateless API Mode (`NEXT_PUBLIC_USE_FIXTURES=false`)
 - Connects the Next.js frontend to the local FastAPI backend (`http://localhost:8000`).

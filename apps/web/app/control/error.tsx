@@ -12,7 +12,7 @@ export default function ControlError({
     <div className="py-8">
       <ErrorDisplay
         title="Control Command Center Offline"
-        message="Unable to establish real-time socket connection with the farm gateway telemetry hub."
+        message="The optional backend is unavailable. This public demo is continuing with synthetic agronomic fixtures and browser-local state."
         onRetry={reset}
       />
     </div>

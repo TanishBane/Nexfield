@@ -308,7 +308,7 @@ export const fixturesAdapter = {
 
   async sendIntelligenceChat(req: IntelligenceChatRequest): Promise<ApiResponse<IntelligenceChatMessage>> {
     const query = req.userQuery.toLowerCase();
-    let reply = `Based on current telemetry for your farm, soil moisture is holding at 41.35% with pH 7.15. No immediate moisture stress is observed.`;
+    let reply = `Based on the current demo farm scenario, soil moisture is holding at 41.35% with pH 7.15. No immediate moisture stress is observed.`;
 
     if (query.includes('rust') || query.includes('disease') || query.includes('yellow')) {
       reply = `FieldSight AI detected moderate Stripe Rust (Puccinia striiformis) on North Sector Alpha (FLD-N01). The recommended protocol is Propiconazole 25% EC at 500 ml/ha applied in calm morning hours. Follow up with bio-formulation Bacillus subtilis after 7 days to maintain leaf microbiome balance.`;
@@ -334,8 +334,8 @@ export const fixturesAdapter = {
           source: 'Indian Institute of Wheat & Barley Research, Karnal',
         },
         {
-          title: 'Agmarknet Real-time Price Telemetry',
-          source: 'Ministry of Agriculture & Farmers Welfare, GoI',
+          title: 'Synthetic Market Scenario Feed',
+          source: 'NEXFIELD public demo fixtures',
         },
       ],
       contextSnapshot: {

@@ -64,7 +64,7 @@ export default function DemoOpsPage() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [deductionNotice, setDeductionNotice] = useState<string | null>(null);
 
-  // Local inventory state to support real-time deductions
+  // Local inventory state to support demo-state deductions
   const [inventory, setInventory] = useState<InventoryItem[]>([
     {
       id: "inv-1",
@@ -124,7 +124,7 @@ export default function DemoOpsPage() {
     if (task.status !== "completed") {
       completeTask(taskId);
 
-      // Perform real-time inventory deduction
+      // Apply demo inventory deduction
       if (category === "spraying_pest_control") {
         setInventory((prev) =>
           prev.map((item) =>
@@ -322,7 +322,7 @@ export default function DemoOpsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#D1DDCD]">
           <div>
             <div className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-700">
-              Food Storage Quality & Preservation Telemetry
+              Food storage quality & preservation summary
             </div>
             <h2 className="text-lg font-bold text-[#09251A] font-serif mt-0.5">
               Harvest storage
@@ -530,13 +530,13 @@ export default function DemoOpsPage() {
           </Card>
         </div>
 
-        {/* Real-time Inventory (5 Cols) */}
+        {/* Demo Inventory Snapshot (5 Cols) */}
         <div className="lg:col-span-5 space-y-4">
           <Card className="border-[#D1DDCD] bg-[#F7FAF2]">
             <CardHeader className="pb-3 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold text-[#09251A]">
-                  Live Input Inventory
+                  Demo Input Inventory
                 </CardTitle>
                 <CardDescription className="text-xs text-[#46604D]">
                   Deductions synchronized with task completion
@@ -589,7 +589,7 @@ export default function DemoOpsPage() {
               <span className="text-emerald-700 font-bold">Export Grade A</span>
             </div>
             <div className="text-[#46604D]">
-              3,200 kg · Sector 2-B · Tamper-evident QR verifiable on Agmarknet
+              3,200 kg · Sector 2-B · Tamper-evident QR verifiable in the demo market record
             </div>
           </div>
         </div>

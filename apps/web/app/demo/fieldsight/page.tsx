@@ -213,8 +213,8 @@ export default function DemoFieldSightPage() {
             </Badge>
           </div>
           <p className="text-sm text-[#46604D] mt-1">
-            {farmName} · Real-time foliar lesion identification and
-            ICAR-certified treatment protocols
+            {farmName} · Synthetic foliar lesion identification and
+            demo treatment guidance
           </p>
         </div>
 

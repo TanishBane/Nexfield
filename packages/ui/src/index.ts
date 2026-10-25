@@ -7,6 +7,7 @@ export * from './input';
 export * from './tabs';
 export * from './stat-card';
 export * from './status-indicator';
+export * from './demo-provenance';
 export * from './empty-state';
 export * from './loading';
 export * from './error-display';
