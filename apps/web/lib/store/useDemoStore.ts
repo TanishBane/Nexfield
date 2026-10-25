@@ -134,7 +134,7 @@ export interface DemoState {
   inventory: DemoInventoryItem[];
 
   // Actions
-  setFarm: (farmId: string, farmName: string, location: string, areaHectares: number) => void;
+  setFarm: (farmId: string, farmName?: string, location?: string, areaHectares?: number) => void;
   toggleDripIrrigation: () => void;
   applyWhatIfScenario: (type: 'baseline' | 'heatwave' | 'drought' | 'cloudburst') => void;
   setHeatwaveOffset: (offset: number) => void;
@@ -470,12 +470,79 @@ export const useDemoStore = create<DemoState>()(
       ...INITIAL_DEMO_STATE,
 
       setFarm: (farmId, farmName, location, areaHectares) =>
-        set(() => ({
-          farmId,
-          farmName,
-          location,
-          areaHectares,
-        })),
+        set((state) => {
+          const matchedFarm = state.farms.find((f) => f.id === farmId);
+          const finalName = farmName || matchedFarm?.name || state.farmName;
+          const finalLoc =
+            location ||
+            (matchedFarm
+              ? `${matchedFarm.location.district}, ${matchedFarm.location.state} (${matchedFarm.location.latitude.toFixed(4)}° N, ${matchedFarm.location.longitude.toFixed(4)}° E)`
+              : state.location);
+          const finalArea = areaHectares ?? matchedFarm?.totalAreaHectares ?? state.areaHectares;
+
+          // Align crop context based on farm identity
+          let cropName = state.cropName;
+          let cropVariety = state.cropVariety;
+          let growthStage = state.growthStage;
+          let soilMoisture = state.soilMoisture;
+          let canopyNdvi = state.canopyNdvi;
+          let ambientTemperature = state.ambientTemperature;
+          let sowingDaysAgo = state.sowingDaysAgo;
+
+          if (
+            farmId.includes('punjab') ||
+            farmId === 'f47ac10b-58cc-4372-a567-0e02b2c3d479' ||
+            finalName.toLowerCase().includes('greenvalley') ||
+            finalName.toLowerCase().includes('wheat')
+          ) {
+            cropName = 'Wheat';
+            cropVariety = 'HD-3086 (Pusa Gautami)';
+            growthStage = 'Anthesis / Flowering (BBCH 65)';
+            soilMoisture = 38.6;
+            canopyNdvi = 0.76;
+            ambientTemperature = 24.2;
+            sowingDaysAgo = 72;
+          } else if (
+            farmId.includes('deccan') ||
+            farmId === 'e83b2a19-47dc-4921-b830-2f91a0c84102' ||
+            finalName.toLowerCase().includes('deccan')
+          ) {
+            cropName = 'Cotton & Soybean';
+            cropVariety = 'Ajeet-155 BG-II (Bt Cotton)';
+            growthStage = 'Boll Development & Pod Fill';
+            soilMoisture = 34.2;
+            canopyNdvi = 0.69;
+            ambientTemperature = 31.5;
+            sowingDaysAgo = 94;
+          } else if (
+            farmId.includes('nashik') ||
+            farmId === 'farm-nashik-tomato-01' ||
+            finalName.toLowerCase().includes('nashik') ||
+            finalName.toLowerCase().includes('tomato')
+          ) {
+            cropName = 'Tomato';
+            cropVariety = 'Abhinav F1 Hybrid (Semi-Determinate)';
+            growthStage = 'Flowering & Early Fruit Set (BBCH 65)';
+            soilMoisture = 41.4;
+            canopyNdvi = 0.81;
+            ambientTemperature = 27.8;
+            sowingDaysAgo = 48;
+          }
+
+          return {
+            farmId,
+            farmName: finalName,
+            location: finalLoc,
+            areaHectares: finalArea,
+            cropName,
+            cropVariety,
+            growthStage,
+            soilMoisture,
+            canopyNdvi,
+            ambientTemperature,
+            sowingDaysAgo,
+          };
+        }),
 
       toggleDripIrrigation: () =>
         set((state) => {

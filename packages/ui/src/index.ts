@@ -10,3 +10,7 @@ export * from './status-indicator';
 export * from './empty-state';
 export * from './loading';
 export * from './error-display';
+export * from './data-table';
+export * from './image-comparison-slider';
+export * from './provenance-badge';
+export * from './modal';
