@@ -508,8 +508,9 @@ export default function OpsPage() {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-[#A2B6AA] font-semibold block">Task Title</label>
+                <label htmlFor="task-title" className="text-[#A2B6AA] font-semibold block">Task Title</label>
                 <Input
+                  id="task-title"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="e.g. Bio-stimulant spray run on Sector Alpha"
@@ -519,8 +520,9 @@ export default function OpsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Category</label>
+                  <label htmlFor="task-category" className="text-[#A2B6AA] font-semibold block">Category</label>
                   <select
+                    id="task-category"
                     value={newTaskCategory}
                     onChange={(e) => setNewTaskCategory(e.target.value)}
                     className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-3 text-xs text-[#F0F5F2] focus:outline-none"
@@ -534,8 +536,9 @@ export default function OpsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Priority</label>
+                  <label htmlFor="task-priority" className="text-[#A2B6AA] font-semibold block">Priority</label>
                   <select
+                    id="task-priority"
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as typeof newTaskPriority)}
                     className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-3 text-xs text-[#F0F5F2] focus:outline-none"
@@ -550,8 +553,9 @@ export default function OpsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Due Date</label>
+                  <label htmlFor="task-due-date" className="text-[#A2B6AA] font-semibold block">Due Date</label>
                   <Input
+                    id="task-due-date"
                     type="date"
                     value={newTaskDueDate}
                     onChange={(e) => setNewTaskDueDate(e.target.value)}
@@ -560,8 +564,9 @@ export default function OpsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Cost Estimate (₹)</label>
+                  <label htmlFor="task-cost" className="text-[#A2B6AA] font-semibold block">Cost Estimate (₹)</label>
                   <Input
+                    id="task-cost"
                     type="number"
                     value={newTaskCost}
                     onChange={(e) => setNewTaskCost(e.target.value)}
@@ -608,8 +613,9 @@ export default function OpsPage() {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-[#A2B6AA] font-semibold block">Item Name</label>
+                <label htmlFor="tx-item-name" className="text-[#A2B6AA] font-semibold block">Item Name</label>
                 <Input
+                  id="tx-item-name"
                   value={newTxItemName}
                   onChange={(e) => setNewTxItemName(e.target.value)}
                   className="bg-[#121B16]"
@@ -618,8 +624,9 @@ export default function OpsPage() {
 
               <div className="grid grid-cols-3 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Transaction</label>
+                  <label htmlFor="tx-type" className="text-[#A2B6AA] font-semibold block">Transaction</label>
                   <select
+                    id="tx-type"
                     value={newTxType}
                     onChange={(e) => setNewTxType(e.target.value)}
                     className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-2 text-xs text-[#F0F5F2] focus:outline-none"
@@ -631,8 +638,9 @@ export default function OpsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Quantity</label>
+                  <label htmlFor="tx-quantity" className="text-[#A2B6AA] font-semibold block">Quantity</label>
                   <Input
+                    id="tx-quantity"
                     type="number"
                     value={newTxQuantity}
                     onChange={(e) => setNewTxQuantity(e.target.value)}
@@ -641,8 +649,9 @@ export default function OpsPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[#A2B6AA] font-semibold block">Unit Price (₹)</label>
+                  <label htmlFor="tx-unit-price" className="text-[#A2B6AA] font-semibold block">Unit Price (₹)</label>
                   <Input
+                    id="tx-unit-price"
                     type="number"
                     value={newTxUnitPrice}
                     onChange={(e) => setNewTxUnitPrice(e.target.value)}
