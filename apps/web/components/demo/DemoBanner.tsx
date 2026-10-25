@@ -9,7 +9,7 @@ export function DemoBanner() {
       <div>
         <Sprout size={18} />
         <strong>Demo · Sample farm data</strong>
-        <span>Explore the tools with a sample tomato farm.</span>
+        <span>Changes are saved in this browser.</span>
       </div>
       <div>
         <button onClick={resetDemo}>

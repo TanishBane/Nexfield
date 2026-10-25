@@ -222,7 +222,7 @@ export default function OpsPage() {
 
       {/* Main Tabs Navigation */}
       <Tabs defaultValue="tasks">
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 h-auto max-w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="tasks" className="gap-2">
             <ClipboardList className="h-4 w-4" />
             Work Orders ({tasks.length})

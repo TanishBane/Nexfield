@@ -19,6 +19,16 @@ Butler and Gidole are downloaded from DaFont and self-hosted. Real farming photo
 - Navigation: command search opens with Ctrl/Cmd+K and preserves demo destinations.
 - 3D: local Gidole labels and on-demand rendering; continuous frames only for the rain simulation when reduced motion is off.
 
+## PR integration validation
+
+Prepared against main at a911135, including its public demo conversion and stateless simulation updates.
+
+- Production build passed, including lint, TypeScript checks, and 29 generated static pages.
+- Checked home, overview, tasks, demo overview, and demo twin at 390px, 768px, and 1440px. A mobile task-tab overflow was fixed and rechecked at all three widths; every tab remains accessible.
+- Twenty-two interaction and route checks passed, including estate selection persistence, reset, keyboard search, demo navigation, irrigation controls, mobile focus restoration, and legacy sign-in redirects.
+- No browser runtime errors were observed. Optional backend inference was not exercised.
+- Home preview: [vivid-home-preview.jpg](./vivid-home-preview.jpg).
+
 ## Original redesign validation
 
 Desktop and 390px mobile route checks found no horizontal overflow across 25 page/viewport combinations. The 3D page separately rendered at both sizes without runtime errors. Thirteen browser interaction checks passed, including mobile navigation, focus restoration, FAQ expansion, demo selection, password visibility, command search, demo reset, and protected-route redirects.

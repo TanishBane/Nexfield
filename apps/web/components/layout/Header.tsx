@@ -135,7 +135,7 @@ export function Header() {
 
           {/* Demonstration Farm Switcher */}
           <div className="flex items-center gap-2 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] px-2.5 py-1 text-xs">
-            <MapPin className="h-3.5 w-3.5 text-[#D7B678] shrink-0" />
+            <MapPin className="h-3.5 w-3.5 text-[#815414] shrink-0" />
             <select
               value={demoStore.farmId || DEMO_ESTATES[0].id}
               onChange={(e) => handleEstateChange(e.target.value)}
@@ -186,7 +186,7 @@ export function Header() {
               className={`h-7 text-xs border-[#D1DDCD] transition-all duration-200 ${
                 resetFeedback
                   ? "bg-emerald-50/60 text-emerald-700 border-emerald-500"
-                  : "text-[#D7B678] hover:bg-[#163B2A]/40"
+                  : "text-[#815414] hover:bg-[#EDF4E7]"
               }`}
               title="Reset sample farm"
               aria-label="Reset sample farm"
