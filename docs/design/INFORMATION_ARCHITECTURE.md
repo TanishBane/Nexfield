@@ -48,7 +48,7 @@ The public website serves farmers, agronomists, investors, and ADAPPT 5.0 evalua
 | `/solutions`            | Agronomic Challenges | Water Scarcity, Foliar Epidemics, Post-Harvest Spoilage solutions | Farm Owners & Co-ops |
 | `/about`                | Team, Mission & Open Code | ADAPPT 5.0 Domain 2 statement, Tanish Bane & Rohan Panchal bios, MIT License | Hackathon Judges |
 | `/demo`                 | Interactive Guided Tour | 8-step live walkthrough entry point with Nashik Tomato Estate | All Users |
-| `/login`                | Authenticated Portal | Tenant sign-in & Supabase authentication | Registered Tenants |
+| `/login`                 | Public Demo Redirect | Automatically redirects to `/control` (frictionless public exploration) | All Visitors |
 
 ---
 

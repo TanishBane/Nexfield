@@ -26,7 +26,7 @@ If you have discovered a potential security vulnerability in NEXFIELD:
 1. Navigate to the repository's [**Security Advisories tab**](https://github.com/TanishBane/Nexfield/security/advisories).
 2. Click [**Report a vulnerability**](https://github.com/TanishBane/Nexfield/security/advisories/new) to open a confidential draft advisory.
 3. Provide a clear description including:
-   - Affected component(s) (e.g., Next.js middleware, FastAPI endpoints, Supabase RLS policies, ONNX runtime).
+   - Affected component(s) (e.g., Next.js middleware, FastAPI endpoints, client store isolation, ONNX runtime).
    - Step-by-step instructions or proof-of-concept script to reproduce the vulnerability.
    - Assessment of potential impact (e.g., unauthorized data access, privilege escalation, denial of service).
    - Any suggested mitigations or patches.
@@ -41,4 +41,4 @@ If you have discovered a potential security vulnerability in NEXFIELD:
 
 ## Security Architecture & Best Practices
 
-For an architectural breakdown of NEXFIELD's tenant isolation, Supabase Row-Level Security, and CVE-2025-29927 Next.js middleware mitigations, please review [`docs/SECURITY.md`](docs/SECURITY.md).
+For an architectural breakdown of NEXFIELD's public demo security, client-state sandboxing, strict origin CORS validation, and CVE-2025-29927 Next.js middleware mitigations, please review [`docs/SECURITY.md`](docs/SECURITY.md).

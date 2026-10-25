@@ -1,4 +1,12 @@
 import { fixturesAdapter } from './fixtures-adapter';
+import {
+  useDemoStore,
+  type DemoFarm,
+  type DemoField,
+  type DemoCropCycle,
+  type DemoObservation,
+  type DemoTask,
+} from '@/lib/store/useDemoStore';
 import type {
   FarmControlOverview,
   CropAssessment,
@@ -38,7 +46,6 @@ async function fetchFromBackend<T>(endpoint: string, options?: RequestInit): Pro
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      'X-Demo-Mode': 'public-demonstration',
       ...options?.headers,
     },
   });
@@ -66,26 +73,44 @@ export const apiClient = {
   // Farm & Field Management
   // ----------------------------------------------------
   async getFarms(): Promise<ApiResponse<any[]>> {
-    if (USE_FIXTURES) return fixturesAdapter.getFarms();
+    if (USE_FIXTURES) {
+      return {
+        success: true,
+        data: useDemoStore.getState().farms,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
+    }
     try {
       return await fetchFromBackend<any[]>('/api/v1/farms');
     } catch {
-      return fixturesAdapter.getFarms();
+      return {
+        success: true,
+        data: useDemoStore.getState().farms,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
     }
   },
 
   async getFarm(farmId: string): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
-      const all = await fixturesAdapter.getFarms();
-      const found = all.data.find((f: any) => f.id === farmId) || all.data[0];
-      return { success: true, data: found, meta: all.meta };
+      const farms = useDemoStore.getState().farms;
+      const found = farms.find((f: any) => f.id === farmId) || farms[0];
+      return {
+        success: true,
+        data: found,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
     }
     try {
       return await fetchFromBackend<any>(`/api/v1/farms/${farmId}`);
     } catch {
-      const all = await fixturesAdapter.getFarms();
-      const found = all.data.find((f: any) => f.id === farmId) || all.data[0];
-      return { success: true, data: found, meta: all.meta };
+      const farms = useDemoStore.getState().farms;
+      const found = farms.find((f: any) => f.id === farmId) || farms[0];
+      return {
+        success: true,
+        data: found,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
     }
   },
 
@@ -105,11 +130,18 @@ export const apiClient = {
     boundaryGeoJson?: Record<string, unknown> | null;
   }): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
-      const newFarm = {
+      const newFarm: DemoFarm = {
         id: `demo-farm-${Date.now()}`,
-        ...data,
+        name: data.name,
+        location: data.location,
+        totalAreaHectares: data.totalAreaHectares,
+        soilType: data.soilType,
+        primaryIrrigation: data.primaryIrrigation,
+        activeCropCycleCount: 0,
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
+      useDemoStore.getState().addFarm(newFarm);
       return {
         success: true,
         data: newFarm,
@@ -124,9 +156,11 @@ export const apiClient = {
 
   async updateFarm(farmId: string, data: Partial<any>): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
+      useDemoStore.getState().updateFarm(farmId, data);
+      const updated = useDemoStore.getState().farms.find((f) => f.id === farmId) || { id: farmId, ...data };
       return {
         success: true,
-        data: { id: farmId, ...data },
+        data: updated,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -137,7 +171,15 @@ export const apiClient = {
   },
 
   async getFields(farmId?: string): Promise<ApiResponse<any[]>> {
-    if (USE_FIXTURES) return fixturesAdapter.getFields(farmId);
+    if (USE_FIXTURES) {
+      const allFields = useDemoStore.getState().fields;
+      const filtered = farmId ? allFields.filter((f) => f.farmId === farmId) : allFields;
+      return {
+        success: true,
+        data: filtered,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
+    }
     try {
       if (!farmId) {
         const farmsRes = await this.getFarms();
@@ -148,7 +190,13 @@ export const apiClient = {
       }
       return await fetchFromBackend<any[]>(`/api/v1/farms/${farmId}/fields`);
     } catch {
-      return fixturesAdapter.getFields(farmId);
+      const allFields = useDemoStore.getState().fields;
+      const filtered = farmId ? allFields.filter((f) => f.farmId === farmId) : allFields;
+      return {
+        success: true,
+        data: filtered,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
     }
   },
 
@@ -172,9 +220,19 @@ export const apiClient = {
     }
   ): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
+      const newField: DemoField = {
+        id: `demo-field-${Date.now()}`,
+        farmId,
+        name: data.name,
+        code: data.code,
+        areaHectares: data.areaHectares,
+        soilMetrics: data.soilMetrics,
+        polygonCoordinates: data.polygonCoordinates,
+      };
+      useDemoStore.getState().addField(newField);
       return {
         success: true,
-        data: { id: `demo-field-${Date.now()}`, farmId, ...data },
+        data: newField,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -189,20 +247,21 @@ export const apiClient = {
   // ----------------------------------------------------
   async getCropCycles(fieldId: string): Promise<ApiResponse<any[]>> {
     if (USE_FIXTURES) {
+      const cycles = useDemoStore.getState().cropCycles.filter((c) => c.fieldId === fieldId);
       return {
         success: true,
-        data: [
+        data: cycles.length > 0 ? cycles : [
           {
-            id: 'cycle-demo-wheat',
+            id: `cycle-${fieldId}`,
             fieldId,
-            cropName: 'Wheat (HD-3086)',
-            variety: 'HD-3086 Shresth',
+            cropName: 'Tomato',
+            variety: 'Abhinav F1',
             season: 'rabi',
-            sowingDate: '2026-11-10',
-            expectedHarvestDate: '2027-03-25',
+            sowingDate: '2026-09-08',
+            expectedHarvestDate: '2026-12-15',
             status: 'active',
-            targetYieldMetricTons: 4.8,
-            currentGrowthStage: 'Tillering to Stem Elongation',
+            targetYieldMetricTons: 65.0,
+            currentGrowthStage: 'Flowering & Fruit Set',
             healthIndexScore: 92,
           },
         ],
@@ -235,9 +294,23 @@ export const apiClient = {
     }
   ): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
+      const newCycle: DemoCropCycle = {
+        id: `cycle-${Date.now()}`,
+        fieldId,
+        cropName: data.cropName,
+        variety: data.variety,
+        season: data.season,
+        sowingDate: data.sowingDate,
+        expectedHarvestDate: data.expectedHarvestDate,
+        status: data.status || 'planned',
+        targetYieldMetricTons: data.targetYieldMetricTons,
+        currentGrowthStage: data.currentGrowthStage,
+        healthIndexScore: data.healthIndexScore || 90,
+      };
+      useDemoStore.getState().addCropCycle(newCycle);
       return {
         success: true,
-        data: { id: `cycle-${Date.now()}`, fieldId, ...data },
+        data: newCycle,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -258,9 +331,19 @@ export const apiClient = {
     }
   ): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
+      const newObs: DemoObservation = {
+        id: `obs-${Date.now()}`,
+        fieldId,
+        observationType: data.observationType,
+        timestamp: data.timestamp || new Date().toISOString(),
+        metrics: data.metrics,
+        notes: data.notes,
+        cycleId: data.cycleId,
+      };
+      useDemoStore.getState().addObservation(newObs);
       return {
         success: true,
-        data: { id: `obs-${Date.now()}`, fieldId, ...data },
+        data: newObs,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -286,6 +369,7 @@ export const apiClient = {
     errors: string[];
   }>> {
     if (USE_FIXTURES) {
+      useDemoStore.getState().importRecords(payload.category, payload.records);
       return {
         success: true,
         data: {
@@ -455,11 +539,15 @@ export const apiClient = {
   },
 
   async diagnoseCrop(req: DiagnoseCropRequest): Promise<ApiResponse<DiagnoseCropResponse>> {
-    if (USE_FIXTURES) return fixturesAdapter.diagnoseCrop(req);
     try {
       return await fetchFromBackend<DiagnoseCropResponse>('/api/v1/fieldsight/diagnose', {
         method: 'POST',
-        body: JSON.stringify(req),
+        body: JSON.stringify({
+          field_id: req.fieldId,
+          crop_species: req.cropSpecies,
+          image_url: req.imageUrl,
+          scouting_notes: req.scoutingNotes,
+        }),
       });
     } catch {
       return fixturesAdapter.diagnoseCrop(req);
@@ -550,7 +638,27 @@ export const apiClient = {
   // Module 5: NEXFIELD Ops
   // ----------------------------------------------------
   async getTasks(farmId?: string): Promise<ApiResponse<FarmTask[]>> {
-    if (USE_FIXTURES) return fixturesAdapter.getTasks(farmId);
+    if (USE_FIXTURES) {
+      const storeTasks = useDemoStore.getState().tasks;
+      const mapped: FarmTask[] = storeTasks.map((t) => ({
+        id: t.id,
+        farmId: farmId || useDemoStore.getState().farmId,
+        title: t.title,
+        description: t.title,
+        category: t.category,
+        priority: t.priority,
+        status: t.status,
+        dueDate: t.dueDate,
+        costEstimateInr: t.costInr,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+      return {
+        success: true,
+        data: mapped,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
+    }
     try {
       return await fetchFromBackend<FarmTask[]>(`/api/v1/ops/tasks?farmId=${farmId || ''}`);
     } catch {
@@ -559,15 +667,40 @@ export const apiClient = {
   },
 
   async createTask(req: CreateTaskRequest): Promise<ApiResponse<FarmTask>> {
-    if (USE_FIXTURES) return fixturesAdapter.createTask(req);
-    try {
-      return await fetchFromBackend<FarmTask>('/api/v1/ops/tasks', {
-        method: 'POST',
-        body: JSON.stringify(req),
+    if (USE_FIXTURES) {
+      useDemoStore.getState().addTask({
+        title: req.title,
+        category: req.category as DemoTask['category'],
+        priority: req.priority,
+        status: 'todo',
+        dueDate: req.dueDate,
+        costInr: req.costEstimateInr || 0,
       });
-    } catch {
-      return fixturesAdapter.createTask(req);
+      const created = useDemoStore.getState().tasks[0];
+      const task: FarmTask = {
+        id: created.id,
+        farmId: req.farmId,
+        fieldId: req.fieldId,
+        title: created.title,
+        description: req.description,
+        category: created.category as FarmTask['category'],
+        priority: created.priority,
+        status: 'todo',
+        dueDate: created.dueDate,
+        costEstimateInr: created.costInr,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return {
+        success: true,
+        data: task,
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
     }
+    return await fetchFromBackend<FarmTask>('/api/v1/ops/tasks', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
   },
 
   async getInventory(farmId?: string): Promise<ApiResponse<InventoryTransaction[]>> {
@@ -581,13 +714,10 @@ export const apiClient = {
 
   async getExpenses(farmId: string): Promise<ApiResponse<any[]>> {
     if (USE_FIXTURES) {
+      const expenses = useDemoStore.getState().expenses;
       return {
         success: true,
-        data: [
-          { id: 'exp-1', category: 'Fertilizer & Nutrition', amountInr: 14500, description: '10 bags of water-soluble NPK 19-19-19', date: '2026-10-18' },
-          { id: 'exp-2', category: 'Irrigation & Power', amountInr: 6800, description: 'Solar pump maintenance and drip filter replacement', date: '2026-10-12' },
-          { id: 'exp-3', category: 'Crop Protection', amountInr: 9200, description: 'Biopesticide formulation for leaf blight mitigation', date: '2026-10-05' },
-        ],
+        data: expenses,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -596,10 +726,7 @@ export const apiClient = {
     } catch {
       return {
         success: true,
-        data: [
-          { id: 'exp-1', category: 'Fertilizer & Nutrition', amountInr: 14500, description: '10 bags of water-soluble NPK 19-19-19', date: '2026-10-18' },
-          { id: 'exp-2', category: 'Irrigation & Power', amountInr: 6800, description: 'Solar pump maintenance and drip filter replacement', date: '2026-10-12' },
-        ],
+        data: useDemoStore.getState().expenses,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -607,9 +734,16 @@ export const apiClient = {
 
   async createExpense(farmId: string, req: any): Promise<ApiResponse<any>> {
     if (USE_FIXTURES) {
+      useDemoStore.getState().addExpense({
+        category: req.category || 'General Operations',
+        description: req.description || 'Farm expense',
+        amountInr: Number(req.amountInr || req.amount || 0),
+        date: req.date || new Date().toISOString().split('T')[0],
+      });
+      const created = useDemoStore.getState().expenses[0];
       return {
         success: true,
-        data: { id: `exp-${Date.now()}`, farmId, ...req },
+        data: { farmId, ...created },
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
@@ -683,4 +817,72 @@ export const apiClient = {
       return fixturesAdapter.getMarketComparison();
     }
   },
+
+  async calculateFreight(req: {
+    modalPriceInrPerQuintal: number;
+    distanceKm: number;
+    lotQuantityQuintals: number;
+    vehicleType?: 'light_commercial_vehicle' | 'tractor_trolley' | 'medium_truck' | 'heavy_truck';
+    dieselPriceInrPerLiter?: number;
+    driverBhattaInr?: number;
+    tollsInr?: number;
+    loadingUnloadingHamaliPerQuintalInr?: number;
+    mandiFeePercent?: number;
+    shrinkageLossPercent?: number;
+  }): Promise<ApiResponse<any>> {
+    try {
+      return await fetchFromBackend<any>('/api/v1/markets/calculate-freight', {
+        method: 'POST',
+        body: JSON.stringify({
+          modal_price_inr_per_quintal: req.modalPriceInrPerQuintal,
+          distance_km: req.distanceKm,
+          lot_quantity_quintals: req.lotQuantityQuintals,
+          vehicle_type: req.vehicleType || 'medium_truck',
+          diesel_price_inr_per_liter: req.dieselPriceInrPerLiter || 90.0,
+          driver_bhatta_inr: req.driverBhattaInr || 500.0,
+          tolls_inr: req.tollsInr || 0.0,
+          loading_unloading_hamali_per_quintal_inr: req.loadingUnloadingHamaliPerQuintalInr || 12.0,
+          mandi_fee_percent: req.mandiFeePercent || 1.5,
+          shrinkage_loss_percent: req.shrinkageLossPercent || 1.0,
+        }),
+      });
+    } catch {
+      const grossRevenue = req.modalPriceInrPerQuintal * req.lotQuantityQuintals;
+      const fuelLiters = (req.distanceKm * 2) / 4.5;
+      const fuelCost = fuelLiters * (req.dieselPriceInrPerLiter || 90.0);
+      const totalDeductions = fuelCost + (req.driverBhattaInr || 500) + (req.tollsInr || 0) + (req.lotQuantityQuintals * 12);
+      const netRevenue = grossRevenue - totalDeductions;
+      return {
+        success: true,
+        data: {
+          gross_modal_price_inr_per_quintal: req.modalPriceInrPerQuintal,
+          gross_revenue_inr: grossRevenue,
+          total_deductions_inr: totalDeductions,
+          net_revenue_inr: netRevenue,
+          net_realization_per_quintal_inr: Number((netRevenue / req.lotQuantityQuintals).toFixed(2)),
+          profitability_verdict: netRevenue > grossRevenue * 0.85 ? 'Highly Profitable Mandi Route' : 'Marginal Transport Route',
+        },
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
+    }
+  },
+
+  async getMspBenchmarks(commodity?: string): Promise<ApiResponse<any[]>> {
+    try {
+      const q = commodity ? `?commodity=${encodeURIComponent(commodity)}` : '';
+      return await fetchFromBackend<any[]>(`/api/v1/markets/msp-benchmarks${q}`);
+    } catch {
+      return {
+        success: true,
+        data: [
+          { commodity: 'Wheat', marketing_season: 'RMS 2024-25', msp_inr_per_quintal: 2275.0, cost_a2_fl: 1128.0, return_over_cost_percent: 102.0 },
+          { commodity: 'Wheat', marketing_season: 'RMS 2026-27', msp_inr_per_quintal: 2585.0, cost_a2_fl: 1240.0, return_over_cost_percent: 108.0 },
+          { commodity: 'Paddy (Common)', marketing_season: 'KMS 2024-25', msp_inr_per_quintal: 2300.0, cost_a2_fl: 1450.0, return_over_cost_percent: 58.6 },
+          { commodity: 'Tomato (Indicative State Floor)', marketing_season: 'Rabi 2025-26', msp_inr_per_quintal: 1250.0, cost_a2_fl: 680.0, return_over_cost_percent: 83.8 },
+        ],
+        meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
+      };
+    }
+  },
 };
+

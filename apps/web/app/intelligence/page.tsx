@@ -31,6 +31,7 @@ import {
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
 import { useFarmStore } from '@/lib/store/useFarmStore';
+import { useDemoStore } from '@/lib/store/useDemoStore';
 import type { IntelligenceChatMessage } from '@nexfield/contracts';
 
 interface ToolExecution {
@@ -78,6 +79,7 @@ Active Context: **GreenValley Bio-Research Agrohub (Punjab)**. North Sector Alph
 
 export default function IntelligencePage() {
   const { selectedFarmId, selectedFieldId } = useFarmStore();
+  const demoStore = useDemoStore();
   const [messages, setMessages] = useState<ExtendedMessage[]>(INITIAL_MESSAGES);
   const [inputText, setInputText] = useState('');
   const [pendingConfirmation, setPendingConfirmation] = useState<{
@@ -371,23 +373,23 @@ In offline development mode without external API keys configured, automated reas
             </CardHeader>
             <CardContent className="space-y-3 text-xs font-mono">
               <div className="p-2.5 rounded bg-[#0E1511] border border-[#1E2E25] space-y-0.5">
-                <span className="text-[#657F71] block text-[10px]">SELECTED HOLDING</span>
-                <span className="text-[#F1F6F3] font-bold">GreenValley Agrohub (Khanna)</span>
+                <span className="text-[#657F71] block text-[10px]">SELECTED ESTATE</span>
+                <span className="text-[#F1F6F3] font-bold">{demoStore.farmName}</span>
               </div>
 
               <div className="p-2.5 rounded bg-[#0E1511] border border-[#1E2E25] space-y-0.5">
-                <span className="text-[#657F71] block text-[10px]">ACTIVE PARCEL</span>
-                <span className="text-[#F1F6F3] font-bold">North Sector Alpha (FLD-N01)</span>
+                <span className="text-[#657F71] block text-[10px]">ESTATE LOCATION</span>
+                <span className="text-[#F1F6F3] font-bold">{demoStore.location}</span>
               </div>
 
               <div className="p-2.5 rounded bg-[#0E1511] border border-[#1E2E25] space-y-0.5">
                 <span className="text-[#657F71] block text-[10px]">CROP & PHENOLOGY</span>
-                <span className="text-emerald-400 font-bold">Wheat HD-3086 (Flowering Panicle)</span>
+                <span className="text-emerald-400 font-bold">{demoStore.cropName} ({demoStore.cropVariety}) • {demoStore.growthStage}</span>
               </div>
 
               <div className="p-2.5 rounded bg-[#0E1511] border border-[#1E2E25] space-y-0.5">
                 <span className="text-[#657F71] block text-[10px]">SOIL HYDROLOGY</span>
-                <span className="text-sky-300">Moisture: 41.35% • pH: 7.15 • N: 210.5 kg/ha</span>
+                <span className="text-sky-300">Moisture: {demoStore.soilMoisture}% • pH: {demoStore.soilPh} • N: {demoStore.nitrogenPpm} ppm</span>
               </div>
 
               <div className="p-2.5 rounded bg-[#0E1511] border border-[#1E2E25] space-y-0.5">
@@ -395,6 +397,7 @@ In offline development mode without external API keys configured, automated reas
                 <span className="text-amber-300">Khanna APMC: ₹2,580/q • Rajpura: ₹2,640/q</span>
               </div>
             </CardContent>
+
           </Card>
 
           <Card className="border-[#203126]">

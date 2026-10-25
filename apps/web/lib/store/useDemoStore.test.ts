@@ -76,6 +76,107 @@ describe('Public Demo State Store & Persistence Invariants', () => {
     expect(clampedItem?.quantity).toBe(0);
   });
 
+  it('persists newly added and updated farms correctly', () => {
+    const state = useDemoStore.getState();
+    const initialFarmCount = state.farms.length;
+
+    state.addFarm({
+      id: 'demo-farm-test-1',
+      name: 'Sahyadri Organic Orchard',
+      location: {
+        latitude: 19.9975,
+        longitude: 73.7898,
+        address: 'Trimbakeshwar Agro Belt',
+        district: 'Nashik',
+        state: 'Maharashtra',
+        pinCode: '422212',
+      },
+      totalAreaHectares: 5.5,
+      soilType: 'red_loamy',
+      primaryIrrigation: 'drip_irrigation',
+      createdAt: new Date().toISOString(),
+    });
+
+    const withFarm = useDemoStore.getState();
+    expect(withFarm.farms.length).toBe(initialFarmCount + 1);
+    expect(withFarm.farms[0].name).toBe('Sahyadri Organic Orchard');
+
+    state.updateFarm('demo-farm-test-1', { name: 'Sahyadri Premium Organic Orchard' });
+    const withUpdatedFarm = useDemoStore.getState();
+    const updated = withUpdatedFarm.farms.find((f) => f.id === 'demo-farm-test-1');
+    expect(updated?.name).toBe('Sahyadri Premium Organic Orchard');
+  });
+
+  it('persists newly created fields, crop cycles, and observations', () => {
+    const state = useDemoStore.getState();
+    const initialFieldCount = state.fields.length;
+    const initialCycleCount = state.cropCycles.length;
+    const initialObsCount = state.observations.length;
+
+    state.addField({
+      id: 'field-new-sector',
+      farmId: 'farm-nashik-tomato-01',
+      name: 'Sector 3-C Citrus Grove',
+      code: 'FLD-C03',
+      areaHectares: 2.0,
+    });
+
+    state.addCropCycle({
+      id: 'cycle-new-citrus',
+      fieldId: 'field-new-sector',
+      cropName: 'Sweet Lime (Mosambi)',
+      variety: 'Nagpur Mandarin Selection',
+      season: 'kharif',
+      sowingDate: '2026-06-15',
+      expectedHarvestDate: '2026-11-30',
+      status: 'active',
+      targetYieldMetricTons: 18.0,
+      currentGrowthStage: 'Fruit Maturity & Sizing',
+      healthIndexScore: 95,
+    });
+
+    state.addObservation({
+      id: 'obs-citrus-01',
+      fieldId: 'field-new-sector',
+      cycleId: 'cycle-new-citrus',
+      observationType: 'scouting_note',
+      timestamp: new Date().toISOString(),
+      metrics: { brix_sugar: 10.5, moisture_percent: 38.2 },
+      notes: 'Optimal sugar development. Ready for selective harvest.',
+    });
+
+    const updated = useDemoStore.getState();
+    expect(updated.fields.length).toBe(initialFieldCount + 1);
+    expect(updated.cropCycles.length).toBe(initialCycleCount + 1);
+    expect(updated.observations.length).toBe(initialObsCount + 1);
+  });
+
+  it('imports batch records and updates store telemetry and entities', () => {
+    const state = useDemoStore.getState();
+    const initialTaskCount = state.tasks.length;
+    const initialExpCount = state.expenses.length;
+
+    state.importRecords('tasks', [
+      { title: 'Calibrate Pressure Regulators', priority: 'high', category: 'irrigation', dueDate: 'Tomorrow', costInr: 500 },
+      { title: 'Apply Foliar Micronutrients (Zinc/Boron)', priority: 'medium', category: 'fertilization', dueDate: 'Friday', costInr: 800 },
+    ]);
+
+    state.importRecords('expenses', [
+      { category: 'Irrigation Supplies', description: 'Micro-sprinkler nozzles', amountInr: 1500, date: '2026-10-24' },
+    ]);
+
+    state.importRecords('sensors', [
+      { soilMoisture: 45.2, soilTemperature: 22.8, soilPh: 6.9, ambientTemperature: 28.1, ambientHumidity: 60.5 },
+    ]);
+
+    const updated = useDemoStore.getState();
+    expect(updated.tasks.length).toBe(initialTaskCount + 2);
+    expect(updated.expenses.length).toBe(initialExpCount + 1);
+    expect(updated.soilMoisture).toBe(45.2);
+    expect(updated.soilTemperature).toBe(22.8);
+    expect(updated.soilPh).toBe(6.9);
+  });
+
   it('resets state completely back to initial baseline fixtures', () => {
     const state = useDemoStore.getState();
     state.addTask({
@@ -94,6 +195,8 @@ describe('Public Demo State Store & Persistence Invariants', () => {
 
     const resetState = useDemoStore.getState();
     expect(resetState.tasks.length).toBe(INITIAL_DEMO_STATE.tasks.length);
+    expect(resetState.farms.length).toBe(INITIAL_DEMO_STATE.farms.length);
     expect(resetState.dripIrrigationActive).toBe(false);
   });
 });
+

@@ -19,8 +19,8 @@ export default function PlatformTwinPage() {
           NEXFIELD Twin: 3D Biophysical Field Simulator
         </h1>
         <p className="text-lg text-[#9BB1A4] leading-relaxed max-w-3xl">
-          Simulate before you irrigate. An interactive 3D WebGL digital twin implementing FAO-56 dual crop coefficient hydrology,
-          vadose zone infiltration profiles, and scenario comparison grids to eliminate agricultural water waste.
+          Simulate before you irrigate. An interactive 3D WebGL digital twin implementing Stewart water-yield production modeling,
+          volumetric irrigation scheduling (10 m³/ha = 1 mm), and counterfactual scenario comparison grids.
         </p>
       </div>
 

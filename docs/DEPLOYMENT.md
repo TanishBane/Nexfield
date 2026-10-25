@@ -2,14 +2,14 @@
 
 **Project:** NEXFIELD — The Agricultural Intelligence Operating System  
 **Hackathon:** ADAPPT 5.0 — Round 2 — Domain 2: AI in Food Technology  
-**Version:** 2.4.0  
+**Version:** 2.5.0 (Public Demo Architecture)  
 **Authors:** Tanish Bane (@TanishBane) & Rohan Panchal (@panchalrohan44)
 
 ---
 
 ## 1. Cloud Architecture Topology
 
-NEXFIELD is designed for high-availability, zero-maintenance cloud deployment leveraging modern serverless edge primitives and managed cloud databases:
+NEXFIELD is designed for high-availability, zero-maintenance public demonstration deployment leveraging modern serverless edge primitives with optional self-hosted backend intelligence services:
 
 ```mermaid
 flowchart TB
@@ -18,36 +18,35 @@ flowchart TB
     end
 
     subgraph Vercel ["Vercel Edge Network (Global CDN)"]
-        EdgeRoute["Edge Routing & Middleware (CVE-2025-29927 Guard)"]
+        EdgeRoute["Edge Routing & Middleware (307 Frictionless Redirects)"]
         NextServer["Next.js 15.5 App Router SSR / ISR Engine"]
-        StaticAssets["Static Image & Bundle Storage"]
+        StaticAssets["Static Image & Asset Storage"]
+        ClientStateStore["Client-Side Local Storage ('nexfield-demo-v1')"]
     end
 
-    subgraph BackendHost ["FastAPI Service Cluster (Container / Serverless)"]
+    subgraph BackendHost ["FastAPI Service Cluster (Optional Container / Cloud Host)"]
         API["FastAPI 0.115 Async Service"]
-        ONNXEngine["In-Process ONNX Runtime (CPU Optimized)"]
-        ScraperWorker["Background APMC Mandi Sync Worker"]
+        ONNXEngine["In-Process ONNX Runtime (MobileNetV2 Foliar Model)"]
+        TwinSim["FAO-56 Soil Hydrology Engine"]
+        MarketEngine["APMC Mandi Freight Optimizer"]
     end
 
-    subgraph SupabaseCloud ["Supabase Managed Cloud (AWS eu-west-1 / ap-south-1)"]
-        AuthService["GoTrue JWT Authentication Service"]
-        PostgresDB["PostgreSQL 15 Database Cluster"]
+    subgraph SelfHostedDB ["Optional Persistent Storage (Self-Hosted / Local)"]
+        PostgresDB["PostgreSQL 15+ Database"]
         PostGIS["PostGIS Spatial Extensions"]
-        StorageBucket["S3-Compatible Object Storage (Scans & Heatmaps)"]
     end
 
     Browser <--> EdgeRoute
     EdgeRoute --> NextServer
     NextServer --> StaticAssets
+    NextServer <--> ClientStateStore
     NextServer <--> API
-    NextServer <--> AuthService
-    NextServer <--> PostgresDB
 
     API --> ONNXEngine
-    API --> ScraperWorker
-    API <--> PostgresDB
-    API <--> PostGIS
-    API <--> StorageBucket
+    API --> TwinSim
+    API --> MarketEngine
+    API -. Optional .- PostgresDB
+    PostgresDB -. Extension .- PostGIS
 ```
 
 ---
@@ -56,15 +55,15 @@ flowchart TB
 
 | Variable Name | Required In | Default / Example Value | Description |
 |---|---|---|---|
-| `NEXT_PUBLIC_APP_URL` | Web | `https://nexfield.app` | Canonical public application URL for redirects and metadata. |
-| `NEXT_PUBLIC_USE_FIXTURES` | Web | `false` (Prod) / `true` (Dev) | When `true`, frontend loads offline baseline fixtures from `data/fixtures/`. |
-| `NEXT_PUBLIC_SUPABASE_URL` | Web & API | `https://xyz.supabase.co` | Supabase project API endpoint. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Web | `eyJhbGciOi...` | Supabase public anonymous key (enforces client RLS). |
-| `SUPABASE_SERVICE_ROLE_KEY` | API (Backend) | `eyJhbGciOi...` | High-privilege backend key for admin tasks (NEVER expose to frontend). |
-| `DATABASE_URL` | API | `postgresql://postgres:pwd@db.xyz.supabase.co:5432/postgres` | PostgreSQL connection string for SQLAlchemy engine. |
-| `JWT_SECRET` | API | `super-secret-hex-string` | Secret key for verifying auth tokens. |
-| `MODEL_PATH` | API | `ml/models/fieldsight_foliar_v1.onnx` | Path to compiled ONNX foliar diagnostic model. |
-| `PORT` | API | `8000` | FastAPI server listening port. |
+| `NEXT_PUBLIC_APP_URL` | Web | `https://nexfield-agritech.vercel.app` | Canonical public application URL for redirects and metadata. |
+| `NEXT_PUBLIC_APP_NAME` | Web | `NEXFIELD` | Brand name displayed across metadata and header. |
+| `NEXT_PUBLIC_APP_ENV` | Web | `production` (Vercel) / `development` (Local) | Environment discriminator. |
+| `NEXT_PUBLIC_USE_FIXTURES` | Web | `false` (API Priority) / `true` (Fixture Only) | Controls offline fallback to `data/fixtures/`. |
+| `NEXT_PUBLIC_API_URL` | Web | `http://localhost:8000` | Optional backend FastAPI base URL for real-time ONNX inference and biophysical simulations. |
+| `CORS_ORIGINS` | API (Backend) | `["http://localhost:3000","http://127.0.0.1:3000","https://nexfield-agritech.vercel.app"]` | Whitelisted origins permitted to execute cross-origin requests. |
+| `DATABASE_URL` | API (Backend) | `postgresql+asyncpg://...` | Optional PostgreSQL connection string. Unset in public demo mode. |
+| `MODEL_PATH` | API (Backend) | `ml/models/fieldsight_foliar_v1.onnx` | Path to compiled ONNX foliar diagnostic model. |
+| `PORT` | API (Backend) | `8000` | FastAPI server listening port. |
 
 ---
 
@@ -73,6 +72,9 @@ flowchart TB
 - **Production Live URL:** [https://nexfield-agritech.vercel.app](https://nexfield-agritech.vercel.app)
 - **Vercel Project:** `nexfield-agritech`
 - **Root Directory:** `apps/web`
+
+### Zero-Friction Public Demo Setup
+The public demo deployed on Vercel runs completely out-of-the-box without requiring any cloud database configuration or authentication provider:
 
 1. **Connect Repository:** Import `https://github.com/TanishBane/Nexfield` into Vercel Dashboard or link via CLI (`vercel link --yes --project nexfield-agritech`).
 2. **Build & Development Settings:**
@@ -85,17 +87,17 @@ flowchart TB
 3. **Environment Variables:**
    - `NEXT_PUBLIC_APP_NAME="NEXFIELD"`
    - `NEXT_PUBLIC_APP_ENV="production"`
-   - `NEXT_PUBLIC_USE_FIXTURES="true"` *(enables domain-accurate synthetic agronomic fallback when offline or independent of local backend)*
-   - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` *(optional, for cloud auth)*
-4. **Deploy:** Click **Deploy** or run `vercel deploy --prod`. Vercel builds the Next.js App Router application and distributes it globally.
+   - `NEXT_PUBLIC_USE_FIXTURES="true"` *(guarantees instantaneous domain-accurate agronomic responses across all 6 modules)*
+4. **Deploy:** Run `vercel deploy --prod` or push to `main`. Vercel builds the Next.js App Router application and distributes it globally.
 
 ---
 
-## 4. Supabase Setup Guide (Database & Auth)
+## 4. Optional Self-Hosted PostgreSQL / PostGIS Setup Guide
 
-1. **Create Project:** Initialize a new PostgreSQL project in the Supabase Cloud dashboard.
+For developers running full backend persistence locally:
+
+1. **Install PostgreSQL & PostGIS:** Ensure PostgreSQL 15+ with the PostGIS extension is installed.
 2. **Enable Spatial Extensions:**
-   Run the following query in the Supabase SQL Editor:
    ```sql
    CREATE EXTENSION IF NOT EXISTS postgis;
    ```
@@ -105,9 +107,11 @@ flowchart TB
    cd services/api
    alembic upgrade head
    ```
-4. **Configure Authentication:**
-   - Enable Email/Password authentication in the Supabase Auth settings.
-   - Set Site URL to `https://nexfield.app` and Redirect URLs to `https://nexfield.app/auth/callback`.
+4. **Start FastAPI Backend:**
+   ```powershell
+   cd services/api
+   py -m uvicorn main:app --reload --port 8000
+   ```
 
 ---
 
@@ -121,20 +125,20 @@ flowchart LR
     Push --> CI2["Backend CI (backend-ci.yml)"]
     Push --> CI3["Smoke Suite (smoke.yml)"]
 
-    CI1 --> V1["pnpm type-check"]
-    CI1 --> V2["pnpm test (Vitest)"]
+    CI1 --> V1["pnpm type-check (0 errors)"]
+    CI1 --> V2["pnpm test (20/20 Vitest)"]
     CI1 --> V3["pnpm build"]
 
-    CI2 --> P1["pytest (78 tests)"]
-    CI2 --> P2["Pydantic validation"]
-    CI2 --> P3["ONNX load check"]
+    CI2 --> P1["pytest (86/86 passed)"]
+    CI2 --> P2["Pydantic v2 validation"]
+    CI2 --> P3["ONNX model load check"]
 
-    CI3 --> S1["10/10 Smoke Verifications"]
+    CI3 --> S1["End-to-End Smoke Verifications"]
 ```
 
 ### Workflow Summary:
-- **`frontend-ci.yml`:** Checks out code, sets up Node.js 20 & pnpm, verifies zero TypeScript compiler errors, runs Vitest unit tests, and verifies successful static and server Next.js build.
-- **`backend-ci.yml`:** Checks out code, sets up Python 3.11, installs `services/api/requirements.txt`, executes all 78 pytest tests, and verifies database models.
+- **`frontend-ci.yml`:** Checks out code, sets up Node.js 22 & pnpm, verifies zero TypeScript compiler errors across all packages, runs Vitest unit tests, and verifies successful static and server Next.js build.
+- **`backend-ci.yml`:** Checks out code, sets up Python 3.11+, installs `services/api/requirements.txt`, executes all 86 pytest tests, and verifies contract conformance.
 - **`dependabot.yml`:** Weekly security audits and automated dependency upgrade PRs for npm and pip packages.
 
 ---

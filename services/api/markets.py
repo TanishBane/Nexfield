@@ -286,10 +286,8 @@ def calculate_transport_freight_economics(
 async def calculate_freight_endpoint(
     body: FreightCalculationRequest,
     request: Request,
-    user: User,
 ) -> ApiResponse[Dict[str, Any]]:
     """Calculate verified multi-factor transport haulage economics and farmer net realization."""
-    del user
     res = calculate_transport_freight_economics(
         modal_price_inr_per_quintal=body.modal_price_inr_per_quintal,
         distance_km=body.distance_km,
@@ -338,13 +336,10 @@ async def get_msp_benchmarks(
 @router.get("/prices", response_model=ApiResponse[list[dict]])
 async def prices(
     request: Request,
-    user: User,
-    session: Session,
     commodity: Annotated[str, Query(min_length=2, max_length=100)],
     state: Annotated[str, Query(min_length=2, max_length=100)],
     district: Annotated[str, Query(min_length=2, max_length=100)],
 ) -> ApiResponse[list[dict]]:
-    del user, session
     MarketQuery(commodity=commodity, state=state, district=district)
 
     # 1. Try Agmarknet Adapter if configured
@@ -377,12 +372,9 @@ async def prices(
 @router.get("/arbitrage", response_model=ApiResponse[list[dict]])
 async def arbitrage(
     request: Request,
-    user: User,
-    session: Session,
     commodity: Annotated[str, Query(min_length=2, max_length=100)],
     origin_mandi: Annotated[str, Query(min_length=2, max_length=100, alias="originMandi")],
 ) -> ApiResponse[list[dict]]:
-    del user, session
     if os.getenv("AGMARKNET_API_URL") and os.getenv("AGMARKNET_API_KEY"):
         try:
             adapter = AgmarknetAdapter()

@@ -265,6 +265,7 @@ class TwinSimulateRequest(ContractModel):
     cycle_id: UUID
     title: Annotated[StrictStr, Field(min_length=3, max_length=200)]
     interventions: TwinInterventions
+    field_area_hectares: float | None = 2.4
 
 
 class WaterRequirementEstimate(ContractModel):
@@ -273,6 +274,40 @@ class WaterRequirementEstimate(ContractModel):
     irrigation_volume_m3_per_ha: float = Field(ge=0)
     total_irrigation_volume_m3: float = Field(ge=0)
     assumption: str
+
+
+class BaselineParameters(ContractModel):
+    initial_soil_moisture_percent: float
+    projected_rainfall_mm: float
+    temperature_max_c: float
+    temperature_min_c: float
+
+
+class ProjectedOutcomes(ContractModel):
+    estimated_yield_mt_per_ha: Annotated[float, Field(gt=0)]
+    baseline_yield_mt_per_ha: Annotated[float, Field(gt=0)]
+    yield_delta_percent: float
+    water_use_efficiency_score: Annotated[float, Field(ge=0, le=100)]
+    carbon_footprint_kg_co2e_per_ha: float
+    economic_benefit_inr_per_ha: float
+    risk_index: Annotated[float, Field(ge=0, le=1)]
+    confidence_interval: tuple[float, float]
+
+
+class SimulationScenarioRead(ContractModel):
+    id: UUID
+    field_id: UUID
+    cycle_id: UUID
+    title: str = Field(min_length=3)
+    description: str
+    baseline_parameters: BaselineParameters
+    simulated_interventions: TwinInterventions
+    projected_outcomes: ProjectedOutcomes
+    simulated_at: AwareDatetime
+
+    @field_serializer("simulated_at")
+    def utc_simulated_at(self, value: datetime) -> str:
+        return value.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 InventoryItemType = Literal[

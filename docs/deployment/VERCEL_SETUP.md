@@ -57,7 +57,7 @@ In **Project Settings > Environment Variables**, configure the following variabl
 > **Public Demo Note:** In public demonstration mode, no Supabase credentials or database URLs are required on Vercel. All 6 core modules render out-of-the-box with domain-accurate agronomic fixtures.
 
 > [!CAUTION]
-> **Security Invariant:** Never set `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, or `SUPABASE_JWT_SECRET` in Vercel environment variables. Those are server-only secrets for Developer Rohan's FastAPI backend.
+> **Security Invariant:** Never set `DATABASE_URL` or backend service secrets in Vercel environment variables. The public demonstration architecture is completely stateless and client-isolated on the edge.
 
 ---
 

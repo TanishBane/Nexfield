@@ -93,23 +93,27 @@ export default function ControlPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <Link href="/onboarding" className="w-full sm:w-auto">
-            <Button className="w-full bg-[#10B981] text-[#070B09] hover:bg-[#34D399] font-bold text-xs gap-1.5 px-5">
-              <span>Start Farm Setup Wizard</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setIsFarmProfileOpen(true)}
+            className="w-full sm:w-auto bg-[#10B981] text-[#070B09] hover:bg-[#34D399] font-bold text-xs gap-1.5 px-5"
+          >
+            <span>Configure Farm Estate</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
           <Link href="/data-center" className="w-full sm:w-auto">
             <Button variant="outline" className="w-full text-xs text-[#E1ECE5] border-[#22352A] hover:bg-[#121B16]">
               Import Data (CSV/GeoJSON)
             </Button>
           </Link>
-          <Link href="/demo/control" className="w-full sm:w-auto">
-            <Button variant="ghost" className="w-full text-xs text-emerald-400 hover:bg-emerald-950/40">
-              Explore Demo Farm →
-            </Button>
-          </Link>
+          <Button
+            variant="ghost"
+            onClick={() => refetch()}
+            className="w-full sm:w-auto text-xs text-emerald-400 hover:bg-emerald-950/40"
+          >
+            Reload Baseline Demo →
+          </Button>
         </div>
+
       </div>
     );
   }

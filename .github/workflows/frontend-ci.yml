@@ -59,9 +59,10 @@ jobs:
       - name: Lint Next.js Application
         run: pnpm --filter web lint
 
+      - name: Run Frontend Unit & Integration Tests (Vitest)
+        run: pnpm test
+
       - name: Build Next.js Application
         run: pnpm --filter web build
         env:
           NEXT_PUBLIC_USE_FIXTURES: 'true'
-          NEXT_PUBLIC_SUPABASE_URL: 'https://placeholder-project.supabase.co'
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'placeholder-anon-key'

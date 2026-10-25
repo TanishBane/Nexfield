@@ -79,7 +79,7 @@ $$\text{Observe} \longrightarrow \text{Predict} \longrightarrow \text{Simulate} 
 > **Scientific Integrity & Capability Transparency**  
 > NEXFIELD clearly distinguishes genuine machine learning from biophysical physics and synthetic demonstration baselines:
 > - **Edge Neural Vision:** FieldSight foliar pathology uses a CPU-optimized ONNX model (`fieldsight_foliar_v1.onnx`) executing in **$5.13\text{ ms}$** with spatial Class Activation Maps (CAM) extracted from Conv3 activations (calibrated on synthetic botanical feature signatures; clinical multi-season field trials planned with agricultural universities).
-> - **Deterministic Agronomic Physics:** Digital Twin calculations adhere strictly to FAO-56 Penman-Monteith physical conservation equations ($1\text{ mm} = 10\text{ m}^3/\text{ha}$).
+> - **Agronomic Volumetric Calculation & Simulation:** Digital Twin calculations compute scheduled irrigation depth volumetric conservation ($1\text{ mm} = 10\text{ m}^3/\text{ha}$) and parametric yield response via the Stewart et al. water-yield production function ($K_y$). Note: Dynamic hourly FAO-56 Penman-Monteith rootzone depletion modeling requires dedicated continuous weather station sensor telemetry.
 > - **Post-Harvest Spoilage Risk Engine:** Directly aligns with Domain 2 (Food Technology) by preventing cold storage chilling injury ($<10^\circ\text{C}$ for tomato) and fungal silo mold ($>14.0\%$ moisture for wheat).
 > - **Transparent Fixture Demarcation:** In local offline mode (`NEXT_PUBLIC_USE_FIXTURES=true`), the frontend loads domain-accurate baseline fixtures from `data/fixtures/` with a persistent banner indicator. See [Capability Matrix](docs/architecture/CAPABILITY_MATRIX.md) and [Judge Presentation Guide](docs/DEMO_GUIDE.md).
 
@@ -90,7 +90,7 @@ $$\text{Observe} \longrightarrow \text{Predict} \longrightarrow \text{Simulate} 
 | Operational Challenge | Agronomic Impact | Traditional Approach | NEXFIELD Solution |
 |---|---|---|---|
 | **Cryptic Foliar Pathogens** | Late Blight and Rust spread exponentially before lodging, causing up to 40% yield loss. | Delayed farm visits by busy extension officers; guesswork spray application. | **FieldSight AI:** $5.13\text{ ms}$ ONNX vision model with Conv3 Class Activation Maps and ICAR treatment protocols. |
-| **Irrigation Inefficiency** | Over-irrigation leaches expensive nitrates; deficit irrigation induces terminal heat stress. | Fixed calendar-based timers ignoring atmospheric evaporative demand ($ET_o$). | **NEXFIELD Twin:** FAO-56 Penman-Monteith 3D rootzone hydrology simulator with counterfactual scenario comparison. |
+| **Irrigation Inefficiency** | Over-irrigation leaches expensive nitrates; deficit irrigation induces terminal heat stress. | Fixed calendar-based timers ignoring atmospheric evaporative demand ($ET_o$). | **NEXFIELD Twin:** Stewart water-yield 3D simulator and scheduled volumetric calculator with counterfactual scenario comparison. |
 | **Operational Silos** | Task dispatch and inventory tracking are disconnected from diagnostic findings. | Paper notebooks and oral instructions leading to missed pesticide withholding periods. | **NEXFIELD Ops:** Automated work order dispatch, chemical inventory depletion, and harvest custody ledger. |
 | **Opaque Mandi Arbitrage** | Farmers accept lower local prices because inter-district freight costs are unknown. | Farm-gate middleman exploitation; manual calls to mandi commission agents. | **NEXFIELD Markets:** Real-time APMC price tracking and net-realization freight haulage calculator ($P_{\text{net}} = P_{\text{mandi}} - \text{freight}$). |
 | **Post-Harvest Food Spoilage** | Grain mold and vegetable chilling injury destroy up to 30% of harvested food value. | Unmonitored storage silos and cold rooms leading to aflatoxin contamination. | **Food Quality Engine:** ICAR & FAO Bulletin 149 storage risk alerts (Tomato chilling $<10^\circ\text{C}$, Wheat mold $>14\%$). |
@@ -126,11 +126,11 @@ flowchart TB
         BioPhys["Soil Hydrology Engine<br/>(Allen et al. 1998 Equations)"]
     end
 
-    subgraph Database ["Persistent Cloud Tier (Supabase)"]
-        Postgres["PostgreSQL 15 Database<br/>(ACID Relational Storage)"]
+    subgraph Storage ["Persistent & Client Data Tier"]
+        Postgres["PostgreSQL 15 Database<br/>(Optional Self-Hosted Relational Storage)"]
         PostGIS["PostGIS Spatial Indices<br/>(Polygon Geometry, GIST)"]
-        SupaAuth["Supabase GoTrue Auth<br/>(JWT Token Management)"]
-        BlobStore["Object Storage<br/>(Specimen Scans & Heatmaps)"]
+        ClientStorage["Client State & Indexed Storage<br/>(Browser LocalStorage 'nexfield-demo-v1')"]
+        BlobStore["Object Storage / Local Cache<br/>(Specimen Scans & Heatmaps)"]
     end
 
     Next <--> EdgeGuard
@@ -148,10 +148,10 @@ flowchart TB
     ONNX --> CAM
     TwinRouter --> BioPhys
 
-    AuthGuard <--> SupaAuth
     TwinRouter <--> Postgres
     TwinRouter <--> PostGIS
     SightRouter <--> BlobStore
+    ClientState <--> ClientStorage
 ```
 
 ---
@@ -327,7 +327,7 @@ sequenceDiagram
     participant API as FastAPI Ingestion Endpoint (/api/fieldsight/diagnose)
     participant ONNX as ONNX Runtime (fieldsight_foliar_v1.onnx)
     participant CAM as Conv3 Activation Mapper
-    participant Storage as Supabase Storage / DB
+    participant Storage as Client Store (localStorage) / DB
 
     Farmer->>Client: Capture or upload leaf image (RGB JPEG/PNG)
     Client->>Client: Validate client dimensions & payload size (< 10MB)
@@ -339,8 +339,8 @@ sequenceDiagram
     API->>CAM: Extract Conv3 layer activations for dominant class
     CAM->>CAM: Compute weighted spatial activation & upscale
     CAM-->>API: Base64-encoded colorized heatmap overlay
-    API->>Storage: Persist diagnosis record (class, confidence, severity, CAM)
     API-->>Client: 200 OK (DiagnosisResult JSON with prescription & CAM)
+    Client->>Storage: Persist observation to demo store (or local DB)
     Client-->>Farmer: Render diagnosis card, ICAR treatment, and CAM heatmap
 ```
 

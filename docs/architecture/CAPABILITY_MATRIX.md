@@ -18,7 +18,7 @@
 |---|---|---|---|---|---|---|---|---|
 | **NEXFIELD Control** | `/control` | **WORKING** | **WORKING** | PostgreSQL + Open-Meteo API | Statistical Telemetry Analysis | PostgreSQL (farms, fields, observations) | Pytest + Next.js build | Weather requires internet access; falls back to offline state if unreachable. |
 | **FieldSight AI** | `/fieldsight` | **WORKING** | **WORKING** | User uploaded leaf image | ONNX Runtime MobileNetV2 (Foliar Pathology) | PostgreSQL (assessment history) | Pytest + ONNX evaluation tests | Optimized for Wheat & Tomato foliar pathogens; flags low-confidence images instead of guessing. |
-| **NEXFIELD Twin** | `/twin` | **WORKING** | **WORKING** | Biophysical formula + Soil physics | Verifiable Water Balance Engine | Local scenario store + Ops task conversion | Pytest contract tests | FAO-56 Penman-Monteith single-layer bucket model; 3D visualization is a client WebGL representation. |
+| **NEXFIELD Twin** | `/twin` | **WORKING** | **WORKING** | Stewart Water-Yield + Scheduled Depth | Verifiable Parametric Yield Engine | Local scenario store + Ops task conversion | Pytest simulation tests | Scheduled irrigation depth ($1\text{ mm} = 10\text{ m}^3/\text{ha}$) and Stewart water-yield function ($K_y = 1.05$). Dynamic hourly weather-station FAO-56 Penman-Monteith rootzone depletion modeling requires on-site telemetry feeds. |
 | **NEXFIELD Intelligence** | `/intelligence` | **WORKING** | **PARTIAL** | Live farm records + OpenMeteo | Server-Side Structured Tool Dispatcher | Read-only tenant records; task confirmation | Pytest tool authorization tests | Requires `GEMINI_API_KEY` or `OPENAI_API_KEY` for live generative responses; falls back to structured tool results when keys are absent. |
 | **NEXFIELD Ops** | `/ops` | **WORKING** | **WORKING** | PostgreSQL farm tables | Food-Quality Storage Risk Engine | PostgreSQL (tasks, inventory, harvest batches, sales) | Pytest transactional balance tests | Sales require batches marked `settled_at_mandi`. |
 | **NEXFIELD Markets** | `/markets` | **WORKING** | **PARTIAL** | Agmarknet (data.gov.in) + CEDA + CACP MSP | Multi-factor Haulage Freight Model | Read-only market observations | Pytest adapter tests | Live price feeds require `AGMARKNET_API_KEY`; official seasonal MSP tables provide offline baseline. |
@@ -29,9 +29,9 @@
 
 | Component | Target File | Status | Authentication Mode | Isolation Guarantee | Evidence |
 |---|---|---|---|---|---|
-| **Farmer Onboarding** | `apps/web/app/onboarding/page.tsx` | **WORKING** | Supabase Auth Bearer JWT | Writes scoped to `owner_id = user.id` | Tested via `test_isolation.py` |
-| **Data Ingestion Center** | `apps/web/app/data-center/page.tsx` | **WORKING** | Supabase Auth Bearer JWT | Farm ownership check before import | Validates CSV, GeoJSON & JSON schema |
-| **Backend Ingestion API** | `services/api/import_data.py` | **WORKING** | FastAPI `get_principal` | Strict tenant validation `Farm.owner_id == user.user_id` | 51 passing pytest unit tests |
+| **Farmer Profile & Overview** | `apps/web/app/control/page.tsx` | **WORKING** | Public Demo (No Login) | Browser LocalStorage (`nexfield-demo-v1`) | Interactive modal & persistent store |
+| **Data Ingestion Center** | `apps/web/app/data-center/page.tsx` | **WORKING** | Public Demo (No Login) | Sandboxed Local Demo Store | Validates CSV, GeoJSON & JSON schema |
+| **Backend Ingestion API** | `services/api/import_data.py` | **WORKING** | FastAPI `get_current_user` | Strict tenant validation `Farm.owner_id == user.id` | Passing pytest unit tests |
 | **Open-Meteo Integration** | `services/api/control.py` | **WORKING** | Open Public Endpoint (No key required) | Location scoped to farm GPS coordinates | Tested via `test_open_meteo.py` |
 | **Mandi Price Adapters** | `services/api/markets.py` | **PARTIAL** | API Key (`AGMARKNET_API_KEY`) | Scoped to state & district queries | Tested via `test_agmarknet.py` |
 | **Next.js Web Engine** | `apps/web/package.json` | **WORKING** | SSR / SSG | Strict client-server boundaries | Running Next.js 15.5.28 (patched for CVE-2025-29927) |
