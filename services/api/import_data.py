@@ -121,7 +121,7 @@ async def import_data(
                 await session.flush()
                 await session.refresh(default_field)
 
-            obs_to_add = []
+            obs_data = []
             for idx, row in enumerate(body.records):
                 try:
                     dt = parse_datetime(row.get("timestamp") or row.get("date") or row.get("observed_at"))
@@ -134,27 +134,28 @@ async def import_data(
                         except (ValueError, TypeError):
                             metrics[k] = str(v)
 
-                    obs = Observation(
-                        field_id=default_field.id,
-                        observation_type="iot_sensor_telemetry",
-                        observed_at=dt,
-                        metrics=metrics,
-                        notes=str(row.get("notes") or f"Ingested from Data Center batch row #{idx + 1}"),
-                    )
-                    obs_to_add.append(obs)
+                    obs_data.append({
+                        "id": uuid4(),
+                        "field_id": default_field.id,
+                        "observation_type": "iot_sensor_telemetry",
+                        "observed_at": dt,
+                        "metrics": metrics,
+                        "notes": str(row.get("notes") or f"Ingested from Data Center batch row #{idx + 1}"),
+                        "created_at": datetime.now(timezone.utc),
+                    })
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
-            if obs_to_add:
-                session.add_all(obs_to_add)
+            if obs_data:
+                await session.execute(insert(Observation).values(obs_data))
 
         elif body.category == "expenses":
             valid_categories = {
                 "labor", "seeds", "fertilizer", "pesticide", "irrigation",
                 "equipment", "fuel", "transport", "storage", "land_rent", "other"
             }
-            expenses_to_add = []
+            expenses_data = []
             for idx, row in enumerate(body.records):
                 try:
                     raw_cat = str(row.get("category", "other")).lower().strip().replace(" ", "_")
@@ -170,23 +171,24 @@ async def import_data(
                     vendor = row.get("vendor") or row.get("supplier")
                     idem_key = str(row.get("idempotency_key") or f"import-{farm_id}-{idx}-{uuid4().hex[:8]}")
 
-                    expense = FarmExpense(
-                        farm_id=farm_id,
-                        field_id=default_field.id if default_field else None,
-                        category=cat,
-                        description=desc,
-                        amount_inr=amount,
-                        vendor=str(vendor) if vendor else None,
-                        expense_date=exp_date,
-                        idempotency_key=idem_key,
-                    )
-                    expenses_to_add.append(expense)
+                    expenses_data.append({
+                        "id": uuid4(),
+                        "farm_id": farm_id,
+                        "field_id": default_field.id if default_field else None,
+                        "category": cat,
+                        "description": desc,
+                        "amount_inr": amount,
+                        "vendor": str(vendor) if vendor else None,
+                        "expense_date": exp_date,
+                        "idempotency_key": idem_key,
+                        "created_at": datetime.now(timezone.utc),
+                    })
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
-            if expenses_to_add:
-                session.add_all(expenses_to_add)
+            if expenses_data:
+                await session.execute(insert(FarmExpense).values(expenses_data))
 
         elif body.category == "tasks":
             valid_categories = {
@@ -194,7 +196,7 @@ async def import_data(
                 "crop_scouting", "harvesting", "equipment_maintenance", "soil_testing"
             }
             valid_priorities = {"low", "medium", "high", "urgent"}
-            tasks_to_add = []
+            tasks_data = []
             for idx, row in enumerate(body.records):
                 try:
                     title = str(row.get("title") or row.get("name") or f"Imported Task #{idx + 1}").strip()
@@ -204,23 +206,25 @@ async def import_data(
                     priority = raw_pri if raw_pri in valid_priorities else "medium"
                     due = parse_date(row.get("due_date") or row.get("date"))
 
-                    task = FarmTask(
-                        farm_id=farm_id,
-                        field_id=default_field.id if default_field else None,
-                        title=title,
-                        description=str(row.get("description") or "").strip() or None,
-                        category=cat,
-                        priority=priority,
-                        status="todo",
-                        due_date=due,
-                    )
-                    tasks_to_add.append(task)
+                    tasks_data.append({
+                        "id": uuid4(),
+                        "farm_id": farm_id,
+                        "field_id": default_field.id if default_field else None,
+                        "title": title,
+                        "description": str(row.get("description") or "").strip() or None,
+                        "category": cat,
+                        "priority": priority,
+                        "status": "todo",
+                        "due_date": due,
+                        "created_at": datetime.now(timezone.utc),
+                        "updated_at": datetime.now(timezone.utc),
+                    })
                     imported += 1
                 except Exception as ex:
                     failed += 1
                     errors.append(f"Row #{idx + 1}: {str(ex)}")
-            if tasks_to_add:
-                session.add_all(tasks_to_add)
+            if tasks_data:
+                await session.execute(insert(FarmTask).values(tasks_data))
 
         elif body.category == "fields":
             fields_to_add = []
