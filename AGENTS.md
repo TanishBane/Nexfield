@@ -66,7 +66,7 @@
    - When the backend is running in offline/local development mode (`NEXT_PUBLIC_USE_FIXTURES=true`), the frontend loads domain-accurate baseline fixtures from `data/fixtures/` and displays a persistent indicator: `"Development Mode: Synthetic Agronomic Fixtures"`.
 
 4. **Law of Quality & Design Systems:**
-   - Follow tokens strictly: base charcoal `#0A0F0D`, card `#111815`, emerald `#10B981`. No random hex colors.
+   - **Current visual source of truth:** follow `docs/ux-lab/vivid-farming-ui.md`, `.21st/design.json`, the current global styles, and the running application. The selected UI is the light Vivid Farming design: leaf green `#048547`, deep green text `#09251A`, sunflower `#FFDB3D`, orange `#FF9159`, sky `#B6DDFA`, pink `#F7C8D8`, lilac `#DBD0FA`, and canvas `#F7FAF2`, with semantic module accents. Avoid arbitrary one-off colors; add or change tokens intentionally and check contrast. This current user-selected design supersedes the earlier dark-palette examples.
    - Persistent chrome (nav, header, telemetry bar) must never change height or reflow on status updates.
    - Tabular figures (`tabular-nums`) for all numbers, coordinates, and prices.
    - Nested radii invariant: child radius must be $\le$ parent radius (`child_r = parent_r - padding`).
