@@ -1,8 +1,28 @@
-import { type NextRequest } from 'next/server';
-import { updateSession } from '@/lib/supabase/middleware';
+import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+/**
+ * Public Demo Middleware.
+ * No Supabase sessions or authentication barriers.
+ * Legacy auth routes are cleanly redirected to the public platform demo (/control).
+ */
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Clean redirect for obsolete authentication or onboarding routes
+  if (
+    pathname === '/login' ||
+    pathname === '/signup' ||
+    pathname === '/register' ||
+    pathname === '/forgot-password' ||
+    pathname === '/update-password' ||
+    pathname === '/onboarding' ||
+    pathname.startsWith('/auth')
+  ) {
+    const destination = new URL('/control', request.url);
+    return NextResponse.redirect(destination, 307);
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

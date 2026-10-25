@@ -32,7 +32,7 @@ import {
   ErrorDisplay,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
-import { uploadObservationImage } from '@/lib/supabase/storage';
+import { uploadObservationImage } from '@/lib/storage/image-storage';
 import { useFarmStore } from '@/lib/store/useFarmStore';
 import type { CropAssessment } from '@nexfield/contracts';
 import Link from 'next/link';

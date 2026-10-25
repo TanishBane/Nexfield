@@ -51,34 +51,24 @@ In **Project Settings > Environment Variables**, configure the following variabl
 |---|---|---|---|
 | `NEXT_PUBLIC_APP_NAME` | All | Application Title | `NEXFIELD` |
 | `NEXT_PUBLIC_APP_ENV` | Production / Preview | Target Environment | `production` / `preview` |
-| `NEXT_PUBLIC_USE_FIXTURES` | Preview / Staging | Enable synthetic agronomic fallback | `true` (set `false` when live API linked) |
-| `NEXT_PUBLIC_SUPABASE_URL` | All | Supabase Project REST Endpoint | `https://<project-ref>.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | All | Supabase Client Public Key | `eyJhb...` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All | Supabase Client Public Key (alias) | `eyJhb...` |
-| `NEXT_PUBLIC_API_BASE_URL` | Production | Live FastAPI Container URL | `https://api.nexfield.ag` |
-| `NEXT_PUBLIC_API_BASE_URL` | Preview | Staging FastAPI URL / Local Mock | `https://api-staging.nexfield.ag` |
+| `NEXT_PUBLIC_USE_FIXTURES` | All | Enable public agronomic demo mode | `true` |
+| `NEXT_PUBLIC_API_BASE_URL` | Optional | Optional Stateless FastAPI URL | `http://localhost:8000` |
+
+> **Public Demo Note:** In public demonstration mode, no Supabase credentials or database URLs are required on Vercel. All 6 core modules render out-of-the-box with domain-accurate agronomic fixtures.
 
 > [!CAUTION]
 > **Security Invariant:** Never set `DATABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, or `SUPABASE_JWT_SECRET` in Vercel environment variables. Those are server-only secrets for Developer Rohan's FastAPI backend.
 
 ---
 
-## 4. Supabase Auth Redirect URI Configuration
+## 4. Public Demonstration URL Routing
 
-For authentication callbacks (email confirmations, OAuth, and magic links) to function across deployments:
-
-1. Navigate to **Supabase Dashboard > Authentication > URL Configuration**.
-2. **Site URL:**
-   Set to our verified production Vercel domain: `https://nexfield-agritech.vercel.app`.
-   *(Note: `nexfield.vercel.app` is an unrelated third-party gaming domain and must never be used).*
-3. **Redirect URLs:**
-   Add the following patterns to allow local and preview environments:
-   ```
-   http://localhost:3000/**
-   https://*.vercel.app/**
-   https://*-tanishbane.vercel.app/**
-   ```
-   *(The wildcard pattern matches unique pull-request preview branches automatically created by Vercel).*
+In public demonstration mode:
+- No authentication callbacks or OAuth redirects are required.
+- All primary routes (`/control`, `/twin`, `/fieldsight`, `/intelligence`, `/ops`, `/markets`) are served publicly.
+- Legacy auth bookmarks (`/login`, `/signup`, `/onboarding`, `/forgot-password`) are cleanly redirected via HTTP 307 middleware to `/control`.
+- The official production deployment domain remains: `https://nexfield-agritech.vercel.app`.
+  *(Note: `nexfield.vercel.app` is an unrelated third-party gaming domain and must never be referenced).*
 
 ---
 

@@ -43,10 +43,10 @@ export function DemoBanner() {
           </button>
 
           <Link
-            href="/login"
-            className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-[11px] font-bold bg-[#10B981] text-[#070B09] hover:bg-[#34D399] transition-all shadow-sm"
+            href="/control"
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-[11px] font-bold bg-[#D7B678] text-[#070B09] hover:bg-[#E5C78D] transition-all shadow-sm"
           >
-            <span>Exit to Real Workspace</span>
+            <span>Launch Command Center</span>
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>

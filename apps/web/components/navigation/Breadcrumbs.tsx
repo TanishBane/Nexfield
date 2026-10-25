@@ -31,7 +31,7 @@ const ROUTE_LABELS: Record<string, string> = {
 export function Breadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
 
-  if (pathname === '/' || pathname === '/login' || pathname === '/onboarding') {
+  if (pathname === '/') {
     return null;
   }
 

@@ -112,13 +112,13 @@ export function PublicFooter() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/onboarding" className="hover:text-emerald-400 transition-colors">
-                    Farm Onboarding
+                  <Link href="/control" className="hover:text-emerald-400 transition-colors">
+                    Farm Command Center
                   </Link>
                 </li>
                 <li>
-                  <Link href="/login" className="hover:text-emerald-400 transition-colors">
-                    Operator Login
+                  <Link href="/demo" className="hover:text-emerald-400 transition-colors">
+                    Interactive Showcase
                   </Link>
                 </li>
               </ul>
