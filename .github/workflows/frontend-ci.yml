@@ -59,6 +59,9 @@ jobs:
       - name: Lint Next.js Application
         run: pnpm --filter web lint
 
+      - name: Run Frontend Unit & Integration Tests (Vitest)
+        run: pnpm test
+
       - name: Build Next.js Application
         run: pnpm --filter web build
         env:

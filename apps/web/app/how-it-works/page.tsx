@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
       num: '03',
       title: 'Simulate',
       subtitle: '3D Biophysical Digital Twin',
-      desc: 'Run first-principles FAO-56 dual crop coefficient simulations to test irrigation regimens and stress thresholds before turning on drip lines.',
+      desc: 'Run Stewart water-yield production simulations and planned volumetric irrigation schedules to test stress thresholds before turning on drip lines.',
       icon: Layers,
       color: 'cyan',
       detail: 'Compares deficit irrigation vs precision scheduling to conserve tens of thousands of liters of water without vegetative yield penalties.',

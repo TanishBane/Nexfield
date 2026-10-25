@@ -97,8 +97,7 @@ flowchart TB
 - **Stateless AI & Calculation Routes:** All public demo endpoints execute statelessly without requiring database write permissions or auth bypass headers.
 
 ### 3.4 Machine Learning & Biophysical Engine
-- **FieldSight Visual Pathology:** CPU-optimized ONNX runtime executing `fieldsight_foliar_v1.onnx` with average latency of 5.13 ms on standard x86 CPU cores. Generates 5-class foliar disease probabilities and extracts Conv3 layer activations to render spatial Class Activation Maps (CAM).
-- **Biophysical Twin Engine:** Implements the complete FAO-56 Penman-Monteith physical equations for Reference Evapotranspiration ($ET_o$), crop coefficient adjustments ($K_c$), rootzone depletion balances ($D_r$), and yield response deficits ($K_y$).
+- **Biophysical Twin Engine:** Computes scheduled volumetric water conservation ($1\text{ mm} = 10\text{ m}^3/\text{ha}$) and parametric yield deficit projections using the Stewart et al. water-yield production model ($1 - Y_a/Y_m = K_y(1 - ET_a/ET_m)$) and Mitscherlich nitrogen response curves. (Note: Continuous daily FAO-56 Penman-Monteith soil rootzone depletion tracking requires dedicated continuous weather station telemetry).
 
 ### 3.5 Persistent & Demonstration Data Tier
 - **Public Demonstration:** Client state persists locally in browser `localStorage` (`nexfield-demo-v1`). Full state resets and sample farm switches operate instantaneously without network latency.

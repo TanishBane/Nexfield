@@ -57,11 +57,17 @@ The normalized heatmap is color-mapped (Jet/Turbo colormap) and composited over 
 
 ---
 
-## 3. Model 2: Biophysical Digital Twin Simulator (FAO-56)
+## 3. Model 2: Biophysical Digital Twin Simulator (Stewart & FAO-56 Framework)
 
-### 3.1 Reference Evapotranspiration ($ET_o$) — Penman-Monteith Equation
+> [!NOTE]
+> **Implementation Scope & Scientific Transparency**  
+> In the NEXFIELD Public Demo and API:
+> - **Scheduled Irrigation Volume:** The `/api/v1/twin/water-requirement` endpoint calculates planned application volume ($V = \text{Field Area} \times \text{Events} \times \text{Volume/ha}$, where $10\text{ m}^3/\text{ha} = 1\text{ mm}$). Dynamic daily evapotranspiration and conveyance losses are not modeled in this scheduled volumetric calculation.
+> - **Scenario Yield Simulation:** The `/api/v1/twin/simulate` endpoint executes a parametric **Stewart et al. water-yield response function** ($1 - Y_a/Y_m = K_y(1 - ET_a/ET_m)$) with $K_y = 1.05$ and Mitscherlich nitrogen response curves. Continuous hourly FAO-56 Penman-Monteith rootzone depletion tracking requires dedicated on-site microclimate station telemetry.
 
-NEXFIELD calculates atmospheric evaporative demand using the full FAO-56 Penman-Monteith physical equation (Allen et al., 1998):
+### 3.1 Reference Evapotranspiration ($ET_o$) — Penman-Monteith Equation (Theoretical Benchmark)
+
+NEXFIELD references the standardized FAO-56 Penman-Monteith physical equation (Allen et al., 1998) for on-site microclimate station integration:
 
 $$ET_o = \frac{0.408 \Delta (R_n - G) + \gamma \frac{900}{T + 273} u_2 (e_s - e_a)}{\Delta + \gamma (1 + 0.34 u_2)}$$
 
