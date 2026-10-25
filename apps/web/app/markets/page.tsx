@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   TrendingUp,
@@ -19,6 +19,9 @@ import {
   RefreshCw,
   ShieldCheck,
   Scale,
+  Compass,
+  ArrowUpRight,
+  Navigation,
 } from 'lucide-react';
 import {
   Card,
@@ -33,14 +36,29 @@ import {
   Input,
   ModuleLoadingState,
   ErrorDisplay,
+  ProvenanceBadge,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
+import { useDemoStore } from '@/lib/store/useDemoStore';
 import { MarketTrendChart } from '@/components/modules/markets/MarketTrendChart';
 import { TransportCalculator } from '@/components/modules/markets/TransportCalculator';
 import type { MarketObservation } from '@nexfield/contracts';
 
 export default function MarketsPage() {
-  const [selectedCommodity, setSelectedCommodity] = useState<string>('Wheat');
+  const demoStore = useDemoStore();
+  const activeFarmName = demoStore.farmName;
+
+  // Determine initial commodity grounded in currently selected farm
+  const initialCommodity = useMemo(() => {
+    const crop = (demoStore.cropName || '').toLowerCase();
+    if (crop.includes('tomato')) return 'Tomato';
+    if (crop.includes('wheat')) return 'Wheat';
+    if (crop.includes('rice')) return 'Basmati Rice';
+    if (crop.includes('soybean') || crop.includes('cotton')) return 'Soybean';
+    return 'Tomato';
+  }, [demoStore.cropName]);
+
+  const [selectedCommodity, setSelectedCommodity] = useState<string>(initialCommodity);
   const [selectedState, setSelectedState] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeObservation, setActiveObservation] = useState<MarketObservation | null>(null);
@@ -56,7 +74,7 @@ export default function MarketsPage() {
 
   const comparisonQuery = useQuery({
     queryKey: ['marketComparison', selectedCommodity],
-    queryFn: () => apiClient.getMarketComparison(),
+    queryFn: () => apiClient.getMarketComparison(selectedCommodity === 'All' ? undefined : selectedCommodity),
   });
 
   if (pricesQuery.isLoading || comparisonQuery.isLoading) {
@@ -83,32 +101,30 @@ export default function MarketsPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner & Freshness */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#1E2E25]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#F1F6F3] flex items-center gap-2">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
               NEXFIELD Markets — Mandi Price Intelligence & Spatial Arbitrage
             </h1>
-            <Badge variant="outline" size="sm" className="font-mono text-emerald-400 border-emerald-800/40">
-              Agmarknet Telemetry
-            </Badge>
+            <ProvenanceBadge type="fixture" source="Public Demo" />
           </div>
           <p className="text-xs md:text-sm text-[#8DA295] mt-1">
-            Real APMC terminal prices, commodity arrival tonnages, transport expense models, and net realization arbitrage.
+            Active farm: <span className="font-semibold text-emerald-400">{activeFarmName}</span> — Real-time APMC terminal modal prices, multi-factor freight deduction models, and net farm gate realization.
           </p>
         </div>
 
         {/* Provenance & Freshness Badge */}
-        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
-          <span className={`h-2 w-2 rounded-full ${pricesQuery.data?.meta?.isFixture ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'}`} />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0F1713] border border-[#1E2E25] text-xs font-mono">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[#849F90]">
             Feed:{' '}
-            <strong className={pricesQuery.data?.meta?.isFixture ? 'text-amber-300 font-medium' : 'text-emerald-300 font-medium'}>
-              {pricesQuery.data?.meta?.isFixture ? 'Agmarknet APMC Fixtures (Offline)' : 'Live Agmarknet / CEDA Pipeline'}
+            <strong className="text-emerald-300 font-medium">
+              Agmarknet Daily APMC Bulletin (Offline Baseline)
             </strong>
           </span>
-          <span className="text-[#516E5E]">• Freshness: Real-time Bulletin</span>
+          <span className="text-[#516E5E]">• Freshness: Real-time</span>
         </div>
       </div>
 
@@ -116,12 +132,15 @@ export default function MarketsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#0C120F] border border-[#1E2E25]">
         {/* Commodity Selection Buttons */}
         <div className="flex flex-wrap items-center gap-1.5">
-          {['Wheat', 'Basmati Rice', 'Soybean', 'All'].map((crop) => (
+          {['Tomato', 'Wheat', 'Basmati Rice', 'Soybean', 'All'].map((crop) => (
             <Button
               key={crop}
               variant={selectedCommodity === crop ? 'primary' : 'secondary'}
               size="sm"
-              onClick={() => setSelectedCommodity(crop)}
+              onClick={() => {
+                setSelectedCommodity(crop);
+                setActiveObservation(null);
+              }}
               className="text-xs h-8"
             >
               {crop}
@@ -140,9 +159,9 @@ export default function MarketsPage() {
               className="bg-transparent text-[#E1ECE5] font-medium focus:outline-none cursor-pointer"
             >
               <option value="All" className="bg-[#121B16] text-[#E1ECE5]">All States</option>
+              <option value="Maharashtra" className="bg-[#121B16] text-[#E1ECE5]">Maharashtra</option>
               <option value="Punjab" className="bg-[#121B16] text-[#E1ECE5]">Punjab</option>
               <option value="Haryana" className="bg-[#121B16] text-[#E1ECE5]">Haryana</option>
-              <option value="Maharashtra" className="bg-[#121B16] text-[#E1ECE5]">Maharashtra</option>
               <option value="Madhya Pradesh" className="bg-[#121B16] text-[#E1ECE5]">Madhya Pradesh</option>
             </select>
           </div>
@@ -173,7 +192,7 @@ export default function MarketsPage() {
                   Arbitrage Optimization for {comparison.commodity}
                 </CardTitle>
                 <CardDescription>
-                  Base Benchmark: {comparison.baseOriginMarketName} (₹
+                  Base Farm Gate Benchmark: {comparison.baseOriginMarketName} (₹
                   {comparison.baseModalPricePerQuintalInr}/q)
                 </CardDescription>
               </div>
@@ -192,7 +211,7 @@ export default function MarketsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-xs text-[#A1B8AB] bg-[#0E1511] p-3 rounded-lg border border-[#1E2E25] leading-relaxed">
-              <span className="text-emerald-400 font-semibold">Agronomic AI Rationale:</span>{' '}
+              <span className="text-emerald-400 font-semibold">Agronomic AI Dispatch Rationale:</span>{' '}
               {comparison.optimalDecision.rationale}
             </p>
 
@@ -241,7 +260,7 @@ export default function MarketsPage() {
                     </div>
                     <div className="flex justify-between text-rose-300">
                       <span>Freight & Mandi Cess:</span>
-                      <span>-₹{opp.estimatedFreightPerQuintalInr + opp.mandiFeePerQuintalInr}</span>
+                      <span>-₹{(opp.estimatedFreightPerQuintalInr + opp.mandiFeePerQuintalInr).toFixed(1)}</span>
                     </div>
                     <div className="flex justify-between pt-1 border-t border-[#1C2A21] font-bold text-xs text-emerald-300">
                       <span>Net Arbitrage Profit:</span>
@@ -315,28 +334,6 @@ export default function MarketsPage() {
                 </tr>
                 <tr>
                   <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
-                    Wheat (Standard / Milling)
-                  </td>
-                  <td className="py-2.5 text-[#8CA394]">RMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-[#D8E6DE]">₹2,275 / q</td>
-                  <td className="py-2.5 text-[#8CA394]">₹1,128 / q</td>
-                  <td className="py-2.5 text-emerald-400">+101.7%</td>
-                  <td className="py-2.5 font-sans text-xs">Food Corporation of India (FCI)</td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Historical Benchmark</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
-                    Paddy (Common)
-                  </td>
-                  <td className="py-2.5 text-[#8CA394]">KMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-300">₹2,300 / q</td>
-                  <td className="py-2.5 text-[#8CA394]">₹1,438 / q</td>
-                  <td className="py-2.5 text-emerald-400">+60.0%</td>
-                  <td className="py-2.5 font-sans text-xs">FCI / State Civil Supplies</td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Kharif Floor</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
                     Paddy (Grade A)
                   </td>
                   <td className="py-2.5 text-[#8CA394]">KMS 2024-25</td>
@@ -355,17 +352,6 @@ export default function MarketsPage() {
                   <td className="py-2.5 text-[#8CA394]">₹3,400 / q</td>
                   <td className="py-2.5 text-emerald-400">+60.0%</td>
                   <td className="py-2.5 font-sans text-xs">NAFED (PSS)</td>
-                  <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Rabi Floor</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 font-sans font-semibold text-[#F1F6F3]">
-                    Mustard / Rapeseed
-                  </td>
-                  <td className="py-2.5 text-[#8CA394]">RMS 2024-25</td>
-                  <td className="py-2.5 font-bold text-emerald-300">₹5,650 / q</td>
-                  <td className="py-2.5 text-[#8CA394]">₹2,855 / q</td>
-                  <td className="py-2.5 text-emerald-400">+97.9%</td>
-                  <td className="py-2.5 font-sans text-xs">NAFED</td>
                   <td className="py-2.5 font-sans text-[11px] text-[#8CA394]">Active Rabi Floor</td>
                 </tr>
                 <tr>
@@ -451,19 +437,19 @@ export default function MarketsPage() {
                         <span className="font-medium text-emerald-300">{m.commodity}</span>
                         <span className="text-[11px] text-[#799485] block">{m.variety}</span>
                       </td>
-                      <td className="py-3 font-mono">
+                      <td className="py-3 font-mono tabular-nums">
                         {m.arrivalQuantityTons.toLocaleString()} MT
                       </td>
-                      <td className="py-3 font-mono text-[#8CA395]">
+                      <td className="py-3 font-mono tabular-nums text-[#8CA395]">
                         ₹{m.minPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono text-[#8CA395]">
+                      <td className="py-3 font-mono tabular-nums text-[#8CA395]">
                         ₹{m.maxPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono font-bold text-sm text-[#F1F6F3]">
+                      <td className="py-3 font-mono tabular-nums font-bold text-sm text-[#F1F6F3]">
                         ₹{m.modalPricePerQuintalInr}
                       </td>
-                      <td className="py-3 font-mono">
+                      <td className="py-3 font-mono tabular-nums">
                         <span
                           className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
                             m.dailyChangeInr > 0

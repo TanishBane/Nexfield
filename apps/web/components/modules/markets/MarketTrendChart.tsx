@@ -18,14 +18,17 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
   // Price trajectories depending on commodity
   const isBasmati = commodity.toLowerCase().includes('basmati') || commodity.toLowerCase().includes('rice');
   const isSoybean = commodity.toLowerCase().includes('soybean');
+  const isTomato = commodity.toLowerCase().includes('tomato');
 
   const prices = isBasmati
     ? [4180, 4220, 4200, 4280, 4310, 4360, 4390, 4410, 4420]
     : isSoybean
     ? [4820, 4780, 4750, 4720, 4700, 4680, 4690, 4710, 4690]
+    : isTomato
+    ? [2150, 2220, 2280, 2310, 2350, 2380, 2410, 2440, 2450]
     : [2480, 2495, 2510, 2505, 2530, 2545, 2560, 2575, 2580];
 
-  const mspBaseline = isBasmati ? 4000 : isSoybean ? 4600 : 2275;
+  const mspBaseline = isBasmati ? 4000 : isSoybean ? 4600 : isTomato ? 2100 : 2275;
 
   const chartOption = {
     backgroundColor: 'transparent',
@@ -36,15 +39,16 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
       textStyle: { color: '#E1ECE5', fontSize: 12 },
     },
     legend: {
-      data: [`${commodity} Modal Price (₹/q)`, 'Government MSP Benchmark', '3-Year Seasonal Mean'],
-      textStyle: { color: '#8EA295', fontSize: 11 },
-      top: 0,
+      data: [`${commodity} Modal Price (₹/q)`, isTomato ? 'Operation Greens Floor' : 'Government MSP Benchmark', '3-Year Seasonal Mean'],
+      textStyle: { color: '#8EA295', fontSize: 10 },
+      top: 4,
+      itemGap: 12,
     },
     grid: {
       left: '3%',
       right: '4%',
-      bottom: '8%',
-      top: '18%',
+      bottom: '10%',
+      top: '24%',
       containLabel: true,
     },
     xAxis: {
@@ -55,7 +59,7 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
     },
     yAxis: {
       type: 'value',
-      name: 'Price (₹/quintal)',
+      name: 'Price (₹/q)',
       nameTextStyle: { color: '#7E9789', fontSize: 10 },
       splitLine: { lineStyle: { color: '#14221A' } },
       axisLabel: { color: '#7E9789', fontSize: 10 },
@@ -83,7 +87,7 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
         },
       },
       {
-        name: 'Government MSP Benchmark',
+        name: isTomato ? 'Operation Greens Floor' : 'Government MSP Benchmark',
         type: 'line',
         data: days.map(() => mspBaseline),
         lineStyle: { color: '#F59E0B', type: 'dashed', width: 2 },
@@ -104,7 +108,7 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
       <CardHeader className="pb-1">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-semibold">
-            Historical Mandi Price Trajectory vs MSP Benchmark
+            Historical Mandi Price Trajectory vs Benchmark
           </CardTitle>
           <span className="text-[11px] font-mono text-[#749081]">
             Market: {marketName}
@@ -112,7 +116,7 @@ export function MarketTrendChart({ commodity, marketName }: MarketTrendChartProp
         </div>
       </CardHeader>
       <CardContent className="p-2">
-        <ReactECharts option={chartOption} style={{ height: '220px', width: '100%' }} />
+        <ReactECharts option={chartOption} style={{ height: '240px', width: '100%' }} />
       </CardContent>
     </Card>
   );

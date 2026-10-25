@@ -141,6 +141,7 @@ export interface DemoState {
   setDroughtReduction: (reduction: number) => void;
   addTask: (task: Omit<DemoTask, 'id'>) => void;
   completeTask: (taskId: string) => void;
+  updateTaskStatus: (taskId: string, status: 'todo' | 'in_progress' | 'completed') => void;
   addExpense: (expense: Omit<DemoExpense, 'id'>) => void;
   deductInventory: (itemId: string, amount: number) => void;
 
@@ -633,6 +634,11 @@ export const useDemoStore = create<DemoState>()(
       completeTask: (taskId) =>
         set((state) => ({
           tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status: 'completed' as const } : t)),
+        })),
+
+      updateTaskStatus: (taskId, status) =>
+        set((state) => ({
+          tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, status } : t)),
         })),
 
       addExpense: (newExpense) =>

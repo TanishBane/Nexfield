@@ -13,27 +13,27 @@ type VehicleOption = 'light_commercial_vehicle' | 'tractor_trolley' | 'medium_tr
 
 const VEHICLE_CONFIGS: Record<VehicleOption, { name: string; capacity: number; kmPerLiter: number; defaultBhatta: number }> = {
   light_commercial_vehicle: {
-    name: 'LCV (Bolero / Tata 407)',
+    name: 'Tata Ace / Bolero Pickup',
     capacity: 25,
-    kmPerLiter: 11.0,
+    kmPerLiter: 11.5,
     defaultBhatta: 400,
   },
   tractor_trolley: {
     name: 'Tractor-Trolley (50q)',
     capacity: 50,
-    kmPerLiter: 6.0,
+    kmPerLiter: 6.2,
     defaultBhatta: 350,
   },
   medium_truck: {
-    name: 'Medium Truck (10 Ton)',
+    name: 'Eicher Pro (10-Ton / 100q)',
     capacity: 100,
-    kmPerLiter: 4.5,
+    kmPerLiter: 4.8,
     defaultBhatta: 600,
   },
   heavy_truck: {
-    name: 'Heavy 10-Wheeler (25 Ton)',
-    capacity: 250,
-    kmPerLiter: 3.2,
+    name: 'BharatBenz 16-Ton (160q)',
+    capacity: 160,
+    kmPerLiter: 3.8,
     defaultBhatta: 800,
   },
 };
@@ -128,12 +128,23 @@ export function TransportCalculator({ selectedMandiName, modalPrice }: Transport
         {/* Core Logistics Parameters */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="space-y-1">
-            <label className="text-[#8BA193] font-medium block">Haulage (One-way km)</label>
+            <div className="flex justify-between items-center">
+              <label className="text-[#8BA193] font-medium block">Haulage (One-way)</label>
+              <span className="font-mono text-emerald-400 font-bold">{distanceKm} km</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="250"
+              value={distanceKm}
+              onChange={(e) => setDistanceKm(Number(e.target.value))}
+              className="w-full accent-emerald-500 h-1.5 bg-[#0C120F] rounded-lg cursor-pointer"
+            />
             <Input
               type="number"
               value={distanceKm}
               onChange={(e) => setDistanceKm(Math.max(0, Number(e.target.value)))}
-              className="bg-[#0C120F] font-mono text-xs"
+              className="bg-[#0C120F] font-mono text-xs mt-1"
             />
           </div>
 
@@ -238,6 +249,45 @@ export function TransportCalculator({ selectedMandiName, modalPrice }: Transport
           <div className="flex justify-between pt-1 border-t border-[#1C2A20] font-bold text-xs text-rose-400">
             <span>Total Logistics Deductions:</span>
             <span>-₹{totalDeductionsPerQuintal.toFixed(2)}/quintal</span>
+          </div>
+        </div>
+
+        {/* Visual Net Realization Waterfall */}
+        <div className="space-y-1.5 p-3 rounded-lg bg-[#0C120F] border border-[#1E2E25]">
+          <div className="flex justify-between items-center text-[11px] font-mono">
+            <span className="text-[#8DA295]">Net Farm Gate Capture</span>
+            <span className="text-emerald-400 font-bold">{netRealizationPct.toFixed(1)}% Realized</span>
+          </div>
+          <div className="w-full h-3 rounded-full bg-[#18261F] overflow-hidden flex">
+            {/* Net Realization (Green) */}
+            <div
+              className="bg-emerald-500 h-full transition-all"
+              style={{ width: `${Math.max(0, Math.min(100, netRealizationPct))}%` }}
+              title={`Net Realization: ${netRealizationPct.toFixed(1)}%`}
+            />
+            {/* Fuel (Amber) */}
+            <div
+              className="bg-amber-400 h-full transition-all"
+              style={{ width: `${Math.max(0, Math.min(100, (fuelCostPerQ / modalPrice) * 100))}%` }}
+              title={`Fuel: ${((fuelCostPerQ / modalPrice) * 100).toFixed(1)}%`}
+            />
+            {/* Freight / Cess / Shrinkage (Rose) */}
+            <div
+              className="bg-rose-500 h-full transition-all"
+              style={{ width: `${Math.max(0, Math.min(100, ((totalDeductionsPerQuintal - fuelCostPerQ) / modalPrice) * 100))}%` }}
+              title={`Mandi Cess, Tolls & Hamali: ${(((totalDeductionsPerQuintal - fuelCostPerQ) / modalPrice) * 100).toFixed(1)}%`}
+            />
+          </div>
+          <div className="flex justify-between text-[10px] font-mono text-[#607D6D]">
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Net Gate (₹{netRealizationPerQuintal.toFixed(0)})
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Fuel (₹{fuelCostPerQ.toFixed(0)})
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" /> Cess & Labor (₹{(totalDeductionsPerQuintal - fuelCostPerQ).toFixed(0)})
+            </span>
           </div>
         </div>
 

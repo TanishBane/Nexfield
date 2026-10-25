@@ -217,7 +217,7 @@ export function Header() {
       >
         <div className="p-3 rounded-xl bg-[#090D0B] border border-[#203127] space-y-2 text-xs text-[#8DA396]">
           <p>
-            <strong className="text-[#D7B678]">Zero-Cloud Local Storage:</strong> All changes made during your session are stored in your browser's local storage (<code className="text-emerald-400 font-mono">nexfield-demo-v1</code>).
+            <strong className="text-[#D7B678]">Zero-Cloud Local Storage:</strong> All changes made during your session are stored in your browser&apos;s local storage (<code className="text-emerald-400 font-mono">nexfield-demo-v1</code>).
           </p>
           <p>
             Clicking <strong className="text-[#F1F6F3]">Confirm Reset</strong> will restore the verified baseline estate without requiring any network reload.

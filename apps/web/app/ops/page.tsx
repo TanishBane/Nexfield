@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ClipboardList,
@@ -19,6 +19,17 @@ import {
   Receipt,
   FileSpreadsheet,
   X,
+  LayoutGrid,
+  List,
+  Search,
+  ShieldAlert,
+  ThermometerSnowflake,
+  Droplets,
+  RotateCcw,
+  Sparkles,
+  ArrowRight,
+  ChevronRight,
+  PackageCheck,
 } from 'lucide-react';
 import {
   Card,
@@ -36,101 +47,267 @@ import {
   Input,
   ModuleLoadingState,
   ErrorDisplay,
+  DataTable,
+  ProvenanceBadge,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
-import { useFarmStore } from '@/lib/store/useFarmStore';
+import { useDemoStore } from '@/lib/store/useDemoStore';
 import type { FarmTask, InventoryTransaction } from '@nexfield/contracts';
 import Link from 'next/link';
 
 const UNDERSCORE_REGEX = /_/g;
 
+interface TaskItem {
+  id: string;
+  farmId?: string;
+  fieldId?: string;
+  title: string;
+  description?: string;
+  category: 'irrigation' | 'fertilization' | 'spraying_pest_control' | 'crop_scouting' | 'harvesting' | 'equipment_maintenance' | 'soil_testing';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  status: 'todo' | 'in_progress' | 'completed';
+  dueDate: string;
+  costInr: number;
+  assignedToName?: string;
+}
+
 export default function OpsPage() {
   const queryClient = useQueryClient();
-  const { selectedFarmId, selectedFieldId } = useFarmStore();
+  const demoStore = useDemoStore();
+  const activeFarmId = demoStore.farmId;
+  const activeFarmName = demoStore.farmName;
 
+  // View modes: list or kanban
+  const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [activeTaskFilter, setActiveTaskFilter] = useState<string>('all');
+  const [taskSearchQuery, setTaskSearchQuery] = useState('');
+
+  // Modals state
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isNewTransactionModalOpen, setIsNewTransactionModalOpen] = useState(false);
 
   // New Task Form State
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskCategory, setNewTaskCategory] = useState('irrigation');
+  const [newTaskCategory, setNewTaskCategory] = useState<'irrigation' | 'fertilization' | 'spraying_pest_control' | 'crop_scouting' | 'harvesting'>('irrigation');
   const [newTaskPriority, setNewTaskPriority] = useState<'urgent' | 'high' | 'medium' | 'low'>('medium');
-  const [newTaskDueDate, setNewTaskDueDate] = useState('2026-10-26');
-  const [newTaskCost, setNewTaskCost] = useState('2500');
+  const [newTaskDueDate, setNewTaskDueDate] = useState('2026-10-28');
+  const [newTaskCost, setNewTaskCost] = useState('3200');
+  const [newTaskDescription, setNewTaskDescription] = useState('');
 
   // New Transaction Form State
-  const [newTxItemName, setNewTxItemName] = useState('DAP Fertilizer (50kg)');
+  const [newTxItemName, setNewTxItemName] = useState('Tilt Propiconazole 25% EC (5L)');
   const [newTxType, setNewTxType] = useState('usage');
-  const [newTxQuantity, setNewTxQuantity] = useState('10');
-  const [newTxUnitPrice, setNewTxUnitPrice] = useState('1350');
+  const [newTxQuantity, setNewTxQuantity] = useState('5');
+  const [newTxUnitPrice, setNewTxUnitPrice] = useState('1850');
 
+  // React Query baseline data
   const tasksQuery = useQuery({
-    queryKey: ['tasks', selectedFarmId],
-    queryFn: () => apiClient.getTasks(selectedFarmId),
+    queryKey: ['tasks', activeFarmId],
+    queryFn: () => apiClient.getTasks(activeFarmId),
   });
 
   const inventoryQuery = useQuery({
-    queryKey: ['inventory', selectedFarmId],
-    queryFn: () => apiClient.getInventory(selectedFarmId),
+    queryKey: ['inventory', activeFarmId],
+    queryFn: () => apiClient.getInventory(activeFarmId),
   });
 
   const harvestQuery = useQuery({
-    queryKey: ['harvestBatches', selectedFarmId],
-    queryFn: () => apiClient.getHarvestBatches(selectedFarmId),
+    queryKey: ['harvestBatches', activeFarmId],
+    queryFn: () => apiClient.getHarvestBatches(activeFarmId),
   });
 
-  // Task Creation Mutation
-  const createTaskMutation = useMutation({
-    mutationFn: () =>
-      apiClient.createTask({
-        farmId: selectedFarmId,
-        fieldId: selectedFieldId || undefined,
-        title: newTaskTitle,
-        category: newTaskCategory,
-        priority: newTaskPriority,
-        dueDate: newTaskDueDate,
-        costEstimateInr: Number(newTaskCost),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks', selectedFarmId] });
-      setIsNewTaskModalOpen(false);
-      setNewTaskTitle('');
-    },
-  });
+  // Merge store tasks with query data
+  const allTasks: TaskItem[] = useMemo(() => {
+    const storeTasks = demoStore.tasks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: 'Scheduled agronomic field operation synchronized with NEXFIELD biophysical model.',
+      category: t.category,
+      priority: t.priority,
+      status: t.status,
+      dueDate: t.dueDate,
+      costInr: t.costInr,
+      assignedToName: 'Field Operations Crew',
+    }));
+
+    const apiTasks = (tasksQuery.data?.data || []).map((t) => ({
+      id: t.id,
+      farmId: t.farmId,
+      fieldId: t.fieldId,
+      title: t.title,
+      description: t.description || 'Verified agronomic task order.',
+      category: (t.category as TaskItem['category']) || 'crop_scouting',
+      priority: (t.priority as TaskItem['priority']) || 'medium',
+      status: (t.status as TaskItem['status']) || 'todo',
+      dueDate: t.dueDate,
+      costInr: t.costEstimateInr || 2500,
+      assignedToName: t.assignedToName || 'Agronomy Specialist',
+    }));
+
+    // Deduplicate by title
+    const seen = new Set<string>();
+    const combined: TaskItem[] = [];
+
+    for (const item of [...storeTasks, ...apiTasks]) {
+      const key = item.title.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        combined.push(item);
+      }
+    }
+
+    return combined;
+  }, [demoStore.tasks, tasksQuery.data?.data]);
+
+  // Task filtering
+  const filteredTasks = useMemo(() => {
+    return allTasks.filter((t) => {
+      if (activeTaskFilter === 'urgent' && t.priority !== 'urgent') return false;
+      if (activeTaskFilter === 'pending' && t.status === 'completed') return false;
+      if (activeTaskFilter === 'completed' && t.status !== 'completed') return false;
+      if (activeTaskFilter === 'in_progress' && t.status !== 'in_progress') return false;
+
+      if (taskSearchQuery.trim()) {
+        const q = taskSearchQuery.toLowerCase();
+        return (
+          t.title.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q) ||
+          t.priority.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [allTasks, activeTaskFilter, taskSearchQuery]);
+
+  // Tasks by Kanban column
+  const todoTasks = useMemo(() => filteredTasks.filter((t) => t.status === 'todo'), [filteredTasks]);
+  const inProgressTasks = useMemo(() => filteredTasks.filter((t) => t.status === 'in_progress'), [filteredTasks]);
+  const completedTasks = useMemo(() => filteredTasks.filter((t) => t.status === 'completed'), [filteredTasks]);
+
+  // Task Creation Handler
+  const handleCreateTask = () => {
+    if (!newTaskTitle.trim()) return;
+
+    demoStore.addTask({
+      title: newTaskTitle.trim(),
+      category: newTaskCategory,
+      priority: newTaskPriority,
+      status: 'todo',
+      dueDate: newTaskDueDate,
+      costInr: Number(newTaskCost) || 0,
+    });
+
+    setIsNewTaskModalOpen(false);
+    setNewTaskTitle('');
+    setNewTaskDescription('');
+    queryClient.invalidateQueries({ queryKey: ['tasks', activeFarmId] });
+  };
+
+  // Status transitions
+  const handleSetStatus = (taskId: string, newStatus: 'todo' | 'in_progress' | 'completed') => {
+    demoStore.updateTaskStatus(taskId, newStatus);
+    queryClient.invalidateQueries({ queryKey: ['tasks', activeFarmId] });
+  };
 
   if (tasksQuery.isLoading || inventoryQuery.isLoading || harvestQuery.isLoading) {
     return <ModuleLoadingState message="Loading farm operational ledgers, inventory balances, and task queues..." />;
   }
 
-  const tasks = tasksQuery.data?.data || [];
   const inventory = inventoryQuery.data?.data || [];
   const harvestBatches = harvestQuery.data?.data || [];
 
-  const filteredTasks = tasks.filter((t) => {
-    if (activeTaskFilter === 'all') return true;
-    if (activeTaskFilter === 'urgent') return t.priority === 'urgent';
-    if (activeTaskFilter === 'completed') return t.status === 'completed';
-    if (activeTaskFilter === 'pending') return t.status !== 'completed';
-    return true;
-  });
+  // Inventory Table Columns for DataTable
+  const inventoryColumns = [
+    {
+      key: 'itemName',
+      header: 'Item Name & Formulation',
+      sortable: true,
+      render: (item: InventoryTransaction) => (
+        <div>
+          <span className="font-semibold text-[#F1F6F3] block">{item.itemName}</span>
+          <span className="text-[11px] font-mono text-[#748F80]">Batch: {item.batchNumber || 'LOT-2026-N09'}</span>
+        </div>
+      ),
+    },
+    {
+      key: 'itemType',
+      header: 'Category',
+      sortable: true,
+      render: (item: InventoryTransaction) => (
+        <Badge variant="outline" size="sm" className="capitalize text-[#8DA295]">
+          {item.itemType.replace(UNDERSCORE_REGEX, ' ')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'balanceAfterQuantity',
+      header: 'Current Stock & Health',
+      sortable: true,
+      render: (item: InventoryTransaction) => {
+        const isLow = item.balanceAfterQuantity <= 15;
+        return (
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className={`font-mono font-bold ${isLow ? 'text-amber-400' : 'text-emerald-400'}`}>
+                {item.balanceAfterQuantity} {item.unit}
+              </span>
+              {isLow && (
+                <Badge variant="warning" size="sm" className="text-[10px] py-0 px-1.5">
+                  Low Stock
+                </Badge>
+              )}
+            </div>
+            <div className="w-24 h-1.5 bg-[#17241D] rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${isLow ? 'bg-amber-400' : 'bg-emerald-500'}`}
+                style={{ width: `${Math.min(100, (item.balanceAfterQuantity / 60) * 100)}%` }}
+              />
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'unitPriceInr',
+      header: 'Unit Price',
+      sortable: true,
+      render: (item: InventoryTransaction) => (
+        <span className="font-mono tabular-nums text-[#BACDC2]">₹{item.unitPriceInr.toLocaleString('en-IN')}</span>
+      ),
+    },
+    {
+      key: 'totalAmountInr',
+      header: 'Total Valuation',
+      sortable: true,
+      render: (item: InventoryTransaction) => (
+        <span className="font-mono tabular-nums font-bold text-[#F1F6F3]">
+          ₹{item.totalAmountInr.toLocaleString('en-IN')}
+        </span>
+      ),
+    },
+    {
+      key: 'supplierOrVendor',
+      header: 'Vendor / Provenance',
+      render: (item: InventoryTransaction) => (
+        <span className="text-[11px] text-[#879E91]">{item.supplierOrVendor || 'ICAR Registered Depot'}</span>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
       {/* Top Banner & Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-[#1E2E25]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#1E2E25]">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#F1F6F3] flex items-center gap-2">
               <ClipboardList className="h-6 w-6 text-emerald-400" />
-              NEXFIELD Ops — Resource Inventory & Operational Command
+              NEXFIELD Ops — Operational Command & Storage Custody
             </h1>
-            <Badge variant="outline" size="sm" className="font-mono text-emerald-400 border-emerald-800/40">
-              Active Ledger
-            </Badge>
+            <ProvenanceBadge type="fixture" source="Public Demo" />
           </div>
           <p className="text-xs md:text-sm text-[#8DA295] mt-1">
-            Workforce task orders, inventory transactions, input cost accounting, and harvest batch storage custody.
+            Active farm: <span className="font-semibold text-emerald-400">{activeFarmName}</span> — Workforce task dispatch, agrochemical inventory, and post-harvest grain quality custody.
           </p>
         </div>
 
@@ -156,13 +333,13 @@ export default function OpsPage() {
         </div>
       </div>
 
-      {/* KPI Stat Cards */}
+      {/* KPI Stat Cards (APCA Compliant, Tabular Figures, Concentric Radii) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Active Work Orders"
-          value={tasks.reduce((count, t) => t.status !== 'completed' ? count + 1 : count, 0)}
+          value={allTasks.filter((t) => t.status !== 'completed').length}
           unit="Tasks"
-          subValue="1 Urgent, 1 Medium Priority"
+          subValue={`${todoTasks.length} queued, ${inProgressTasks.length} in field`}
           trend="neutral"
           trendValue="On Track"
           icon={<ClipboardList className="h-4 w-4" />}
@@ -170,10 +347,10 @@ export default function OpsPage() {
         />
 
         <StatCard
-          label="Inventory Stock Value"
+          label="Inventory Valuation"
           value="₹93,100"
           unit="INR"
-          subValue="Seed, chemical & diesel stores"
+          subValue="4 active input categories"
           trend="down"
           trendValue="Burn Rate Normal"
           icon={<Boxes className="h-4 w-4" />}
@@ -181,268 +358,523 @@ export default function OpsPage() {
         />
 
         <StatCard
-          label="Harvest in Custody"
+          label="Silo Storage Custody"
           value="24.8"
           unit="MT"
-          subValue="PB-1121 Export Grade Silo #3"
+          subValue="Safe Moisture: 12.8% (<14% req.)"
           trend="up"
-          trendValue="Moisture: 12.8%"
+          trendValue="Export Grade"
           icon={<Archive className="h-4 w-4" />}
           variant="amber"
         />
 
         <StatCard
-          label="Total Season Expenses"
+          label="Season OPEX Realized"
           value="₹97,300"
           unit="YTD"
-          subValue="Fertilizer, seed & fuel costs"
+          subValue="Seed, inputs & fuel"
           trend="up"
           trendValue="Budget Aligned"
           icon={<IndianRupee className="h-4 w-4" />}
-          variant="default"
+          variant="emerald"
         />
       </div>
 
-      {/* Main Tabs Navigation */}
-      <Tabs defaultValue="tasks">
+      {/* Main Operational Tabs */}
+      <Tabs defaultValue="tasks" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="tasks" className="gap-2">
             <ClipboardList className="h-4 w-4" />
-            Work Orders ({tasks.length})
+            Work Orders ({allTasks.length})
           </TabsTrigger>
           <TabsTrigger value="inventory" className="gap-2">
             <Boxes className="h-4 w-4" />
-            Stock Ledger ({inventory.length})
+            Agrochemical Stock ({inventory.length})
+          </TabsTrigger>
+          <TabsTrigger value="custody" className="gap-2">
+            <Archive className="h-4 w-4" />
+            Storage Custody & Food Safety
           </TabsTrigger>
           <TabsTrigger value="expenses" className="gap-2">
             <Receipt className="h-4 w-4" />
-            Expense Breakdown
-          </TabsTrigger>
-          <TabsTrigger value="harvest" className="gap-2">
-            <Archive className="h-4 w-4" />
-            Harvest Batches ({harvestBatches.length})
+            Cost & OPEX Ledger
           </TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Tasks */}
+        {/* TAB 1: WORK ORDERS (KANBAN & LIST) */}
         <TabsContent value="tasks" className="space-y-4">
-          {/* Task Filters */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-[#0C120F] border border-[#1E2E25] text-xs">
-            <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="font-semibold text-[#CADCD1]">Filter Work Orders:</span>
+          {/* Subheader Toolbar: Search, Filters, and View Mode Toggle */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-3 rounded-lg bg-[#0C120F] border border-[#1E2E25] text-xs">
+            <div className="flex items-center gap-2 flex-1 max-w-sm">
+              <Search className="h-4 w-4 text-[#7D998B] shrink-0" />
+              <input
+                type="text"
+                placeholder="Search work orders..."
+                value={taskSearchQuery}
+                onChange={(e) => setTaskSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-xs text-[#F1F6F3] placeholder-[#5A7365] focus:outline-none"
+              />
             </div>
-            <div className="flex items-center gap-1.5">
-              {['all', 'pending', 'urgent', 'completed'].map((filter) => (
+
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1 bg-[#14201A] p-1 rounded-md border border-[#21352A]">
+                {['all', 'urgent', 'in_progress', 'completed'].map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setActiveTaskFilter(filter)}
+                    className={`px-2.5 py-1 rounded text-xs capitalize font-medium transition-colors ${
+                      activeTaskFilter === filter
+                        ? 'bg-[#1C2F25] text-emerald-400 border border-[#2A4434]'
+                        : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                    }`}
+                  >
+                    {filter.replace(UNDERSCORE_REGEX, ' ')}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#14201A] p-1 rounded-md border border-[#21352A]">
                 <button
-                  key={filter}
-                  onClick={() => setActiveTaskFilter(filter)}
-                  className={`px-2.5 py-1 rounded text-xs capitalize font-medium transition-colors ${
-                    activeTaskFilter === filter
-                      ? 'bg-[#18261F] text-emerald-400 border border-[#273C30]'
+                  onClick={() => setViewMode('kanban')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'kanban'
+                      ? 'bg-[#1C2F25] text-emerald-400'
                       : 'text-[#7D998B] hover:text-[#D1E0D7]'
                   }`}
+                  title="Kanban Board View"
+                  aria-label="Kanban Board View"
                 >
-                  {filter}
+                  <LayoutGrid className="h-4 w-4" />
                 </button>
-              ))}
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-[#1C2F25] text-emerald-400'
+                      : 'text-[#7D998B] hover:text-[#D1E0D7]'
+                  }`}
+                  title="List View"
+                  aria-label="List View"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
             </div>
+          </div>
+
+          {/* KANBAN BOARD VIEW */}
+          {viewMode === 'kanban' ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Column 1: To-Do */}
+              <div className="rounded-xl bg-[#0B100E] border border-[#1C2A22] p-4 flex flex-col gap-3 min-h-[400px]">
+                <div className="flex items-center justify-between pb-2 border-b border-[#1A2820]">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-amber-400" />
+                    <span className="font-semibold text-xs text-[#E1ECE5]">To-Do / Scheduled</span>
+                  </div>
+                  <Badge variant="outline" size="sm" className="font-mono text-amber-400">
+                    {todoTasks.length}
+                  </Badge>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  {todoTasks.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-[#637C6E] border border-dashed border-[#1C2A22] rounded-lg">
+                      No tasks in queue
+                    </div>
+                  ) : (
+                    todoTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="rounded-lg bg-[#111A15] border border-[#213228] p-3.5 space-y-2.5 hover:border-emerald-700/50 transition-colors shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-semibold text-xs text-[#F1F6F3] leading-snug">{task.title}</span>
+                          <Badge
+                            variant={
+                              task.priority === 'urgent'
+                                ? 'destructive'
+                                : task.priority === 'high'
+                                ? 'warning'
+                                : 'default'
+                            }
+                            size="sm"
+                            className="shrink-0 text-[10px]"
+                          >
+                            {task.priority}
+                          </Badge>
+                        </div>
+
+                        <p className="text-[11px] text-[#8DA295] line-clamp-2">{task.description}</p>
+
+                        <div className="flex items-center justify-between text-[11px] font-mono text-[#6A8476] pt-1 border-t border-[#19271F]">
+                          <span>Due: {task.dueDate}</span>
+                          <span className="text-emerald-400 font-semibold">₹{task.costInr.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-1.5 pt-1">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleSetStatus(task.id, 'in_progress')}
+                            className="h-6 text-[10px] px-2 text-sky-400 hover:text-sky-300 border-[#22352A]"
+                          >
+                            Start Task
+                            <ArrowRight className="h-3 w-3 ml-1" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Column 2: In Progress */}
+              <div className="rounded-xl bg-[#0B100E] border border-[#1C2A22] p-4 flex flex-col gap-3 min-h-[400px]">
+                <div className="flex items-center justify-between pb-2 border-b border-[#1A2820]">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-sky-400" />
+                    <span className="font-semibold text-xs text-[#E1ECE5]">In Field / In Progress</span>
+                  </div>
+                  <Badge variant="outline" size="sm" className="font-mono text-sky-400">
+                    {inProgressTasks.length}
+                  </Badge>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  {inProgressTasks.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-[#637C6E] border border-dashed border-[#1C2A22] rounded-lg">
+                      No active fieldwork right now
+                    </div>
+                  ) : (
+                    inProgressTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="rounded-lg bg-[#111A15] border border-sky-800/40 p-3.5 space-y-2.5 hover:border-sky-600/60 transition-colors shadow-sm"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-semibold text-xs text-[#F1F6F3] leading-snug">{task.title}</span>
+                          <Badge variant="warning" size="sm" className="shrink-0 text-[10px]">
+                            In Progress
+                          </Badge>
+                        </div>
+
+                        <p className="text-[11px] text-[#8DA295] line-clamp-2">{task.description}</p>
+
+                        <div className="flex items-center justify-between text-[11px] font-mono text-[#6A8476] pt-1 border-t border-[#19271F]">
+                          <span>Due: {task.dueDate}</span>
+                          <span className="text-emerald-400 font-semibold">₹{task.costInr.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex items-center justify-end gap-1.5 pt-1">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleSetStatus(task.id, 'completed')}
+                            className="h-6 text-[10px] px-2 text-emerald-400 hover:text-emerald-300 border-[#22352A]"
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Sign Off
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Column 3: Completed */}
+              <div className="rounded-xl bg-[#0B100E] border border-[#1C2A22] p-4 flex flex-col gap-3 min-h-[400px]">
+                <div className="flex items-center justify-between pb-2 border-b border-[#1A2820]">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <span className="font-semibold text-xs text-[#E1ECE5]">Completed & Signed Off</span>
+                  </div>
+                  <Badge variant="outline" size="sm" className="font-mono text-emerald-400">
+                    {completedTasks.length}
+                  </Badge>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  {completedTasks.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-[#637C6E] border border-dashed border-[#1C2A22] rounded-lg">
+                      No completed tasks
+                    </div>
+                  ) : (
+                    completedTasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className="rounded-lg bg-[#0F1713] border border-[#1C2C23] p-3.5 space-y-2 opacity-85 hover:opacity-100 transition-opacity"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-semibold text-xs text-[#CADCD1] line-through">{task.title}</span>
+                          <Badge variant="success" size="sm" className="shrink-0 text-[10px]">
+                            Done
+                          </Badge>
+                        </div>
+
+                        <p className="text-[11px] text-[#698475] line-clamp-1">{task.description}</p>
+
+                        <div className="flex items-center justify-between text-[11px] font-mono text-[#5A7365] pt-1 border-t border-[#19271F]">
+                          <span>Completed</span>
+                          <span className="text-[#8DA295]">₹{task.costInr.toLocaleString('en-IN')}</span>
+                        </div>
+
+                        <div className="flex items-center justify-end pt-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSetStatus(task.id, 'todo')}
+                            className="h-5 text-[10px] px-1 text-[#698475] hover:text-[#9FB7AA]"
+                          >
+                            <RotateCcw className="h-3 w-3 mr-1" />
+                            Re-queue
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* LIST VIEW */
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Field Labor & Machinery Dispatch Schedule</CardTitle>
+                <CardDescription>
+                  Agronomic task orders synchronized with NEXFIELD biophysical simulations and FieldSight alerts.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {filteredTasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="rounded-lg bg-[#0E1511] border border-[#1E2E25] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5">
+                        {task.status === 'completed' ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        ) : task.priority === 'urgent' ? (
+                          <AlertCircle className="h-4 w-4 text-rose-400 animate-pulse" />
+                        ) : (
+                          <Clock className="h-4 w-4 text-amber-400" />
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-semibold text-sm ${task.status === 'completed' ? 'text-[#8DA295] line-through' : 'text-[#F1F6F3]'}`}>
+                            {task.title}
+                          </span>
+                          <Badge
+                            variant={
+                              task.priority === 'urgent'
+                                ? 'destructive'
+                                : task.priority === 'high'
+                                ? 'warning'
+                                : 'default'
+                            }
+                            size="sm"
+                          >
+                            {task.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-[#87A092]">{task.description}</p>
+                        <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#698475] pt-0.5">
+                          <span>Assignee: {task.assignedToName || 'Crew Lead'}</span>
+                          <span>Due: {task.dueDate}</span>
+                          <span className="font-mono text-emerald-400">
+                            Est: ₹{task.costInr.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge variant={task.status === 'completed' ? 'success' : 'outline'} size="sm">
+                        {task.status.replace(UNDERSCORE_REGEX, ' ')}
+                      </Badge>
+                      {task.status !== 'completed' ? (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleSetStatus(task.id, 'completed')}
+                          className="h-7 text-[11px] px-2 text-emerald-300 hover:text-emerald-200 border-[#22352A]"
+                        >
+                          <Check className="h-3 w-3 mr-1" />
+                          Complete
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSetStatus(task.id, 'todo')}
+                          className="h-7 text-[11px] px-2 text-[#7F998B]"
+                        >
+                          Reopen
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* TAB 2: AGROCHEMICAL & RESOURCE INVENTORY */}
+        <TabsContent value="inventory" className="space-y-4">
+          {/* Low Stock Warning Banner */}
+          <div className="rounded-lg bg-amber-950/30 border border-amber-800/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-amber-200 block text-sm">
+                  Inventory Safety Threshold Alert: Mancozeb 75 WP
+                </span>
+                <p className="text-amber-300/80 mt-0.5">
+                  Current balance is at 8 kg, falling below the mandatory ICAR prophylactic safety reserve (10 kg) for Early Blight prevention.
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsNewTransactionModalOpen(true)}
+              className="shrink-0 bg-amber-900/40 hover:bg-amber-900/60 text-amber-200 border-amber-700/50 text-xs"
+            >
+              Order Replenishment
+            </Button>
           </div>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Field Labor & Machinery Dispatch Schedule</CardTitle>
+              <CardTitle className="text-base">Agrochemical, Seed & Fuel Warehouse Ledger</CardTitle>
               <CardDescription>
-                Agronomic tasks synchronized with NEXFIELD Twin simulations and FieldSight alerts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {filteredTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="rounded-lg bg-[#0E1511] border border-[#1E2E25] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5">
-                      {task.status === 'completed' ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      ) : task.priority === 'urgent' ? (
-                        <AlertCircle className="h-4 w-4 text-rose-400 animate-pulse" />
-                      ) : (
-                        <Clock className="h-4 w-4 text-amber-400" />
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-[#F1F6F3]">
-                          {task.title}
-                        </span>
-                        <Badge
-                          variant={
-                            task.priority === 'urgent'
-                              ? 'destructive'
-                              : task.priority === 'high'
-                              ? 'warning'
-                              : 'default'
-                          }
-                          size="sm"
-                        >
-                          {task.priority}
-                        </Badge>
-                      </div>
-                      <p className="text-[#87A092]">{task.description}</p>
-                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#698475] pt-0.5">
-                        <span>Assignee: {task.assignedToName || 'Unassigned Technician'}</span>
-                        <span>Due Date: {task.dueDate}</span>
-                        {task.costEstimateInr ? (
-                          <span className="font-mono text-emerald-400">
-                            Est: ₹{task.costEstimateInr.toLocaleString('en-IN')}
-                          </span>
-                        ) : null}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Badge variant={task.status === 'completed' ? 'success' : 'outline'} size="sm">
-                      {task.status.replace(UNDERSCORE_REGEX, ' ')}
-                    </Badge>
-                    {task.status !== 'completed' && (
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          const { useDemoStore } = require('@/lib/store/useDemoStore');
-                          useDemoStore.getState().completeTask(task.id);
-                          queryClient.invalidateQueries({ queryKey: ['tasks', selectedFarmId] });
-                        }}
-                        className="h-7 text-[11px] px-2 text-emerald-300 hover:text-emerald-200 border-[#22352A]"
-                      >
-                        <Check className="h-3 w-3 mr-1" />
-                        Complete
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 2: Inventory */}
-        <TabsContent value="inventory">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Agrochemical, Seed & Fuel Ledger</CardTitle>
-              <CardDescription>
-                Current storage balances, transaction lots, unit costs, and supplier provenance.
+                Real-time stock balance, lot provenance, unit costs, and reorder levels.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="border-b border-[#1E2E25] text-[#71897C] uppercase font-mono text-[10px]">
-                    <tr>
-                      <th className="pb-2.5">Item Name</th>
-                      <th className="pb-2.5">Category</th>
-                      <th className="pb-2.5">Batch / Lot #</th>
-                      <th className="pb-2.5">Balance</th>
-                      <th className="pb-2.5">Unit Price</th>
-                      <th className="pb-2.5">Total Valuation</th>
-                      <th className="pb-2.5">Supplier / Vendor</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#18261F] text-[#D8E6DE]">
-                    {inventory.map((item) => (
-                      <tr key={item.id} className="hover:bg-[#121B16] transition-colors">
-                        <td className="py-3 font-semibold text-[#F1F6F3]">{item.itemName}</td>
-                        <td className="py-3 capitalize text-[#8DA295]">
-                          {item.itemType.replace(UNDERSCORE_REGEX, ' ')}
-                        </td>
-                        <td className="py-3 font-mono text-[11px] text-[#748F80]">
-                          {item.batchNumber || '—'}
-                        </td>
-                        <td className="py-3 font-mono font-semibold text-emerald-400">
-                          {item.balanceAfterQuantity} {item.unit}
-                        </td>
-                        <td className="py-3 font-mono">₹{item.unitPriceInr}</td>
-                        <td className="py-3 font-mono font-bold">
-                          ₹{item.totalAmountInr.toLocaleString('en-IN')}
-                        </td>
-                        <td className="py-3 text-[#879E91]">{item.supplierOrVendor || 'Direct'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={inventoryColumns}
+                data={inventory}
+                keyExtractor={(item) => item.id}
+                emptyMessage="No agrochemical records in current facility."
+              />
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Tab 3: Expenses */}
-        <TabsContent value="expenses">
+        {/* TAB 3: STORAGE CUSTODY & FOOD SAFETY */}
+        <TabsContent value="custody" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Grain Silo Custody */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-sky-400" />
+                    Grain Silo Custody & Equilibrium Moisture
+                  </CardTitle>
+                  <Badge variant="success" size="sm">
+                    Safe Custody
+                  </Badge>
+                </div>
+                <CardDescription>
+                  Indian National Grain Storage Standard: Equilibrium Moisture Content (EMC) must remain strictly below 14% to inhibit <span className="italic font-medium text-amber-300">Aspergillus flavus</span> and carcinogenic aflatoxin synthesis.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-lg bg-[#0E1511] border border-[#1E2E25] space-y-3">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-[#8DA295]">Silo #3 Wheat Core Moisture</span>
+                    <span className="font-mono font-bold text-sky-400 text-sm">12.8%</span>
+                  </div>
+                  {/* Visual Bar */}
+                  <div className="w-full h-3 bg-[#17251E] rounded-full overflow-hidden relative">
+                    {/* Safe zone 0 - 14% */}
+                    <div className="absolute top-0 bottom-0 left-0 bg-emerald-500/80 rounded-full" style={{ width: '64%' }} />
+                    {/* Danger line at 70% (representing 14%) */}
+                    <div className="absolute top-0 bottom-0 left-[70%] w-0.5 bg-rose-500 z-10" />
+                  </div>
+                  <div className="flex justify-between items-center text-[11px] text-[#637C6E] font-mono">
+                    <span>Safe Zone (&lt;14%)</span>
+                    <span className="text-rose-400 font-semibold">14.0% Aflatoxin Critical Threshold</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[10px] text-[#597365] block uppercase">Foreign Matter</span>
+                    <span className="text-emerald-400 font-bold text-sm">0.8%</span>
+                    <span className="text-[10px] text-[#71897C] block mt-0.5">ICAR Limit: 1.5%</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[10px] text-[#597365] block uppercase">Broken Grains</span>
+                    <span className="text-emerald-400 font-bold text-sm">1.2%</span>
+                    <span className="text-[10px] text-[#71897C] block mt-0.5">ICAR Limit: 3.0%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Cold Storage Custody */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <ThermometerSnowflake className="h-5 w-5 text-sky-400" />
+                    Cold Storage & Chilling-Injury Prevention
+                  </CardTitle>
+                  <Badge variant="success" size="sm">
+                    Optimal Thermal State
+                  </Badge>
+                </div>
+                <CardDescription>
+                  Cold Chain Standard: Fresh tomato custody temperature must be maintained strictly above 10°C to prevent chilling injury, flesh softening, and aroma loss.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-lg bg-[#0E1511] border border-[#1E2E25] space-y-3">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-[#8DA295]">Chamber #2 Core Temperature</span>
+                    <span className="font-mono font-bold text-emerald-400 text-sm">11.5°C</span>
+                  </div>
+                  {/* Visual Bar */}
+                  <div className="w-full h-3 bg-[#17251E] rounded-full overflow-hidden relative">
+                    <div className="absolute top-0 bottom-0 left-[35%] w-[40%] bg-emerald-500/80 rounded-full" />
+                    {/* Minimum chilling injury boundary */}
+                    <div className="absolute top-0 bottom-0 left-[30%] w-0.5 bg-sky-400 z-10" />
+                  </div>
+                  <div className="flex justify-between items-center text-[11px] text-[#637C6E] font-mono">
+                    <span className="text-sky-400 font-semibold">10.0°C Chilling Injury Limit</span>
+                    <span>13.0°C Upper Ripening Bound</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+                  <div className="p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[10px] text-[#597365] block uppercase">Relative Humidity</span>
+                    <span className="text-sky-300 font-bold text-sm">91.4%</span>
+                    <span className="text-[10px] text-[#71897C] block mt-0.5">Target: 90 - 95%</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[10px] text-[#597365] block uppercase">Ethylene Scrubbing</span>
+                    <span className="text-emerald-400 font-bold text-sm">Active</span>
+                    <span className="text-[10px] text-[#71897C] block mt-0.5">&lt;0.05 ppm</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Harvest Batches List */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Current Season Input Expense Allocations</CardTitle>
+              <CardTitle className="text-base">Certified Harvest Batches in Facility Custody</CardTitle>
               <CardDescription>
-                Auditable financial ledger tracking seed, fertilizer, chemical, and diesel expenditures.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
-                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
-                  <span className="text-[#647C6E] text-[10px] block">TOTAL REVENUE (PROJECTED)</span>
-                  <span className="text-lg font-bold text-emerald-400">₹12,38,400</span>
-                  <span className="text-[11px] text-[#789383] block mt-0.5">Based on 48 MT Wheat @ ₹2,580/q</span>
-                </div>
-                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
-                  <span className="text-[#647C6E] text-[10px] block">TOTAL CUMULATIVE EXPENSES</span>
-                  <span className="text-lg font-bold text-amber-300">₹97,300</span>
-                  <span className="text-[11px] text-[#789383] block mt-0.5">Inputs, diesel & maintenance</span>
-                </div>
-                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
-                  <span className="text-[#647C6E] text-[10px] block">NET MARGIN ESTIMATE</span>
-                  <span className="text-lg font-bold text-emerald-300">₹11,41,100</span>
-                  <span className="text-[11px] text-[#789383] block mt-0.5">Net margin: ~92.1%</span>
-                </div>
-              </div>
-
-              {/* Expense Breakdown Categories */}
-              <div className="space-y-2 pt-2 text-xs">
-                <h4 className="font-semibold text-[#CADCD1] uppercase tracking-wider text-[11px]">
-                  Expense Allocation Breakdown
-                </h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
-                    <span className="text-[#E1ECE5]">Foundation Seed (HD-3086 Certified)</span>
-                    <span className="font-mono text-[#F1F6F3] font-bold">₹57,600 (59.2%)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
-                    <span className="text-[#E1ECE5]">Agrochemicals (Tilt Fungicide 25L)</span>
-                    <span className="font-mono text-[#F1F6F3] font-bold">₹35,500 (36.5%)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
-                    <span className="text-[#E1ECE5]">Precision Soil Sampling & Core Assay</span>
-                    <span className="font-mono text-[#F1F6F3] font-bold">₹2,350 (2.4%)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
-                    <span className="text-[#E1ECE5]">Irrigation Manifold Filter Maintenance</span>
-                    <span className="font-mono text-[#F1F6F3] font-bold">₹1,850 (1.9%)</span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 4: Harvest Batches */}
-        <TabsContent value="harvest">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Harvested Batches & Quality Grading</CardTitle>
-              <CardDescription>
-                Post-harvest grain records, moisture testing, and warehouse custody.
+                Verified batch codes, moisture tests, quality grades, and Mandi dispatch links.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -503,9 +935,65 @@ export default function OpsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* TAB 4: EXPENSES & OPEX LEDGER */}
+        <TabsContent value="expenses">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Current Season Input Expense Allocations</CardTitle>
+              <CardDescription>
+                Auditable financial ledger tracking seed, fertilizer, chemical, and diesel expenditures.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">TOTAL REVENUE (PROJECTED)</span>
+                  <span className="text-lg font-bold text-emerald-400">₹12,38,400</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Based on 48 MT Wheat @ ₹2,580/q</span>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">TOTAL CUMULATIVE EXPENSES</span>
+                  <span className="text-lg font-bold text-amber-300">₹97,300</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Inputs, diesel & maintenance</span>
+                </div>
+                <div className="p-3.5 rounded-lg bg-[#0E1511] border border-[#1E2E25]">
+                  <span className="text-[#647C6E] text-[10px] block">NET MARGIN ESTIMATE</span>
+                  <span className="text-lg font-bold text-emerald-300">₹11,41,100</span>
+                  <span className="text-[11px] text-[#789383] block mt-0.5">Net margin: ~92.1%</span>
+                </div>
+              </div>
+
+              {/* Expense Breakdown Categories */}
+              <div className="space-y-2 pt-2 text-xs">
+                <h4 className="font-semibold text-[#CADCD1] uppercase tracking-wider text-[11px]">
+                  Expense Allocation Breakdown
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Foundation Seed (HD-3086 Certified)</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹57,600 (59.2%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Agrochemicals (Tilt Fungicide 25L)</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹35,500 (36.5%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Precision Soil Sampling & Core Assay</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹2,350 (2.4%)</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 rounded bg-[#0E1511] border border-[#1E2E25]">
+                    <span className="text-[#E1ECE5]">Irrigation Manifold Filter Maintenance</span>
+                    <span className="font-mono text-[#F1F6F3] font-bold">₹1,850 (1.9%)</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
-      {/* New Task Modal */}
+      {/* DISPATCH NEW TASK MODAL */}
       {isNewTaskModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative w-full max-w-md rounded-xl border border-[#273B2F] bg-[#0E1512] shadow-2xl p-5 space-y-4 text-xs">
@@ -540,14 +1028,14 @@ export default function OpsPage() {
                   <select
                     id="task-category"
                     value={newTaskCategory}
-                    onChange={(e) => setNewTaskCategory(e.target.value)}
+                    onChange={(e) => setNewTaskCategory(e.target.value as typeof newTaskCategory)}
                     className="w-full h-9 rounded-lg border border-[#263A2F] bg-[#121B16] px-3 text-xs text-[#F0F5F2] focus:outline-none"
                   >
                     <option value="irrigation">Irrigation</option>
                     <option value="spraying_pest_control">Spraying</option>
                     <option value="fertilization">Fertilization</option>
-                    <option value="equipment_maintenance">Equipment</option>
-                    <option value="soil_testing">Soil Testing</option>
+                    <option value="crop_scouting">Scouting</option>
+                    <option value="harvesting">Harvesting</option>
                   </select>
                 </div>
 
@@ -599,9 +1087,8 @@ export default function OpsPage() {
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => createTaskMutation.mutate()}
-                disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
-                isLoading={createTaskMutation.isPending}
+                onClick={handleCreateTask}
+                disabled={!newTaskTitle.trim()}
               >
                 Dispatch Order
               </Button>
@@ -610,7 +1097,7 @@ export default function OpsPage() {
         </div>
       ) : null}
 
-      {/* Book Inventory Modal */}
+      {/* BOOK INVENTORY MODAL */}
       {isNewTransactionModalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative w-full max-w-md rounded-xl border border-[#273B2F] bg-[#0E1512] shadow-2xl p-5 space-y-4 text-xs">

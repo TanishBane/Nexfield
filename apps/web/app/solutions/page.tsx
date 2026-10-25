@@ -19,9 +19,9 @@ export default function SolutionsPage() {
       problem: 'Agricultural Water Scarcity & Over-Irrigation',
       impact:
         'Farmers flood fields based on visual soil surface dryness, wasting up to 40% of irrigation water and leeching nitrogen into groundwater.',
-      solution: 'FAO-56 Biophysical Vadose Zone Modeling',
+      solution: 'Stewart Empirical Water-Yield & Rootzone Modeling',
       mechanism:
-        'NEXFIELD Twin calculates real rootzone volumetric water content (VWC %) across soil strata (0-60 cm) and determines exactly when the Management Allowed Depletion (MAD) threshold is crossed.',
+        'NEXFIELD Twin executes empirical Stewart water-yield modeling (1 - Ya/Ym = Ky * (1 - ETa/ETm)) across rootzone strata and models volumetric irrigation depth (10 m³/ha = 1 mm) to eliminate wasteful percolation.',
       icon: Droplets,
       metric: '38,400 L Water Saved per Hectare',
     },
@@ -122,13 +122,19 @@ export default function SolutionsPage() {
         <p className="text-sm sm:text-base text-[#9BB1A4] max-w-xl mx-auto leading-relaxed">
           See how these solutions are applied on the Nashik Tomato Precision Estate in our interactive demo.
         </p>
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <Link
             href="/demo"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-emerald-500 text-[#090D0B] hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
           >
             <span>Launch Interactive Demo</span>
             <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/control"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-[#111714] text-[#F1F6F3] hover:bg-[#16201B] border border-[#203127] transition-all"
+          >
+            <span>Open Command Center</span>
           </Link>
         </div>
       </div>

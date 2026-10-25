@@ -122,13 +122,19 @@ export default function HowItWorksPage() {
         <p className="text-sm sm:text-base text-[#9BB1A4] max-w-xl mx-auto leading-relaxed">
           Walk through all five steps with our interactive demonstration of the Nashik Tomato Precision Estate.
         </p>
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           <Link
             href="/demo"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-emerald-500 text-[#090D0B] hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
           >
             <span>Launch Interactive Demo</span>
             <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/control"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-[#111714] text-[#F1F6F3] hover:bg-[#16201B] border border-[#203127] transition-all"
+          >
+            <span>Open Command Center</span>
           </Link>
         </div>
       </div>

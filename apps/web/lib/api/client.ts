@@ -809,12 +809,13 @@ export const apiClient = {
     }
   },
 
-  async getMarketComparison(): Promise<ApiResponse<MarketComparison>> {
-    if (USE_FIXTURES) return fixturesAdapter.getMarketComparison();
+  async getMarketComparison(commodity?: string): Promise<ApiResponse<MarketComparison>> {
+    if (USE_FIXTURES) return fixturesAdapter.getMarketComparison(commodity);
     try {
-      return await fetchFromBackend<MarketComparison>('/api/v1/markets/arbitrage');
+      const url = commodity ? `/api/v1/markets/arbitrage?commodity=${encodeURIComponent(commodity)}` : '/api/v1/markets/arbitrage';
+      return await fetchFromBackend<MarketComparison>(url);
     } catch {
-      return fixturesAdapter.getMarketComparison();
+      return fixturesAdapter.getMarketComparison(commodity);
     }
   },
 

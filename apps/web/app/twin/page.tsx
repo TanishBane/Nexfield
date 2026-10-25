@@ -39,9 +39,11 @@ import {
   Input,
   ModuleLoadingState,
   ErrorDisplay,
+  ProvenanceBadge,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
 import { useFarmStore } from '@/lib/store/useFarmStore';
+import { useDemoStore } from '@/lib/store/useDemoStore';
 import {
   useSimulationStore,
   CameraViewMode,
@@ -348,6 +350,80 @@ export default function TwinPage() {
 
       {/* Apache ECharts Comparison Section (Baseline vs Alternative) */}
       <TwinScenarioCharts />
+
+      {/* Side-by-Side Agronomic Scenario Comparison Table */}
+      <Card className="rounded-3xl bg-[#0D1410] border border-[#1E2E25] shadow-2xl overflow-hidden">
+        <CardHeader className="pb-3 border-b border-[#18251E]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <CardTitle className="text-lg font-bold text-[#F1F6F3]">
+                Multivariate Agronomic Scenario Comparison Matrix
+              </CardTitle>
+              <CardDescription className="text-xs text-[#9BB1A4]">
+                Side-by-side Stewart water-yield modeling comparison across conventional flood, deficit irrigation, and precision twin optimization.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono text-[#D7B678] bg-[#17261E] px-3 py-1 rounded-full border border-[#233A2D]">
+                Stewart Production Function (Ky = 1.05)
+              </span>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs font-mono">
+              <thead className="bg-[#0B100D] border-b border-[#18251E] text-[#8DA295] uppercase">
+                <tr>
+                  <th className="py-3 px-4 font-semibold">Agronomic Variable</th>
+                  <th className="py-3 px-4 font-semibold text-slate-300">A. Conventional Flood</th>
+                  <th className="py-3 px-4 font-semibold text-amber-300">B. Deficit Irrigation (-30%)</th>
+                  <th className="py-3 px-4 font-semibold text-emerald-400">C. Twin Precision Drip</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#18251E] text-[#DCE7E1]">
+                <tr className="hover:bg-[#111714]">
+                  <td className="py-3 px-4 font-sans font-semibold text-[#F1F6F3]">Planned Seasonal Water Depth</td>
+                  <td className="py-3 px-4 tabular-nums">580 mm (5,800 m³/ha)</td>
+                  <td className="py-3 px-4 tabular-nums text-amber-300">260 mm (2,600 m³/ha)</td>
+                  <td className="py-3 px-4 tabular-nums text-emerald-400 font-bold">350 mm (3,500 m³/ha)</td>
+                </tr>
+                <tr className="hover:bg-[#111714]">
+                  <td className="py-3 px-4 font-sans font-semibold text-[#F1F6F3]">Rootzone Matric Potential</td>
+                  <td className="py-3 px-4 tabular-nums text-rose-400">-12 kPa (Anaerobic Saturation)</td>
+                  <td className="py-3 px-4 tabular-nums text-amber-400">-72 kPa (Mild Drought Stress)</td>
+                  <td className="py-3 px-4 tabular-nums text-emerald-400 font-bold">-33 kPa (Optimal Field Capacity)</td>
+                </tr>
+                <tr className="hover:bg-[#111714]">
+                  <td className="py-3 px-4 font-sans font-semibold text-[#F1F6F3]">Nitrogen Leaching into Vadose Zone</td>
+                  <td className="py-3 px-4 text-rose-400">High (&gt;28 kg N/ha lost)</td>
+                  <td className="py-3 px-4 text-emerald-400">Negligible (&lt;4 kg N/ha)</td>
+                  <td className="py-3 px-4 text-emerald-400 font-bold">Zero Leach (&lt;2 kg N/ha)</td>
+                </tr>
+                <tr className="hover:bg-[#111714]">
+                  <td className="py-3 px-4 font-sans font-semibold text-[#F1F6F3]">Water Use Efficiency (WUE)</td>
+                  <td className="py-3 px-4 tabular-nums">48.2 / 100</td>
+                  <td className="py-3 px-4 tabular-nums text-amber-300">76.4 / 100</td>
+                  <td className="py-3 px-4 tabular-nums text-emerald-400 font-bold">{current.projectedOutcomes.waterUseEfficiencyScore.toFixed(1)} / 100</td>
+                </tr>
+                <tr className="hover:bg-[#111714]">
+                  <td className="py-3 px-4 font-sans font-semibold text-[#F1F6F3]">Projected Crop Yield (Ya)</td>
+                  <td className="py-3 px-4 tabular-nums">5.12 MT/ha (Baseline)</td>
+                  <td className="py-3 px-4 tabular-nums text-amber-300">4.35 MT/ha (-15.0%)</td>
+                  <td className="py-3 px-4 tabular-nums text-emerald-400 font-bold">{current.projectedOutcomes.estimatedYieldMtPerHa.toFixed(2)} MT/ha (+{current.projectedOutcomes.yieldDeltaPercent.toFixed(1)}%)</td>
+                </tr>
+                <tr className="hover:bg-[#111714] bg-[#0E1712]">
+                  <td className="py-3 px-4 font-sans font-bold text-[#F1F6F3]">Net Farm Margin Delta</td>
+                  <td className="py-3 px-4 tabular-nums text-slate-400">₹0 (Reference Baseline)</td>
+                  <td className="py-3 px-4 tabular-nums text-rose-400">-₹12,400 / ha (Yield Penalty)</td>
+                  <td className="py-3 px-4 tabular-nums text-emerald-400 font-extrabold">+₹{current.projectedOutcomes.economicBenefitInrPerHa.toLocaleString('en-IN')} / ha</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Modals */}
       <ModelAssumptionsModal

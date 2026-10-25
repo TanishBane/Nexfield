@@ -81,7 +81,7 @@ export default function CinematicLandingPage() {
 
   const storyTabs = [
     { id: 'observe', label: 'Field Pathology', chapter: 'CH 02', badge: '5.13ms CV' },
-    { id: 'simulate', label: 'Biophysical Twin', chapter: 'CH 04', badge: 'FAO-56' },
+    { id: 'simulate', label: 'Biophysical Twin', chapter: 'CH 04', badge: 'Stewart Model' },
     { id: 'act', label: 'Mandi Arbitrage', chapter: 'CH 05', badge: 'Agmarknet' },
   ];
 
@@ -133,7 +133,7 @@ export default function CinematicLandingPage() {
             </Link>
 
             <Link
-              href="/demo/control"
+              href="/control"
               className="inline-flex items-center gap-2 px-7 py-4 rounded-xl text-base font-medium text-[#FAF8F2] bg-[#111714] hover:bg-[#16201B] border border-[#273C30] hover:border-[#3D5C4A] transition-all"
             >
               <span>Launch Control HUD</span>
@@ -253,7 +253,7 @@ export default function CinematicLandingPage() {
               </div>
 
               <Link
-                href="/demo/fieldsight"
+                href="/fieldsight"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
               >
                 <span>Open Complete Inspection Studio</span>
@@ -314,13 +314,13 @@ export default function CinematicLandingPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <span className="text-xs font-mono uppercase tracking-wider text-cyan-400">
-                  FAO-56 Vadose Zone Hydrology
+                  Stewart Water-Yield Production Modeling
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold font-serif text-[#FAF8F2]">
                   Irrigation Regime Comparison
                 </h3>
                 <p className="text-sm sm:text-base text-[#9BB1A4] leading-relaxed">
-                  Switch between conventional scheduled flood irrigation and NEXFIELD precision drip fertigation to observe vadose matrix potential in real time.
+                  Simulate crop yield sensitivity under deficit vs. precision fertigation using empirical crop yield response coefficients (<code className="text-[#D7B678] font-mono">Ky = 1.05</code>) and vadose matrix potential.
                 </p>
               </div>
 
@@ -378,7 +378,7 @@ export default function CinematicLandingPage() {
               </div>
 
               <Link
-                href="/demo/twin"
+                href="/twin"
                 className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 <span>Launch Interactive 3D Digital Twin</span>
@@ -554,7 +554,7 @@ export default function CinematicLandingPage() {
                 <span>Start Guided Demo Walkthrough</span>
               </Link>
               <Link
-                href="/demo/control"
+                href="/control"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-medium text-[#FAF8F2] bg-[#111714] hover:bg-[#16201B] border border-[#273C30]"
               >
                 <span>Direct Command HUD</span>

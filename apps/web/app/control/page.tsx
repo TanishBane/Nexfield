@@ -21,9 +21,12 @@ import {
   Badge,
   Button,
   ModuleLoadingState,
+  StatCard,
+  ProvenanceBadge,
 } from '@nexfield/ui';
 import { apiClient } from '@/lib/api';
 import { useFarmStore } from '@/lib/store/useFarmStore';
+import { useDemoStore } from '@/lib/store/useDemoStore';
 import { FarmProfileModal } from '@/components/modules/control/FarmProfileModal';
 import { TelemetryHUD } from '@/components/modules/control/TelemetryHUD';
 import { ControlFilterBar } from '@/components/modules/control/ControlFilterBar';
@@ -38,6 +41,7 @@ import { MandiPrices } from '@/components/modules/control/MandiPrices';
 import Link from 'next/link';
 
 export default function ControlPage() {
+  const { farmId: demoFarmId } = useDemoStore();
   const {
     selectedFarmId,
     activeFieldFilter,
@@ -52,13 +56,14 @@ export default function ControlPage() {
     setLastRefreshedAt,
   } = useFarmStore();
 
+  const activeFarmId = demoFarmId || selectedFarmId;
   const [completedTaskIds, setCompletedTaskIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'cycles' | 'weather' | 'soil' | 'tasks' | 'market'>('cycles');
 
   const { data, isLoading, isFetching, error, refetch } = useQuery({
-    queryKey: ['controlOverview', selectedFarmId],
+    queryKey: ['controlOverview', activeFarmId],
     queryFn: async () => {
-      const res = await apiClient.getControlOverview(selectedFarmId);
+      const res = await apiClient.getControlOverview(activeFarmId);
       setLastRefreshedAt(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       return res;
     },
@@ -158,6 +163,7 @@ export default function ControlPage() {
                 <Sparkles className="w-3.5 h-3.5" />
                 Operational Farm Workspace
               </span>
+              <ProvenanceBadge type="fixture" source="Public Demo" />
               <span className="text-xs font-mono text-[#8FA396]">
                 {farm.location.district}, {farm.location.state}
               </span>
@@ -291,58 +297,53 @@ export default function ControlPage() {
         <h2 className="text-lg font-bold text-[#FAF8F2] tracking-tight">
           Farm at a Glance
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] space-y-1">
-            <span className="text-xs text-[#8DA295] font-medium flex items-center gap-1.5">
-              <Sprout className="h-3.5 w-3.5 text-emerald-400" />
-              Active Crops
-            </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FAF8F2] pt-1">
-              {activeCycles.length > 0 ? activeCycles[0].cropName : 'None Active'}
-            </div>
-            <p className="text-[11px] text-[#516E5E] font-mono">
-              {activeCycles.length} active cycle{activeCycles.length !== 1 ? 's' : ''}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <StatCard
+            label="Active Primary Crop"
+            value={activeCycles.length > 0 ? activeCycles[0].cropName : 'None Active'}
+            subValue={activeCycles.length > 0 ? activeCycles[0].variety : 'No active cycle'}
+            trend="up"
+            trendValue={activeCycles.length > 0 ? `${activeCycles[0].stageProgressPercent}% Sown` : undefined}
+            icon={<Sprout className="h-4 w-4" />}
+            variant="emerald"
+            provenance="fixture"
+          />
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] space-y-1">
-            <span className="text-xs text-[#8DA295] font-medium flex items-center gap-1.5">
-              <Droplets className="h-3.5 w-3.5 text-sky-400" />
-              Soil Moisture
-            </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FAF8F2] pt-1">
-              {soilTelemetrySummary.avgMoisturePercent.toFixed(1)}%
-            </div>
-            <p className="text-[11px] text-[#516E5E] font-mono">
-              Temp: {soilTelemetrySummary.avgTemperatureC.toFixed(1)}°C
-            </p>
-          </div>
+          <StatCard
+            label="Rootzone Soil Moisture"
+            value={soilTelemetrySummary.avgMoisturePercent.toFixed(1)}
+            unit="%"
+            subValue={`Temp: ${soilTelemetrySummary.avgTemperatureC.toFixed(1)}°C · Vadose -33 kPa`}
+            trend="up"
+            trendValue="Capillary Retention"
+            icon={<Droplets className="h-4 w-4" />}
+            variant="sky"
+            provenance="sensor"
+          />
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] space-y-1">
-            <span className="text-xs text-[#8DA295] font-medium flex items-center gap-1.5">
-              <CheckCircle2 className="h-3.5 w-3.5 text-[#D7B678]" />
-              Scheduled Tasks
-            </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FAF8F2] pt-1">
-              {recentTasks.length} Pending
-            </div>
-            <p className="text-[11px] text-[#516E5E] font-mono">
-              {completedTaskIds.length} completed today
-            </p>
-          </div>
+          <StatCard
+            label="Scheduled Tasks"
+            value={recentTasks.length}
+            unit="pending"
+            subValue={`${completedTaskIds.length} completed today · ICAR Aligned`}
+            trend="neutral"
+            trendValue="Field Crew Synced"
+            icon={<CheckCircle2 className="h-4 w-4" />}
+            variant="wheat"
+            provenance="deterministic"
+          />
 
-          <div className="p-4 sm:p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] space-y-1">
-            <span className="text-xs text-[#8DA295] font-medium flex items-center gap-1.5">
-              <Warehouse className="h-3.5 w-3.5 text-amber-400" />
-              Storage Stock
-            </span>
-            <div className="text-xl sm:text-2xl font-bold font-mono text-[#FAF8F2] pt-1">
-              {harvestSummary.totalHarvestedKg.toLocaleString()} kg
-            </div>
-            <p className="text-[11px] text-[#516E5E] font-mono">
-              {harvestSummary.batchesInStorage} batch{harvestSummary.batchesInStorage !== 1 ? 'es' : ''} stored
-            </p>
-          </div>
+          <StatCard
+            label="Warehouse Storage"
+            value={harvestSummary.totalHarvestedKg.toLocaleString()}
+            unit="kg"
+            subValue={`${harvestSummary.batchesInStorage} lot${harvestSummary.batchesInStorage !== 1 ? 's' : ''} stored · Moisture <14%`}
+            trend="up"
+            trendValue="Safe Custody"
+            icon={<Warehouse className="h-4 w-4" />}
+            variant="amber"
+            provenance="fixture"
+          />
         </div>
       </div>
 
@@ -403,7 +404,7 @@ export default function ControlPage() {
           </Link>
 
           <Link
-            href="/data-center"
+            href="/ops"
             className="group p-4 sm:p-5 rounded-2xl bg-[#0E1511] border border-[#1E2E25] hover:border-amber-600/40 hover:bg-[#151D18] transition-all space-y-2"
           >
             <div className="p-2.5 rounded-xl bg-amber-950/60 border border-amber-600/30 text-amber-400 w-fit group-hover:scale-105 transition-transform">
@@ -411,10 +412,10 @@ export default function ControlPage() {
             </div>
             <div>
               <div className="text-sm font-semibold text-[#FAF8F2] flex items-center justify-between">
-                <span>Storage & Batches</span>
+                <span>Field Ops & Silo Storage</span>
                 <ArrowRight className="h-3.5 w-3.5 text-[#516E5E] group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all" />
               </div>
-              <p className="text-xs text-[#8DA295] mt-1">Cold storage telemetry, shelf-life risk & stock logs</p>
+              <p className="text-xs text-[#8DA295] mt-1">Work orders, agrochemical inventory & grain storage custody</p>
             </div>
           </Link>
         </div>
