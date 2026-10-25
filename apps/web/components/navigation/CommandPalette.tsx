@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Search,
   LayoutDashboard,
@@ -17,12 +17,13 @@ import {
   Command,
   ArrowRight,
   X,
-} from 'lucide-react';
-import { cn } from '@nexfield/ui';
+} from "lucide-react";
+import { useDialogFocus } from "@/components/ui/useDialogFocus";
+import { cn } from "@nexfield/ui";
 
 interface CommandItem {
   id: string;
-  category: 'Navigation' | 'Actions' | 'Farms' | 'Help';
+  category: "Navigation" | "Actions" | "Farms" | "Help";
   title: string;
   subtitle: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -31,110 +32,133 @@ interface CommandItem {
   shortcut?: string;
 }
 
-export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [query, setQuery] = useState('');
+export function CommandPalette({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useDialogFocus(isOpen, onClose);
+  const pathname = usePathname();
+  const destination = useCallback(
+    (href: string) =>
+      pathname.startsWith("/demo/") &&
+      [
+        "/control",
+        "/fieldsight",
+        "/twin",
+        "/intelligence",
+        "/ops",
+        "/markets",
+      ].includes(href)
+        ? `/demo${href}`
+        : href,
+    [pathname],
+  );
 
   const items: CommandItem[] = [
     // Navigation
     {
-      id: 'nav-control',
-      category: 'Navigation',
-      title: 'Farm Overview & Command Center',
-      subtitle: 'Primary telemetry HUD, today priorities and weather',
+      id: "nav-control",
+      category: "Navigation",
+      title: "Farm Overview & Command Center",
+      subtitle: "Primary telemetry HUD, today priorities and weather",
       icon: LayoutDashboard,
-      href: '/control',
-      shortcut: 'G O',
+      href: "/control",
+      shortcut: "G O",
     },
     {
-      id: 'nav-fieldsight',
-      category: 'Navigation',
-      title: 'FieldSight AI Crop Inspection',
-      subtitle: 'Foliar pathology, lesion Grad-CAM and disease diagnosis',
+      id: "nav-fieldsight",
+      category: "Navigation",
+      title: "FieldSight AI Crop Inspection",
+      subtitle: "Foliar pathology, lesion Grad-CAM and disease diagnosis",
       icon: ScanEye,
-      href: '/fieldsight',
-      shortcut: 'G C',
+      href: "/fieldsight",
+      shortcut: "G C",
     },
     {
-      id: 'nav-twin',
-      category: 'Navigation',
-      title: 'Digital Twin 3D Simulator',
-      subtitle: 'Biophysical rootzone moisture & scenario comparisons',
+      id: "nav-twin",
+      category: "Navigation",
+      title: "Digital Twin 3D Simulator",
+      subtitle: "Biophysical rootzone moisture & scenario comparisons",
       icon: Layers,
-      href: '/twin',
-      shortcut: 'G T',
+      href: "/twin",
+      shortcut: "G T",
     },
     {
-      id: 'nav-intelligence',
-      category: 'Navigation',
-      title: 'Agronomic Copilot & Insights',
-      subtitle: 'Contextual AI assistance and agronomic advice',
+      id: "nav-intelligence",
+      category: "Navigation",
+      title: "Agronomic Copilot & Insights",
+      subtitle: "Contextual AI assistance and agronomic advice",
       icon: Sparkles,
-      href: '/intelligence',
-      shortcut: 'G I',
+      href: "/intelligence",
+      shortcut: "G I",
     },
     {
-      id: 'nav-ops',
-      category: 'Navigation',
-      title: 'Operations & Food Quality',
-      subtitle: 'Field work orders, input ledger and harvest inspection',
+      id: "nav-ops",
+      category: "Navigation",
+      title: "Operations & Food Quality",
+      subtitle: "Field work orders, input ledger and harvest inspection",
       icon: ClipboardList,
-      href: '/ops',
-      shortcut: 'G W',
+      href: "/ops",
+      shortcut: "G W",
     },
     {
-      id: 'nav-markets',
-      category: 'Navigation',
-      title: 'APMC Market Intelligence & Arbitrage',
-      subtitle: 'Mandi price spreads, freight deduction and net realization',
+      id: "nav-markets",
+      category: "Navigation",
+      title: "APMC Market Intelligence & Arbitrage",
+      subtitle: "Mandi price spreads, freight deduction and net realization",
       icon: TrendingUp,
-      href: '/markets',
-      shortcut: 'G M',
+      href: "/markets",
+      shortcut: "G M",
     },
     {
-      id: 'nav-data',
-      category: 'Navigation',
-      title: 'Data Center & Upload',
-      subtitle: 'Import soil tests, IoT sensor logs and field boundaries',
+      id: "nav-data",
+      category: "Navigation",
+      title: "Data Center & Upload",
+      subtitle: "Import soil tests, IoT sensor logs and field boundaries",
       icon: UploadCloud,
-      href: '/data-center',
+      href: "/data-center",
     },
     // Farms
     {
-      id: 'farm-nashik',
-      category: 'Farms',
-      title: 'Nashik Tomato Precision Estate',
-      subtitle: '2.4 ha · Hybrid Indeterminate Tomato · Sector 2-B',
+      id: "farm-nashik",
+      category: "Farms",
+      title: "Nashik Tomato Precision Estate",
+      subtitle: "2.4 ha · Hybrid Indeterminate Tomato · Sector 2-B",
       icon: MapPin,
-      href: '/demo/control',
+      href: "/demo/control",
     },
     {
-      id: 'farm-punjab',
-      category: 'Farms',
-      title: 'Ludhiana Wheat Agro-Hub',
-      subtitle: '4.8 ha · PBW-550 Wheat · Sown Nov 2025',
+      id: "farm-punjab",
+      category: "Farms",
+      title: "Ludhiana Wheat Agro-Hub",
+      subtitle: "4.8 ha · PBW-550 Wheat · Sown Nov 2025",
       icon: MapPin,
-      href: '/demo/control',
+      href: "/demo/control",
     },
     // Actions
     {
-      id: 'action-demo',
-      category: 'Actions',
-      title: 'Launch Guided Interactive Demo Tour',
-      subtitle: '8-step curated walkthrough for evaluators and judges',
+      id: "action-demo",
+      category: "Actions",
+      title: "Launch Guided Interactive Demo Tour",
+      subtitle: "8-step curated walkthrough for evaluators and judges",
       icon: ExternalLink,
-      href: '/demo',
-      shortcut: 'D T',
+      href: "/demo",
+      shortcut: "D T",
     },
     {
-      id: 'action-upload',
-      category: 'Actions',
-      title: 'Upload Foliar Scan for AI Analysis',
-      subtitle: 'Quickly analyze leaf image for fungal pathogens',
+      id: "action-upload",
+      category: "Actions",
+      title: "Upload Foliar Scan for AI Analysis",
+      subtitle: "Quickly analyze leaf image for fungal pathogens",
       icon: ScanEye,
-      href: '/fieldsight',
+      href: "/fieldsight",
     },
   ];
 
@@ -142,20 +166,20 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
     (item) =>
       item.title.toLowerCase().includes(query.toLowerCase()) ||
       item.subtitle.toLowerCase().includes(query.toLowerCase()) ||
-      item.category.toLowerCase().includes(query.toLowerCase())
+      item.category.toLowerCase().includes(query.toLowerCase()),
   );
 
   useEffect(() => {
     if (isOpen) {
       inputRef.current?.focus();
-      setQuery('');
+      setQuery("");
       setSelectedIndex(0);
     }
   }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         if (isOpen) {
           onClose();
@@ -165,21 +189,24 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
       }
       if (!isOpen) return;
 
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         onClose();
-      } else if (e.key === 'ArrowDown') {
+      } else if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) => (prev + 1) % (filteredItems.length || 1));
-      } else if (e.key === 'ArrowUp') {
+      } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + filteredItems.length) % (filteredItems.length || 1));
-      } else if (e.key === 'Enter') {
+        setSelectedIndex(
+          (prev) =>
+            (prev - 1 + filteredItems.length) % (filteredItems.length || 1),
+        );
+      } else if (e.key === "Enter") {
         e.preventDefault();
         const selected = filteredItems[selectedIndex];
         if (selected) {
           if (selected.href) {
-            router.push(selected.href);
+            router.push(destination(selected.href));
           } else if (selected.action) {
             selected.action();
           }
@@ -188,9 +215,9 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, filteredItems, selectedIndex, router]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose, filteredItems, selectedIndex, router, destination]);
 
   if (!isOpen) return null;
 
@@ -205,14 +232,15 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
 
       {/* Palette Modal */}
       <div
-        className="relative w-full max-w-2xl rounded-2xl bg-[#111714] border border-[#273C30] shadow-2xl overflow-hidden ring-1 ring-emerald-500/20 z-10"
+        className="relative w-full max-w-2xl rounded-2xl bg-[#F7FAF2] border border-[#D1DDCD] shadow-sm overflow-hidden ring-1 ring-emerald-500/20 z-10"
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="Command Palette"
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-[#1F2E25] bg-[#0E1411]">
-          <Search className="w-5 h-5 text-[#9BB1A4] mr-3 shrink-0" />
+        <div className="flex items-center px-4 py-3.5 border-b border-[#D1DDCD] bg-[#F7FAF2]">
+          <Search className="w-5 h-5 text-[#46604D] mr-3 shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -222,11 +250,11 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
               setSelectedIndex(0);
             }}
             placeholder="Type a command, farm, or screen name..."
-            className="w-full bg-transparent text-[#F0F5F2] placeholder-[#63796E] text-base focus:outline-none"
+            className="w-full bg-transparent text-[#09251A] placeholder-[#46604D] text-base focus:outline-none"
           />
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-[#63796E] hover:text-[#F0F5F2] hover:bg-[#1B2620] transition-colors"
+            className="p-1 rounded-lg text-[#46604D] hover:text-[#09251A] hover:bg-[#FFFFFF] transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -234,11 +262,16 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
         </div>
 
         {/* Results List */}
-        <div className="max-h-[380px] overflow-y-auto p-2 divide-y divide-[#16201B]">
+        <div className="max-h-[380px] overflow-y-auto p-2 divide-y divide-[#D1DDCD]">
           {filteredItems.length === 0 ? (
-            <div className="py-12 text-center text-[#63796E]">
-              <p className="text-sm">No matches found for &ldquo;{query}&rdquo;</p>
-              <p className="text-xs mt-1 text-[#4E6157]">Try searching for &ldquo;control&rdquo;, &ldquo;fieldsight&rdquo;, or &ldquo;demo&rdquo;</p>
+            <div className="py-12 text-center text-[#46604D]">
+              <p className="text-sm">
+                No matches found for &ldquo;{query}&rdquo;
+              </p>
+              <p className="text-xs mt-1 text-[#46604D]">
+                Try searching for &ldquo;control&rdquo;,
+                &ldquo;fieldsight&rdquo;, or &ldquo;demo&rdquo;
+              </p>
             </div>
           ) : (
             filteredItems.map((item, idx) => {
@@ -248,44 +281,55 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                 <button
                   key={item.id}
                   onClick={() => {
-                    if (item.href) router.push(item.href);
+                    if (item.href) router.push(destination(item.href));
                     else if (item.action) item.action();
                     onClose();
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={cn(
-                    'w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors',
+                    "w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-colors",
                     isSelected
-                      ? 'bg-[#18261F] text-[#F0F5F2] border border-emerald-500/30'
-                      : 'text-[#9BB1A4] hover:bg-[#141E19] border border-transparent'
+                      ? "bg-[#FFFFFF] text-[#09251A] border border-emerald-500/30"
+                      : "text-[#46604D] hover:bg-[#F7FAF2] border border-transparent",
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
-                        isSelected ? 'bg-emerald-950/80 text-emerald-400' : 'bg-[#16201B] text-[#63796E]'
+                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
+                        isSelected
+                          ? "bg-emerald-50/80 text-emerald-700"
+                          : "bg-[#F7FAF2] text-[#46604D]",
                       )}
                     >
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-[#F0F5F2] truncate">{item.title}</span>
-                        <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-[#1B2620] text-[#63796E]">
+                        <span className="font-medium text-sm text-[#09251A] truncate">
+                          {item.title}
+                        </span>
+                        <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-[#FFFFFF] text-[#46604D]">
                           {item.category}
                         </span>
                       </div>
-                      <p className="text-xs text-[#63796E] truncate">{item.subtitle}</p>
+                      <p className="text-xs text-[#46604D] truncate">
+                        {item.subtitle}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-3">
                     {item.shortcut && (
-                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-[#16201B] text-[#63796E] border border-[#273C30]">
+                      <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-[#F7FAF2] text-[#46604D] border border-[#D1DDCD]">
                         {item.shortcut}
                       </kbd>
                     )}
-                    <ArrowRight className={cn('w-3.5 h-3.5', isSelected ? 'text-emerald-400' : 'opacity-0')} />
+                    <ArrowRight
+                      className={cn(
+                        "w-3.5 h-3.5",
+                        isSelected ? "text-emerald-700" : "opacity-0",
+                      )}
+                    />
                   </div>
                 </button>
               );
@@ -294,13 +338,13 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
         </div>
 
         {/* Footer shortcuts helper */}
-        <div className="flex items-center justify-between px-4 py-2 border-t border-[#1F2E25] bg-[#0B100E] text-[11px] text-[#63796E] font-mono">
+        <div className="flex items-center justify-between px-4 py-2 border-t border-[#D1DDCD] bg-[#F7FAF2] text-[11px] text-[#46604D] font-mono">
           <div className="flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>
             <span>Esc Close</span>
           </div>
-          <div className="flex items-center gap-1.5 text-emerald-400">
+          <div className="flex items-center gap-1.5 text-emerald-700">
             <Command className="w-3 h-3" />
             <span>NEXFIELD FastNav</span>
           </div>

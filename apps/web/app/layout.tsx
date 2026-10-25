@@ -1,45 +1,40 @@
-import type { Metadata } from 'next';
-import { Instrument_Serif, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
-import './globals.css';
-import { QueryProvider } from '@/components/providers/QueryProvider';
-import { AppShell } from '@/components/layout/AppShell';
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import "./globals.css";
+import { QueryProvider } from "@/components/providers/QueryProvider";
+import { AppShell } from "@/components/layout/AppShell";
 
-const instrumentSerif = Instrument_Serif({
-  subsets: ['latin'],
-  weight: '400',
-  style: ['normal', 'italic'],
-  variable: '--font-serif',
-  display: 'swap',
+const displayFont = localFont({
+  src: [
+    { path: "../public/fonts/butler-rmn.woff2", weight: "400" },
+    { path: "../public/fonts/butler-bd.woff2", weight: "700" },
+    { path: "../public/fonts/butler-blk.woff2", weight: "900" },
+  ],
+  variable: "--font-serif",
+  display: "swap",
 });
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-mono',
-  display: 'swap',
+const interfaceFont = localFont({
+  src: "../public/fonts/gidole.ttf",
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: 'NEXFIELD — Agricultural Intelligence Operating System',
+  title: "NEXFIELD — Agricultural Intelligence Operating System",
   description:
-    'Comprehensive AI-powered agronomic operating system supporting crop cultivation, disease diagnosis, digital twin scenario simulation, operational ledger, and Mandi market intelligence.',
+    "Comprehensive AI-powered agronomic operating system supporting crop cultivation, disease diagnosis, digital twin scenario simulation, operational ledger, and Mandi market intelligence.",
   keywords: [
-    'Agriculture AI',
-    'Smart Farming',
-    'Digital Twin',
-    'Crop Disease Detection',
-    'Mandi Prices',
-    'Food Technology',
+    "Agriculture AI",
+    "Smart Farming",
+    "Digital Twin",
+    "Crop Disease Detection",
+    "Mandi Prices",
+    "Food Technology",
   ],
   icons: {
-    icon: '/favicon-32x32.png',
-    shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    icon: "/favicon-32x32.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
@@ -49,8 +44,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`min-h-screen bg-[#090D0B] ${plusJakartaSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} font-sans antialiased text-[#F1F5F2]`}>
+    <html lang="en">
+      <body
+        className={`min-h-screen ${interfaceFont.variable} ${displayFont.variable} font-sans antialiased`}
+      >
         <QueryProvider>
           <AppShell>{children}</AppShell>
         </QueryProvider>

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { Sparkles, ArrowRight } from "lucide-react";
 
 interface CinematicEntranceProps {
   onComplete?: () => void;
@@ -15,8 +15,8 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
 
   const dismiss = React.useCallback(() => {
     setFading(true);
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem('nexfield_earth_intro_played', 'true');
+    if (typeof window !== "undefined") {
+      window.sessionStorage.setItem("nexfield_earth_intro_played", "true");
     }
     setTimeout(() => {
       setVisible(false);
@@ -26,13 +26,16 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
 
   useEffect(() => {
     // 1. Honor prefers-reduced-motion, skipIntro param, or previous play
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const urlParams = new URLSearchParams(window.location.search);
-      const skipParam = urlParams.get('skipIntro') === 'true';
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const skipParam = urlParams.get("skipIntro") === "true";
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
       const seen =
-        window.sessionStorage.getItem('nexfield_earth_intro_played') === 'true' ||
-        window.localStorage.getItem('nexfield_earth_intro_played') === 'true';
+        window.sessionStorage.getItem("nexfield_earth_intro_played") ===
+          "true" ||
+        window.localStorage.getItem("nexfield_earth_intro_played") === "true";
       if (skipParam || prefersReduced || seen) {
         setVisible(false);
         onComplete?.();
@@ -48,8 +51,8 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
     // Stage 3: Fade out entrance overlay (1100ms - 1500ms)
     const t3 = setTimeout(() => {
       setFading(true);
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem('nexfield_earth_intro_played', 'true');
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem("nexfield_earth_intro_played", "true");
       }
     }, 1100);
     // Stage 4: Unmount overlay completely (1500ms)
@@ -60,18 +63,18 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
 
     // Escape key listener to skip immediately
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         dismiss();
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
       clearTimeout(t4);
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [dismiss, onComplete]);
 
@@ -81,15 +84,15 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
     <div
       role="region"
       aria-label="NEXFIELD Cinematic Welcome"
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#090D0B] text-[#FAF8F2] transition-opacity duration-500 select-none ${
-        fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#F7FAF2] text-[#09251A] transition-opacity duration-500 select-none ${
+        fading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
       {/* Ambient Soil & Horizon Aura */}
-      <div className="absolute inset-0 bg-radial-gradient from-emerald-950/20 via-[#0E1511]/40 to-[#090D0B] pointer-events-none" />
+      <div className="absolute inset-0 bg-radial-gradient from-emerald-50/20 via-[#F7FAF2]/40 to-[#F7FAF2] pointer-events-none" />
       <div
-        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-t from-emerald-600/10 via-[#C2A06A]/10 to-transparent rounded-full blur-[120px] transition-all duration-1000 ${
-          stage >= 1 ? 'scale-110 opacity-100' : 'scale-90 opacity-40'
+        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-t from-emerald-600/10 via-[#FFDB3D]/10 to-transparent rounded-full blur-[120px] transition-all duration-1000 ${
+          stage >= 1 ? "scale-110 opacity-100" : "scale-90 opacity-40"
         }`}
       />
 
@@ -97,20 +100,24 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
       <button
         onClick={dismiss}
         type="button"
-        className="absolute top-6 right-6 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#111714]/80 hover:bg-[#16201B] border border-[#273C30] text-xs font-mono text-[#9BB1A4] hover:text-[#FAF8F2] transition-colors"
+        className="absolute top-6 right-6 z-20 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F7FAF2]/80 hover:bg-[#F7FAF2] border border-[#D1DDCD] text-xs font-mono text-[#46604D] hover:text-[#09251A] transition-colors"
         aria-label="Skip cinematic entrance"
       >
         <span>Skip</span>
-        <kbd className="px-1 text-[10px] bg-[#16201B] rounded border border-[#273C30]">ESC</kbd>
-        <ArrowRight className="w-3 h-3 text-emerald-400" />
+        <kbd className="px-1 text-[10px] bg-[#F7FAF2] rounded border border-[#D1DDCD]">
+          ESC
+        </kbd>
+        <ArrowRight className="w-3 h-3 text-emerald-700" />
       </button>
 
       {/* Centerpiece Emblem & Branding */}
       <div className="relative z-10 flex flex-col items-center text-center space-y-6 max-w-md px-6">
         {/* Logo Mark Reveal */}
         <div
-          className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-[#FAF8F2] shadow-2xl shadow-emerald-950/50 transition-all duration-700 transform ${
-            stage >= 1 ? 'scale-100 opacity-100 translate-y-0' : 'scale-90 opacity-0 translate-y-4'
+          className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl p-1 bg-[#FFDB3D] shadow-sm shadow-emerald-950/50 transition-all duration-700 transform ${
+            stage >= 1
+              ? "scale-100 opacity-100 translate-y-0"
+              : "scale-90 opacity-0 translate-y-4"
           }`}
         >
           <Image
@@ -121,33 +128,35 @@ export function CinematicEntrance({ onComplete }: CinematicEntranceProps) {
             className="w-full h-full object-cover rounded-xl"
             priority
           />
-          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-[#C2A06A]/20 blur-md pointer-events-none -z-10" />
+          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-[#FFDB3D]/20 blur-md pointer-events-none -z-10" />
         </div>
 
         {/* Brand Name & Tagline */}
         <div
           className={`space-y-2 transition-all duration-700 delay-150 transform ${
-            stage >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            stage >= 1 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111714] border border-[#273C30] text-xs font-mono text-emerald-400">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7FAF2] border border-[#D1DDCD] text-xs font-mono text-emerald-700">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>PROJECT EARTH 2.0</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-extrabold font-serif tracking-tight text-[#FAF8F2]">
+          <h2 className="text-3xl sm:text-4xl font-extrabold font-serif tracking-tight text-[#09251A]">
             NEXFIELD
           </h2>
 
           <p
-            className={`text-sm sm:text-base font-serif italic text-[#C2A06A] tracking-wide transition-all duration-500 delay-300 ${
-              stage >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+            className={`text-sm sm:text-base font-serif italic text-[#815414] tracking-wide transition-all duration-500 delay-300 ${
+              stage >= 2
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-2"
             }`}
           >
             The Land Awakens.
           </p>
 
-          <p className="text-xs font-mono text-[#9BB1A4] tracking-widest uppercase pt-1">
+          <p className="text-xs font-mono text-[#46604D] tracking-widest uppercase pt-1">
             Observe. Predict. Simulate. Optimize. Grow.
           </p>
         </div>
