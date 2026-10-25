@@ -101,16 +101,16 @@ export function Header() {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="hidden md:inline-flex h-8 w-8 text-[#46604D] hover:text-[#09251A] hover:bg-[#F7FAF2]"
+            className="hidden md:inline-flex min-h-[44px] min-w-[44px] h-10 w-10 text-[#46604D] hover:text-[#09251A] hover:bg-[#EAF1E7] rounded-xl focus-visible:ring-2 focus-visible:ring-[#048547] cursor-pointer"
             aria-label="Toggle Navigation Sidebar"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </Button>
 
-          <div className="h-4 w-px bg-[#FFFFFF]" />
+          <div className="hidden sm:block h-4 w-px bg-[#D1DDCD]" />
 
           <div className="flex items-center gap-2">
-            <currentModule.icon className="h-4 w-4 text-[#815414]" />
+            <currentModule.icon className="h-4 w-4 text-[#048547]" />
             <p className="font-semibold text-[#09251A] text-sm hidden sm:block">
               {currentModule.name}
             </p>
@@ -123,30 +123,30 @@ export function Header() {
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs text-[#46604D] hover:text-[#09251A] hover:border-[#D1DDCD] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[38px] rounded-lg bg-white border border-[#D1DDCD] text-xs font-medium text-[#46604D] hover:text-[#09251A] hover:border-[#B8CDB3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] transition-all cursor-pointer shadow-2xs"
             title="Search screens and actions (Ctrl+K)"
           >
-            <Command className="w-3.5 h-3.5 text-[#815414]" />
+            <Command className="w-3.5 h-3.5 text-[#048547]" />
             <span className="hidden sm:inline-block">Search</span>
-            <kbd className="hidden sm:inline-block px-1 py-0.5 text-[10px] font-mono rounded bg-[#F7FAF2] text-[#46604D] border border-[#D1DDCD]">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono rounded bg-[#F7FAF2] text-[#46604D] border border-[#D1DDCD]">
               ⌘K
             </kbd>
           </button>
 
           {/* Demonstration Farm Switcher */}
-          <div className="flex items-center gap-2 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] px-2.5 py-1 text-xs">
-            <MapPin className="h-3.5 w-3.5 text-[#815414] shrink-0" />
+          <div className="flex items-center gap-2 rounded-lg bg-white border border-[#D1DDCD] px-2.5 py-1 min-h-[38px] text-xs shadow-2xs">
+            <MapPin className="h-3.5 w-3.5 text-[#048547] shrink-0" />
             <select
               value={demoStore.farmId || DEMO_ESTATES[0].id}
               onChange={(e) => handleEstateChange(e.target.value)}
-              className="bg-transparent text-[#09251A] font-medium focus:outline-none focus-visible:ring-1 focus-visible:ring-[#D7B678]/80 rounded cursor-pointer pr-1 text-xs max-w-20 sm:max-w-[170px] truncate"
+              className="bg-transparent text-[#09251A] font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] rounded cursor-pointer pr-1 text-xs max-w-24 sm:max-w-[180px] truncate"
               aria-label="Select sample farm"
             >
               {DEMO_ESTATES.map((estate) => (
                 <option
                   key={estate.id}
                   value={estate.id}
-                  className="bg-[#F7FAF2] text-[#09251A]"
+                  className="bg-white text-[#09251A]"
                 >
                   {estate.name} ({estate.district})
                 </option>
@@ -159,21 +159,21 @@ export function Header() {
             type="button"
             data-testid="task-drawer-button"
             onClick={() => setTaskDrawerOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#FFFFFF] border border-[#D7B678]/40 hover:bg-[#EDF4E7] text-[#09251A] transition-colors text-xs font-medium"
+            className="flex items-center gap-1.5 px-3 py-1.5 min-h-[38px] rounded-lg bg-white border border-[#D1DDCD] hover:bg-[#EAF1E7] text-[#09251A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] transition-all text-xs font-semibold cursor-pointer shadow-2xs"
             title="Open Contextual Tasks Drawer"
           >
-            <ClipboardList className="h-3.5 w-3.5 text-[#815414]" />
+            <ClipboardList className="h-3.5 w-3.5 text-[#048547]" />
             <span className="hidden sm:inline">Tasks</span>
             {pendingTasksCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-[#FFDB3D] text-[#17251B] text-[10px] font-bold font-mono">
+              <span className="px-1.5 py-0.5 rounded-full bg-[#FFDB3D] text-[#09251A] text-[10px] font-bold font-mono tabular-nums border border-[#E7D57A]">
                 {pendingTasksCount}
               </span>
             )}
           </button>
 
           {/* Demo Provenance Badge */}
-          <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs text-[#46604D]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D7B678] animate-pulse" />
+          <span className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-medium text-[#46604D] shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-[#048547] motion-safe:animate-pulse" />
             <span>Public Demo Mode</span>
           </span>
 
@@ -183,16 +183,16 @@ export function Header() {
               variant="outline"
               size="sm"
               onClick={handleResetDemo}
-              className={`h-7 text-xs border-[#D1DDCD] transition-all duration-200 ${
+              className={`min-h-[38px] text-xs font-medium border-[#D1DDCD] transition-all duration-200 cursor-pointer ${
                 resetFeedback
-                  ? "bg-emerald-50/60 text-emerald-700 border-emerald-500"
-                  : "text-[#815414] hover:bg-[#EDF4E7]"
+                  ? "bg-[#E5F2CF] text-[#005B36] border-[#B8D494]"
+                  : "text-[#46604D] hover:text-[#09251A] hover:bg-[#EAF1E7]"
               }`}
               title="Reset sample farm"
               aria-label="Reset sample farm"
             >
               <RotateCcw
-                className={`h-3.5 w-3.5 mr-1 ${resetFeedback ? "animate-spin" : ""}`}
+                className={`h-3.5 w-3.5 mr-1.5 text-[#048547] ${resetFeedback ? "motion-safe:animate-spin" : ""}`}
               />
               <span className="hidden sm:inline">
                 {resetFeedback ? "Reset Done" : "Reset Demo"}

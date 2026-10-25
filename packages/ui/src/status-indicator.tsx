@@ -16,38 +16,38 @@ export function StatusIndicator({
 }: StatusIndicatorProps) {
   const configs = {
     online: {
-      dot: "bg-emerald-400",
-      ping: "bg-emerald-500",
-      text: "text-emerald-700",
-      bg: "bg-emerald-50/40 border-emerald-800/40",
+      dot: "bg-[#048547]",
+      ping: "bg-[#048547]",
+      text: "text-[#005B36]",
+      bg: "bg-[#E5F2CF] border-[#B8D494]",
       defaultLabel: "Live Telemetry Active",
     },
     warning: {
-      dot: "bg-amber-400",
-      ping: "bg-amber-500",
-      text: "text-amber-700",
-      bg: "bg-amber-50/40 border-amber-800/40",
+      dot: "bg-[#D97706]",
+      ping: "bg-[#D97706]",
+      text: "text-[#92400E]",
+      bg: "bg-[#FFF0A6] border-[#E7D57A]",
       defaultLabel: "Alert Detected",
     },
     error: {
-      dot: "bg-rose-400",
-      ping: "bg-rose-500",
-      text: "text-rose-700",
-      bg: "bg-rose-50/40 border-rose-800/40",
+      dot: "bg-[#DC2626]",
+      ping: "bg-[#DC2626]",
+      text: "text-[#991B1B]",
+      bg: "bg-[#FBE0E8] border-[#E9B4C4]",
       defaultLabel: "Sensor Disconnected",
     },
     syncing: {
-      dot: "bg-sky-400",
-      ping: "bg-sky-500",
-      text: "text-sky-700",
-      bg: "bg-sky-50/40 border-sky-800/40",
+      dot: "bg-[#0284C7]",
+      ping: "bg-[#0284C7]",
+      text: "text-[#0369A1]",
+      bg: "bg-[#D5ECFD] border-[#A2C9E5]",
       defaultLabel: "Model Simulating...",
     },
     fixture: {
-      dot: "bg-amber-300",
-      ping: "bg-amber-400",
-      text: "text-amber-700",
-      bg: "bg-amber-50/50 border-amber-700/60",
+      dot: "bg-[#D97706]",
+      ping: "bg-[#D97706]",
+      text: "text-[#92400E]",
+      bg: "bg-[#FFF0A6] border-[#E7D57A]",
       defaultLabel: "Synthetic Baseline Fixtures",
     },
   };
@@ -57,7 +57,7 @@ export function StatusIndicator({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border",
+        "inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold border shadow-xs",
         current.bg,
         current.text,
         className,
@@ -67,7 +67,7 @@ export function StatusIndicator({
         {pulse ? (
           <span
             className={cn(
-              "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+              "motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
               current.ping,
             )}
           />

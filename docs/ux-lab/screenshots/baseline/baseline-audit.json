@@ -1,0 +1,164 @@
+[
+  {
+    "route": "home",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "home-desktop.png"
+  },
+  {
+    "route": "control",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "control-desktop.png"
+  },
+  {
+    "route": "fieldsight",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "fieldsight-desktop.png"
+  },
+  {
+    "route": "twin",
+    "viewport": "desktop",
+    "width": 1440,
+    "error": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/twin\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "route": "intelligence",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "intelligence-desktop.png"
+  },
+  {
+    "route": "ops",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "ops-desktop.png"
+  },
+  {
+    "route": "markets",
+    "viewport": "desktop",
+    "width": 1440,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "markets-desktop.png"
+  },
+  {
+    "route": "home",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "home-tablet.png"
+  },
+  {
+    "route": "control",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "control-tablet.png"
+  },
+  {
+    "route": "fieldsight",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "fieldsight-tablet.png"
+  },
+  {
+    "route": "twin",
+    "viewport": "tablet",
+    "width": 768,
+    "error": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/twin\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "route": "intelligence",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "intelligence-tablet.png"
+  },
+  {
+    "route": "ops",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "ops-tablet.png"
+  },
+  {
+    "route": "markets",
+    "viewport": "tablet",
+    "width": 768,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "markets-tablet.png"
+  },
+  {
+    "route": "home",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "home-mobile.png"
+  },
+  {
+    "route": "control",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "control-mobile.png"
+  },
+  {
+    "route": "fieldsight",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "fieldsight-mobile.png"
+  },
+  {
+    "route": "twin",
+    "viewport": "mobile",
+    "width": 375,
+    "error": "page.goto: Timeout 15000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/twin\", waiting until \"networkidle\"\u001b[22m\n"
+  },
+  {
+    "route": "intelligence",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "intelligence-mobile.png"
+  },
+  {
+    "route": "ops",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "ops-mobile.png"
+  },
+  {
+    "route": "markets",
+    "viewport": "mobile",
+    "width": 375,
+    "overflow": 0,
+    "offenders": [],
+    "screenshot": "markets-mobile.png"
+  }
+]

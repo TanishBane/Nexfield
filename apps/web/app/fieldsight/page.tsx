@@ -165,13 +165,13 @@ export default function FieldSightPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#09251A] flex items-center gap-2">
-              <ScanEye className="h-6 w-6 text-emerald-700" />
+              <ScanEye className="h-6 w-6 text-[#048547]" />
               Crop health
             </h1>
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-emerald-700 border-emerald-800/40"
+              className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
               Vision CNN v1
             </Badge>
@@ -181,9 +181,9 @@ export default function FieldSightPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs font-mono">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-[#D1DDCD] text-xs font-mono shadow-2xs">
           <span
-            className={`h-2 w-2 rounded-full ${(diagnoseMutation.data ? diagnoseMutation.data.meta.isFixture : data?.meta?.isFixture) ? "bg-amber-400" : "bg-emerald-400 animate-pulse"}`}
+            className={`h-2 w-2 rounded-full motion-safe:animate-pulse ${(diagnoseMutation.data ? diagnoseMutation.data.meta.isFixture : data?.meta?.isFixture) ? "bg-[#D97706]" : "bg-[#048547]"}`}
           />
           <span className="text-[#46604D]">
             Inference:{" "}
@@ -194,8 +194,8 @@ export default function FieldSightPage() {
                     ? diagnoseMutation.data.meta.isFixture
                     : data?.meta?.isFixture
                 )
-                  ? "text-amber-700 font-medium"
-                  : "text-emerald-700 font-medium"
+                  ? "text-[#92400E] font-semibold"
+                  : "text-[#005B36] font-semibold"
               }
             >
               {(
@@ -211,36 +211,36 @@ export default function FieldSightPage() {
       </div>
 
       {/* Farm & Crop Selector Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white border border-[#D1DDCD] text-xs shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg px-2.5 py-1">
-            <span className="text-[#46604D]">Cultivated Crop:</span>
+          <div className="flex items-center gap-1.5 bg-[#F7FAF2] border border-[#D1DDCD] rounded-lg px-2.5 py-1.5">
+            <span className="text-[#46604D] font-medium">Cultivated Crop:</span>
             <select
               value={selectedCrop}
               onChange={(e) => setSelectedCrop(e.target.value)}
-              className="bg-transparent text-[#09251A] font-semibold focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#09251A] font-semibold focus:outline-none focus-visible:ring-1 focus-visible:ring-[#048547] rounded cursor-pointer text-xs"
             >
               <option
                 value="Wheat HD-3086"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Wheat (HD-3086 Pusa Gautami)
               </option>
               <option
                 value="Basmati Rice PB-1121"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Basmati Rice (PB-1121)
               </option>
               <option
                 value="Soybean JS-335"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Soybean (JS-335 Yellow)
               </option>
               <option
                 value="Cotton RCH-659"
-                className="bg-[#F7FAF2] text-[#09251A]"
+                className="bg-white text-[#09251A]"
               >
                 Bt Cotton (RCH-659)
               </option>
@@ -258,7 +258,7 @@ export default function FieldSightPage() {
             size="sm"
             onClick={() => fileInputRef.current?.click()}
             isLoading={diagnoseMutation.isPending}
-            className="h-8 text-xs gap-1.5"
+            className="h-9 text-xs gap-1.5 bg-[#048547] text-white hover:bg-[#005B36] font-semibold cursor-pointer shadow-xs min-h-[38px]"
           >
             <Upload className="h-3.5 w-3.5" />
             Select Specimen Image
@@ -269,13 +269,14 @@ export default function FieldSightPage() {
             accept="image/*"
             onChange={handleFileSelect}
             className="hidden"
+            aria-label="Upload specimen leaf file"
           />
         </div>
       </div>
 
       {diagnoseMutation.isError && (
-        <div className="p-3.5 rounded-xl bg-amber-50/40 border border-amber-600/50 text-xs text-amber-700 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4 text-amber-700 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-[#FFF0A6] border border-[#E7D57A] text-xs text-[#92400E] flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-[#D97706] shrink-0" />
           <span>
             <strong>Inference Engine Status:</strong> Deep neural network
             weights (.onnx) are not configured on this server. Active model
@@ -286,8 +287,11 @@ export default function FieldSightPage() {
         </div>
       )}
 
-      {/* Drag & Drop Dropzone */}
+      {/* Drag & Drop Dropzone with Full Keyboard Operability */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload leaf or canopy image for AI disease diagnosis"
         onDragOver={(e) => {
           e.preventDefault();
           setIsDragOver(true);
@@ -295,20 +299,26 @@ export default function FieldSightPage() {
         onDragLeave={() => setIsDragOver(false)}
         onDrop={handleFileDrop}
         onClick={() => fileInputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
+        className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] ${
           isDragOver
-            ? "border-emerald-500 bg-emerald-50/20"
-            : "border-[#D1DDCD] bg-[#F7FAF2] hover:border-[#D1DDCD] hover:bg-[#F7FAF2]"
+            ? "border-[#048547] bg-[#E5F2CF]/40 scale-[0.99]"
+            : "border-[#D1DDCD] bg-white hover:border-[#048547] hover:bg-[#F7FAF2] shadow-xs"
         }`}
       >
         <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="h-12 w-12 rounded-full bg-[#F7FAF2] border border-[#D1DDCD] flex items-center justify-center text-emerald-700">
-            <Upload className="h-5 w-5" />
+          <div className="h-12 w-12 rounded-full bg-[#E5F2CF] border border-[#B8D494] flex items-center justify-center text-[#005B36] shadow-2xs">
+            <Upload className="h-5 w-5 text-[#048547]" />
           </div>
           <h4 className="text-sm font-semibold text-[#09251A]">
             Drag and drop leaf or canopy image here, or browse files
           </h4>
-          <p className="text-xs text-[#46604D] max-w-md">
+          <p className="text-xs text-[#46604D] max-w-md leading-relaxed">
             Supports high-resolution JPEG and PNG images. For optimal diagnosis,
             capture leaves under daylight with clear lesion margins.
           </p>
@@ -319,11 +329,11 @@ export default function FieldSightPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (5 cols): Specimen Visual & Diagnostic History */}
         <div className="lg:col-span-5 space-y-4">
-          <Card className="overflow-hidden border-[#D1DDCD]">
+          <Card className="overflow-hidden border-[#D1DDCD] bg-white shadow-xs">
             <CardHeader className="pb-3 border-b border-[#D1DDCD]">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-emerald-700" />
+                  <ImageIcon className="h-4 w-4 text-[#048547]" />
                   Specimen Inspection Frame
                 </CardTitle>
                 {activeAssessment?.heatmapOverlayUrl ? (
@@ -331,7 +341,7 @@ export default function FieldSightPage() {
                     variant={showGradCam ? "primary" : "outline"}
                     size="sm"
                     onClick={() => setShowGradCam(!showGradCam)}
-                    className="h-6 text-[11px] px-2"
+                    className="h-7 text-[11px] px-2.5 cursor-pointer font-semibold"
                   >
                     <Layers className="h-3 w-3 mr-1" />
                     {showGradCam ? "Grad-CAM Visible" : "View Heatmap"}
@@ -344,7 +354,7 @@ export default function FieldSightPage() {
               </div>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="relative aspect-[4/3] w-full rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] overflow-hidden flex items-center justify-center">
+              <div className="relative aspect-[4/3] w-full rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] overflow-hidden flex items-center justify-center">
                 {imagePreviewUrl ? (
                   // User-uploaded preview
                   // eslint-disable-next-line @next/next/no-img-element
@@ -355,14 +365,14 @@ export default function FieldSightPage() {
                   />
                 ) : (
                   // Default Specimen Visual Graphic
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#F7FAF2] via-[#F7FAF2] to-[#F7FAF2] flex flex-col items-center justify-center p-6 text-center">
-                    <div className="h-24 w-24 rounded-full border border-emerald-500/30 flex items-center justify-center mb-3">
-                      <Leaf className="h-12 w-12 text-emerald-700" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#F7FAF2] via-[#F7FAF2] to-[#EAF1E7] flex flex-col items-center justify-center p-6 text-center">
+                    <div className="h-20 w-20 rounded-full border border-[#B8D494] bg-[#E5F2CF] flex items-center justify-center mb-3 shadow-2xs">
+                      <Leaf className="h-10 w-10 text-[#048547]" />
                     </div>
-                    <span className="font-mono text-xs text-emerald-700 font-semibold uppercase tracking-wider">
+                    <span className="font-mono text-xs text-[#005B36] font-semibold uppercase tracking-wider">
                       🌾 Specimen: Wheat Flag Leaf Sample
                     </span>
-                    <span className="text-[11px] text-[#46604D] mt-1 max-w-xs">
+                    <span className="text-[11px] text-[#46604D] mt-1 max-w-xs font-mono">
                       High-resolution macro frame • Resolution: 3840×2160
                     </span>
                   </div>
@@ -371,24 +381,24 @@ export default function FieldSightPage() {
                 {/* Heatmap Layer if enabled and real URL present */}
                 {showGradCam && activeAssessment?.heatmapOverlayUrl ? (
                   <div className="absolute inset-0 bg-rose-500/25 mix-blend-color-dodge pointer-events-none flex items-center justify-center">
-                    <span className="bg-black/80 px-2 py-1 rounded text-[10px] font-mono text-rose-700">
+                    <span className="bg-black/80 px-2 py-1 rounded text-[10px] font-mono text-rose-300">
                       Grad-CAM Saliency: Puccinia uredinia concentration
                     </span>
                   </div>
                 ) : null}
               </div>
             </CardContent>
-            <CardFooter className="bg-[#F7FAF2] border-t border-[#D1DDCD] text-xs text-[#46604D] flex justify-between font-mono">
+            <CardFooter className="bg-[#F7FAF2] border-t border-[#D1DDCD] text-xs text-[#46604D] flex justify-between font-mono tabular-nums">
               <span>Model: fieldsight_vision_v1</span>
               <span>Inference Time: 142ms</span>
             </CardFooter>
           </Card>
 
           {/* Diagnostic History */}
-          <Card>
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <FileText className="h-4 w-4 text-emerald-700" />
+                <FileText className="h-4 w-4 text-[#048547]" />
                 Assessment History ({assessments.length})
               </CardTitle>
             </CardHeader>
@@ -397,10 +407,10 @@ export default function FieldSightPage() {
                 <button
                   key={a.id}
                   onClick={() => setSelectedAssessment(a)}
-                  className={`w-full text-left rounded-lg p-2.5 transition-all border text-xs ${
+                  className={`w-full text-left rounded-xl p-3 transition-all border text-xs cursor-pointer ${
                     activeAssessment?.id === a.id
-                      ? "bg-[#F7FAF2] border-emerald-500/50 text-[#09251A]"
-                      : "bg-[#F7FAF2] border-[#D1DDCD] text-[#46604D] hover:bg-[#F7FAF2]"
+                      ? "bg-[#E5F2CF] border-[#B8D494] text-[#005B36] font-semibold shadow-xs"
+                      : "bg-white border-[#D1DDCD] text-[#46604D] hover:bg-[#F7FAF2] hover:text-[#09251A]"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -416,7 +426,7 @@ export default function FieldSightPage() {
                       {a.severityLevel}
                     </Badge>
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-[#46604D] font-mono">
+                  <div className="flex items-center justify-between text-[11px] text-[#46604D] font-mono tabular-nums">
                     <span>Conf: {(a.confidenceScore * 100).toFixed(1)}%</span>
                     <span>{new Date(a.assessedAt).toLocaleDateString()}</span>
                   </div>
@@ -432,13 +442,13 @@ export default function FieldSightPage() {
             <>
               {/* Low Confidence Alert if applicable */}
               {isLowConfidence ? (
-                <div className="p-3 rounded-lg bg-amber-50/40 border border-amber-800/50 text-amber-700 text-xs flex items-start gap-2.5">
-                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                <div className="p-3.5 rounded-xl bg-[#FFF0A6] border border-[#E7D57A] text-[#92400E] text-xs flex items-start gap-2.5 shadow-xs">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-[#D97706]" />
                   <div>
                     <span className="font-semibold block">
                       Low Confidence Warning (&lt; 75%)
                     </span>
-                    <span>
+                    <span className="leading-relaxed">
                       Model confidence score is borderline. Mandatory on-site
                       scouting and composite laboratory tissue testing are
                       recommended before applying chemical sprays.
@@ -448,14 +458,14 @@ export default function FieldSightPage() {
               ) : null}
 
               {/* Primary Diagnostic Banner */}
-              <Card className="border-[#D1DDCD] bg-[#F7FAF2]">
+              <Card className="border-[#D1DDCD] bg-white shadow-xs">
                 <CardHeader>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                      <span className="text-xs uppercase tracking-wider text-emerald-700 font-semibold font-mono">
+                      <span className="text-xs uppercase tracking-wider text-[#005B36] font-bold font-mono">
                         Primary Diagnosis Finding
                       </span>
-                      <CardTitle className="text-lg md:text-xl text-[#09251A] mt-1">
+                      <CardTitle className="text-lg md:text-xl text-[#09251A] mt-1 font-bold">
                         {activeAssessment.conditionName}
                       </CardTitle>
                       <p className="text-xs text-[#46604D] font-mono italic mt-0.5">
@@ -466,11 +476,11 @@ export default function FieldSightPage() {
                     </div>
 
                     <div className="flex flex-row sm:flex-col items-end gap-1.5">
-                      <div className="px-3 py-1 rounded bg-emerald-50/80 border border-emerald-500/40 text-emerald-700 font-mono text-sm font-bold tabular-nums">
+                      <div className="px-3 py-1 rounded-full bg-[#E5F2CF] border border-[#B8D494] text-[#005B36] font-mono text-xs font-bold tabular-nums shadow-2xs">
                         {(activeAssessment.confidenceScore * 100).toFixed(1)}%
                         Confidence
                       </div>
-                      <span className="text-[11px] text-[#46604D]">
+                      <span className="text-[11px] text-[#46604D] font-mono tabular-nums">
                         Canopy Affected:{" "}
                         {activeAssessment.affectedAreaPercentage}%
                       </span>
@@ -488,9 +498,9 @@ export default function FieldSightPage() {
                         (symptom, idx) => (
                           <div
                             key={idx}
-                            className="flex items-start gap-2 text-xs text-[#46604D] bg-[#F7FAF2] p-2 rounded border border-[#D1DDCD]"
+                            className="flex items-start gap-2 text-xs text-[#09251A] bg-[#F7FAF2] p-2.5 rounded-xl border border-[#D1DDCD]"
                           >
-                            <CheckCircle className="h-3.5 w-3.5 text-emerald-700 shrink-0 mt-0.5" />
+                            <CheckCircle className="h-4 w-4 text-[#048547] shrink-0 mt-0.5" />
                             <span>{symptom}</span>
                           </div>
                         ),
@@ -503,16 +513,16 @@ export default function FieldSightPage() {
                     <h4 className="text-xs font-semibold text-[#46604D] uppercase tracking-wider">
                       Alternative Hypotheses & Probability Distribution
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-                      <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center">
-                        <span className="text-[#46604D]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono tabular-nums">
+                      <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center">
+                        <span className="text-[#09251A] font-medium">
                           Physiological Leaf Spot
                         </span>
-                        <span className="text-[#46604D]">3.4% prob</span>
+                        <span className="text-[#46604D] font-semibold">3.4% prob</span>
                       </div>
-                      <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center">
-                        <span className="text-[#46604D]">Powdery Mildew</span>
-                        <span className="text-[#46604D]">1.2% prob</span>
+                      <div className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center">
+                        <span className="text-[#09251A] font-medium">Powdery Mildew</span>
+                        <span className="text-[#46604D] font-semibold">1.2% prob</span>
                       </div>
                     </div>
                   </div>
@@ -520,12 +530,12 @@ export default function FieldSightPage() {
                   {/* Recommended Agronomic Protocols */}
                   <div className="space-y-3 pt-2 border-t border-[#D1DDCD]">
                     <h4 className="text-xs font-semibold text-[#46604D] uppercase tracking-wider flex items-center gap-2">
-                      <Sparkles className="h-3.5 w-3.5 text-emerald-700" />
+                      <Sparkles className="h-3.5 w-3.5 text-[#048547]" />
                       Suggested next steps
                     </h4>
 
-                    <div className="rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] p-3 text-xs leading-relaxed text-[#46604D]">
-                      <p className="font-medium text-[#09251A] mb-2">
+                    <div className="rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] p-4 text-xs leading-relaxed text-[#46604D]">
+                      <p className="font-semibold text-[#09251A] mb-2 text-sm">
                         {
                           activeAssessment.diagnosisDetails
                             .recommendedIntervention
@@ -533,8 +543,8 @@ export default function FieldSightPage() {
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-[#D1DDCD]">
-                        <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                          <span className="text-[10px] uppercase font-semibold text-emerald-700 block mb-1">
+                        <div className="p-3 rounded-lg bg-white border border-[#D1DDCD] shadow-2xs">
+                          <span className="text-[11px] uppercase font-bold text-[#005B36] block mb-1.5">
                             🌱 Biological Remediation
                           </span>
                           <ul className="list-disc list-inside space-y-1 text-[#46604D]">
@@ -546,8 +556,8 @@ export default function FieldSightPage() {
                           </ul>
                         </div>
 
-                        <div className="p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                          <span className="text-[10px] uppercase font-semibold text-amber-700 block mb-1">
+                        <div className="p-3 rounded-lg bg-white border border-[#D1DDCD] shadow-2xs">
+                          <span className="text-[11px] uppercase font-bold text-[#92400E] block mb-1.5">
                             🧪 Chemical Fungicide Formulation
                           </span>
                           <ul className="list-disc list-inside space-y-1 text-[#46604D]">
@@ -563,12 +573,12 @@ export default function FieldSightPage() {
                   </div>
 
                   {/* Impact Risk & Dispatch Action */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-rose-50/30 border border-rose-900/40 text-xs">
-                    <div className="flex items-center gap-2 text-rose-700">
-                      <ShieldAlert className="h-4 w-4 shrink-0" />
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-[#FBE0E8]/40 border border-[#E9B4C4] text-xs">
+                    <div className="flex items-center gap-2 text-[#991B1B]">
+                      <ShieldAlert className="h-4 w-4 shrink-0 text-[#DC2626]" />
                       <span>
                         Yield Loss Risk if Unmitigated:{" "}
-                        <strong>
+                        <strong className="font-mono tabular-nums">
                           {activeAssessment.diagnosisDetails
                             .estimatedYieldLossRiskPercent || 18.5}
                           %
@@ -580,7 +590,7 @@ export default function FieldSightPage() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        className="h-7 text-xs gap-1.5"
+                        className="h-8 text-xs gap-1.5 font-semibold cursor-pointer"
                       >
                         <ClipboardCheck className="h-3.5 w-3.5" />
                         Queue Remediation Task in Ops
@@ -593,10 +603,10 @@ export default function FieldSightPage() {
           ) : null}
 
           {/* Supported Taxonomy Reference */}
-          <Card>
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
             <CardHeader className="pb-2">
               <CardTitle className="text-xs font-semibold uppercase tracking-wider text-[#46604D] flex items-center gap-1.5">
-                <Info className="h-3.5 w-3.5 text-emerald-700" />
+                <Info className="h-3.5 w-3.5 text-[#048547]" />
                 Supported Vision Model Classes (7 Pathologies)
               </CardTitle>
             </CardHeader>
@@ -605,13 +615,13 @@ export default function FieldSightPage() {
                 {SUPPORTED_CLASSES.map((cls, idx) => (
                   <div
                     key={idx}
-                    className="p-2 rounded bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center"
+                    className="p-2.5 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD] flex justify-between items-center"
                   >
-                    <span className="text-[#46604D] truncate">{cls.name}</span>
+                    <span className="text-[#09251A] font-medium truncate">{cls.name}</span>
                     <Badge
                       variant="outline"
                       size="sm"
-                      className="text-[10px] text-[#46604D] ml-2 shrink-0"
+                      className="text-[10px] text-[#46604D] ml-2 shrink-0 bg-white"
                     >
                       {cls.crop}
                     </Badge>

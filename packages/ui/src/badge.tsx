@@ -20,24 +20,24 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variants = {
-    default: "bg-[#F7FAF2] text-[#46604D] border border-[#D1DDCD]",
-    success: "bg-emerald-50/60 text-emerald-700 border border-emerald-800/50",
-    warning: "bg-amber-50/60 text-amber-700 border border-amber-800/50",
-    destructive: "bg-rose-50/60 text-rose-700 border border-rose-800/50",
-    outline: "border border-[#D1DDCD] text-[#46604D]",
-    hydrology: "bg-sky-50/60 text-sky-700 border border-sky-800/50",
-    spectral: "bg-purple-50/60 text-purple-700 border border-purple-800/50",
+    default: "bg-[#FFFFFF] text-[#46604D] border border-[#D1DDCD]",
+    success: "bg-[#EAF6ED] text-[#005B36] border border-[#A3D9B5]",
+    warning: "bg-[#FFF9DB] text-[#854D0E] border border-[#EBD377]",
+    destructive: "bg-[#FFF1F2] text-[#BE123C] border border-[#FDA4AF]",
+    outline: "border border-[#D1DDCD] bg-transparent text-[#46604D]",
+    hydrology: "bg-[#E0F2FE] text-[#0369A1] border border-[#7DD3FC]",
+    spectral: "bg-[#F3E8FF] text-[#6B21A8] border border-[#D8B4FE]",
   };
 
   const sizes = {
-    sm: "text-xs px-2.5 py-0.5",
-    md: "text-sm px-3 py-1",
+    sm: "text-xs px-2.5 py-0.5 font-medium",
+    md: "text-xs sm:text-sm px-3 py-1 font-medium",
   };
 
   return (
     <div
       className={cn(
-        "inline-flex items-center font-medium rounded-md tracking-wide transition-colors",
+        "inline-flex items-center font-medium rounded-md tracking-wide transition-colors select-none",
         variants[variant],
         sizes[size],
         className,

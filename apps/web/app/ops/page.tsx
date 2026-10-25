@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ClipboardList,
@@ -68,6 +68,18 @@ export default function OpsPage() {
   const [newTxQuantity, setNewTxQuantity] = useState("10");
   const [newTxUnitPrice, setNewTxUnitPrice] = useState("1350");
 
+  // Keyboard accessibility for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsNewTaskModalOpen(false);
+        setIsNewTransactionModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const tasksQuery = useQuery({
     queryKey: ["tasks", selectedFarmId],
     queryFn: () => apiClient.getTasks(selectedFarmId),
@@ -131,13 +143,13 @@ export default function OpsPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-xl md:text-2xl font-bold tracking-tight text-[#09251A] flex items-center gap-2">
-              <ClipboardList className="h-6 w-6 text-emerald-700" />
+              <ClipboardList className="h-6 w-6 text-[#048547]" />
               Daily tasks
             </h1>
             <Badge
               variant="outline"
               size="sm"
-              className="font-mono text-emerald-700 border-emerald-800/40"
+              className="font-mono text-[#005B36] border-[#B8D494] bg-[#E5F2CF]"
             >
               Active Ledger
             </Badge>
@@ -153,16 +165,16 @@ export default function OpsPage() {
             variant="secondary"
             size="sm"
             onClick={() => setIsNewTransactionModalOpen(true)}
-            className="h-8 text-xs gap-1.5"
+            className="h-9 text-xs gap-1.5 border border-[#D1DDCD] bg-white text-[#09251A] hover:bg-[#EAF1E7] cursor-pointer shadow-2xs"
           >
-            <Boxes className="h-3.5 w-3.5 text-emerald-700" />
+            <Boxes className="h-3.5 w-3.5 text-[#048547]" />
             Book Inventory
           </Button>
           <Button
             variant="primary"
             size="sm"
             onClick={() => setIsNewTaskModalOpen(true)}
-            className="h-8 text-xs gap-1.5"
+            className="h-9 text-xs gap-1.5 bg-[#048547] text-white hover:bg-[#005B36] font-semibold cursor-pointer shadow-xs"
           >
             <Plus className="h-4 w-4" />
             Dispatch Work Order
@@ -182,7 +194,7 @@ export default function OpsPage() {
           subValue="1 Urgent, 1 Medium Priority"
           trend="neutral"
           trendValue="On Track"
-          icon={<ClipboardList className="h-4 w-4" />}
+          icon={<ClipboardList className="h-4 w-4 text-[#048547]" />}
           variant="emerald"
         />
 
@@ -193,7 +205,7 @@ export default function OpsPage() {
           subValue="Seed, chemical & diesel stores"
           trend="down"
           trendValue="Burn Rate Normal"
-          icon={<Boxes className="h-4 w-4" />}
+          icon={<Boxes className="h-4 w-4 text-[#0284C7]" />}
           variant="sky"
         />
 
@@ -204,7 +216,7 @@ export default function OpsPage() {
           subValue="PB-1121 Export Grade Silo #3"
           trend="up"
           trendValue="Moisture: 12.8%"
-          icon={<Archive className="h-4 w-4" />}
+          icon={<Archive className="h-4 w-4 text-[#D97706]" />}
           variant="amber"
         />
 
@@ -215,28 +227,28 @@ export default function OpsPage() {
           subValue="Fertilizer, seed & fuel costs"
           trend="up"
           trendValue="Budget Aligned"
-          icon={<IndianRupee className="h-4 w-4" />}
+          icon={<IndianRupee className="h-4 w-4 text-[#048547]" />}
           variant="default"
         />
       </div>
 
       {/* Main Tabs Navigation */}
       <Tabs defaultValue="tasks">
-        <TabsList className="mb-4 h-auto max-w-full flex-wrap justify-start gap-1">
+        <TabsList className="mb-4 h-auto max-w-full flex-wrap justify-start gap-1.5 p-1 bg-white border border-[#D1DDCD] rounded-2xl shadow-2xs">
           <TabsTrigger value="tasks" className="gap-2">
-            <ClipboardList className="h-4 w-4" />
+            <ClipboardList className="h-4 w-4 text-[#048547]" />
             Work Orders ({tasks.length})
           </TabsTrigger>
           <TabsTrigger value="inventory" className="gap-2">
-            <Boxes className="h-4 w-4" />
+            <Boxes className="h-4 w-4 text-[#0284C7]" />
             Stock Ledger ({inventory.length})
           </TabsTrigger>
           <TabsTrigger value="expenses" className="gap-2">
-            <Receipt className="h-4 w-4" />
+            <Receipt className="h-4 w-4 text-[#D97706]" />
             Expense Breakdown
           </TabsTrigger>
           <TabsTrigger value="harvest" className="gap-2">
-            <Archive className="h-4 w-4" />
+            <Archive className="h-4 w-4 text-[#EA580C]" />
             Harvest Batches ({harvestBatches.length})
           </TabsTrigger>
         </TabsList>
@@ -244,10 +256,10 @@ export default function OpsPage() {
         {/* Tab 1: Tasks */}
         <TabsContent value="tasks" className="space-y-4">
           {/* Task Filters */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white border border-[#D1DDCD] text-xs shadow-2xs">
             <div className="flex items-center gap-2">
-              <Filter className="h-3.5 w-3.5 text-emerald-700" />
-              <span className="font-semibold text-[#46604D]">
+              <Filter className="h-3.5 w-3.5 text-[#048547]" />
+              <span className="font-semibold text-[#09251A]">
                 Filter Work Orders:
               </span>
             </div>
@@ -256,10 +268,10 @@ export default function OpsPage() {
                 <button
                   key={filter}
                   onClick={() => setActiveTaskFilter(filter)}
-                  className={`px-2.5 py-1 rounded text-xs capitalize font-medium transition-colors ${
+                  className={`px-3 py-1.5 rounded-lg text-xs capitalize font-semibold transition-all cursor-pointer ${
                     activeTaskFilter === filter
-                      ? "bg-[#FFFFFF] text-emerald-700 border border-[#D1DDCD]"
-                      : "text-[#46604D] hover:text-[#46604D]"
+                      ? "bg-[#E5F2CF] text-[#005B36] border border-[#B8D494] shadow-xs"
+                      : "text-[#46604D] hover:text-[#09251A] hover:bg-[#F7FAF2]"
                   }`}
                 >
                   {filter}
@@ -268,9 +280,9 @@ export default function OpsPage() {
             </div>
           </div>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
+            <CardHeader className="pb-3 border-b border-[#D1DDCD]">
+              <CardTitle className="text-base font-bold text-[#09251A]">
                 Field Labor & Machinery Dispatch Schedule
               </CardTitle>
               <CardDescription>
@@ -278,25 +290,25 @@ export default function OpsPage() {
                 FieldSight alerts.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {filteredTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  className="rounded-2xl bg-white border border-[#D1DDCD] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs hover:border-[#B8D494] transition-all"
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">
                       {task.status === "completed" ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+                        <CheckCircle2 className="h-4 w-4 text-[#048547]" />
                       ) : task.priority === "urgent" ? (
-                        <AlertCircle className="h-4 w-4 text-rose-700 animate-pulse" />
+                        <AlertCircle className="h-4 w-4 text-[#DC2626] motion-safe:animate-pulse" />
                       ) : (
-                        <Clock className="h-4 w-4 text-amber-700" />
+                        <Clock className="h-4 w-4 text-[#D97706]" />
                       )}
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-[#09251A]">
+                        <span className="font-bold text-sm text-[#09251A]">
                           {task.title}
                         </span>
                         <Badge
@@ -312,15 +324,15 @@ export default function OpsPage() {
                           {task.priority}
                         </Badge>
                       </div>
-                      <p className="text-[#46604D]">{task.description}</p>
-                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#46604D] pt-0.5">
+                      <p className="text-[#46604D] leading-relaxed">{task.description}</p>
+                      <div className="flex flex-wrap items-center gap-4 text-[11px] text-[#46604D] pt-0.5 font-mono">
                         <span>
                           Assignee:{" "}
-                          {task.assignedToName || "Unassigned Technician"}
+                          <strong className="text-[#09251A] font-semibold">{task.assignedToName || "Unassigned Technician"}</strong>
                         </span>
                         <span>Due Date: {task.dueDate}</span>
                         {task.costEstimateInr ? (
-                          <span className="font-mono text-emerald-700">
+                          <span className="text-[#005B36] font-semibold tabular-nums">
                             Est: ₹{task.costEstimateInr.toLocaleString("en-IN")}
                           </span>
                         ) : null}
@@ -350,7 +362,7 @@ export default function OpsPage() {
                             queryKey: ["tasks", selectedFarmId],
                           });
                         }}
-                        className="h-7 text-[11px] px-2 text-emerald-700 hover:text-emerald-700 border-[#22352A]"
+                        className="h-8 text-xs px-3 text-[#005B36] bg-[#E5F2CF] hover:bg-[#D4E6C5] border-[#B8D494] font-semibold cursor-pointer shadow-2xs"
                       >
                         <Check className="h-3 w-3 mr-1" />
                         Complete
@@ -365,9 +377,9 @@ export default function OpsPage() {
 
         {/* Tab 2: Inventory */}
         <TabsContent value="inventory">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
+            <CardHeader className="pb-3 border-b border-[#D1DDCD]">
+              <CardTitle className="text-base font-bold text-[#09251A]">
                 Agrochemical, Seed & Fuel Ledger
               </CardTitle>
               <CardDescription>
@@ -375,18 +387,18 @@ export default function OpsPage() {
                 supplier provenance.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="border-b border-[#D1DDCD] text-[#46604D] uppercase font-mono text-[10px]">
                     <tr>
-                      <th className="pb-2.5">Item Name</th>
-                      <th className="pb-2.5">Category</th>
-                      <th className="pb-2.5">Batch / Lot #</th>
-                      <th className="pb-2.5">Balance</th>
-                      <th className="pb-2.5">Unit Price</th>
-                      <th className="pb-2.5">Total Valuation</th>
-                      <th className="pb-2.5">Supplier / Vendor</th>
+                      <th className="pb-3">Item Name</th>
+                      <th className="pb-3">Category</th>
+                      <th className="pb-3">Batch / Lot #</th>
+                      <th className="pb-3">Balance</th>
+                      <th className="pb-3">Unit Price</th>
+                      <th className="pb-3">Total Valuation</th>
+                      <th className="pb-3">Supplier / Vendor</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#D1DDCD] text-[#09251A]">
@@ -395,23 +407,23 @@ export default function OpsPage() {
                         key={item.id}
                         className="hover:bg-[#F7FAF2] transition-colors"
                       >
-                        <td className="py-3 font-semibold text-[#09251A]">
+                        <td className="py-3.5 font-bold text-[#09251A]">
                           {item.itemName}
                         </td>
-                        <td className="py-3 capitalize text-[#46604D]">
+                        <td className="py-3.5 capitalize text-[#46604D]">
                           {item.itemType.replace(UNDERSCORE_REGEX, " ")}
                         </td>
-                        <td className="py-3 font-mono text-[11px] text-[#46604D]">
+                        <td className="py-3.5 font-mono text-[11px] text-[#46604D]">
                           {item.batchNumber || "—"}
                         </td>
-                        <td className="py-3 font-mono font-semibold text-emerald-700">
+                        <td className="py-3.5 font-mono font-bold text-[#005B36] tabular-nums">
                           {item.balanceAfterQuantity} {item.unit}
                         </td>
-                        <td className="py-3 font-mono">₹{item.unitPriceInr}</td>
-                        <td className="py-3 font-mono font-bold">
+                        <td className="py-3.5 font-mono tabular-nums">₹{item.unitPriceInr}</td>
+                        <td className="py-3.5 font-mono font-bold tabular-nums">
                           ₹{item.totalAmountInr.toLocaleString("en-IN")}
                         </td>
-                        <td className="py-3 text-[#46604D]">
+                        <td className="py-3.5 text-[#46604D]">
                           {item.supplierOrVendor || "Direct"}
                         </td>
                       </tr>
@@ -425,9 +437,9 @@ export default function OpsPage() {
 
         {/* Tab 3: Expenses */}
         <TabsContent value="expenses">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
+            <CardHeader className="pb-3 border-b border-[#D1DDCD]">
+              <CardTitle className="text-base font-bold text-[#09251A]">
                 Current Season Input Expense Allocations
               </CardTitle>
               <CardDescription>
@@ -435,38 +447,38 @@ export default function OpsPage() {
                 and diesel expenditures.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
-                <div className="p-3.5 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD]">
-                  <span className="text-[#46604D] text-[10px] block">
+                <div className="p-4 rounded-2xl bg-[#E5F2CF]/40 border border-[#B8D494] shadow-2xs">
+                  <span className="text-[#46604D] text-[10px] block font-bold">
                     TOTAL REVENUE (PROJECTED)
                   </span>
-                  <span className="text-lg font-bold text-emerald-700">
+                  <span className="text-xl font-extrabold text-[#005B36] tabular-nums">
                     ₹12,38,400
                   </span>
-                  <span className="text-[11px] text-[#46604D] block mt-0.5">
+                  <span className="text-[11px] text-[#46604D] block mt-1 font-sans">
                     Based on 48 MT Wheat @ ₹2,580/q
                   </span>
                 </div>
-                <div className="p-3.5 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD]">
-                  <span className="text-[#46604D] text-[10px] block">
+                <div className="p-4 rounded-2xl bg-[#FFF0A6]/40 border border-[#E7D57A] shadow-2xs">
+                  <span className="text-[#46604D] text-[10px] block font-bold">
                     TOTAL CUMULATIVE EXPENSES
                   </span>
-                  <span className="text-lg font-bold text-amber-700">
+                  <span className="text-xl font-extrabold text-[#92400E] tabular-nums">
                     ₹97,300
                   </span>
-                  <span className="text-[11px] text-[#46604D] block mt-0.5">
+                  <span className="text-[11px] text-[#46604D] block mt-1 font-sans">
                     Inputs, diesel & maintenance
                   </span>
                 </div>
-                <div className="p-3.5 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD]">
-                  <span className="text-[#46604D] text-[10px] block">
+                <div className="p-4 rounded-2xl bg-[#E5F2CF]/40 border border-[#B8D494] shadow-2xs">
+                  <span className="text-[#46604D] text-[10px] block font-bold">
                     NET MARGIN ESTIMATE
                   </span>
-                  <span className="text-lg font-bold text-emerald-700">
+                  <span className="text-xl font-extrabold text-[#005B36] tabular-nums">
                     ₹11,41,100
                   </span>
-                  <span className="text-[11px] text-[#46604D] block mt-0.5">
+                  <span className="text-[11px] text-[#46604D] block mt-1 font-sans">
                     Net margin: ~92.1%
                   </span>
                 </div>
@@ -474,39 +486,39 @@ export default function OpsPage() {
 
               {/* Expense Breakdown Categories */}
               <div className="space-y-2 pt-2 text-xs">
-                <h4 className="font-semibold text-[#46604D] uppercase tracking-wider text-[11px]">
+                <h4 className="font-bold text-[#09251A] uppercase tracking-wider text-[11px]">
                   Expense Allocation Breakdown
                 </h4>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                    <span className="text-[#09251A]">
+                  <div className="flex justify-between items-center p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                    <span className="text-[#09251A] font-semibold">
                       Foundation Seed (HD-3086 Certified)
                     </span>
-                    <span className="font-mono text-[#09251A] font-bold">
+                    <span className="font-mono text-[#09251A] font-bold tabular-nums">
                       ₹57,600 (59.2%)
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                    <span className="text-[#09251A]">
+                  <div className="flex justify-between items-center p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                    <span className="text-[#09251A] font-semibold">
                       Agrochemicals (Tilt Fungicide 25L)
                     </span>
-                    <span className="font-mono text-[#09251A] font-bold">
+                    <span className="font-mono text-[#09251A] font-bold tabular-nums">
                       ₹35,500 (36.5%)
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                    <span className="text-[#09251A]">
+                  <div className="flex justify-between items-center p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                    <span className="text-[#09251A] font-semibold">
                       Precision Soil Sampling & Core Assay
                     </span>
-                    <span className="font-mono text-[#09251A] font-bold">
+                    <span className="font-mono text-[#09251A] font-bold tabular-nums">
                       ₹2,350 (2.4%)
                     </span>
                   </div>
-                  <div className="flex justify-between items-center p-2.5 rounded bg-[#F7FAF2] border border-[#D1DDCD]">
-                    <span className="text-[#09251A]">
+                  <div className="flex justify-between items-center p-3 rounded-xl bg-[#F7FAF2] border border-[#D1DDCD]">
+                    <span className="text-[#09251A] font-semibold">
                       Irrigation Manifold Filter Maintenance
                     </span>
-                    <span className="font-mono text-[#09251A] font-bold">
+                    <span className="font-mono text-[#09251A] font-bold tabular-nums">
                       ₹1,850 (1.9%)
                     </span>
                   </div>
@@ -518,9 +530,9 @@ export default function OpsPage() {
 
         {/* Tab 4: Harvest Batches */}
         <TabsContent value="harvest">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">
+          <Card className="bg-white border-[#D1DDCD] shadow-xs">
+            <CardHeader className="pb-3 border-b border-[#D1DDCD]">
+              <CardTitle className="text-base font-bold text-[#09251A]">
                 Harvested Batches & Quality Grading
               </CardTitle>
               <CardDescription>
@@ -528,18 +540,18 @@ export default function OpsPage() {
                 custody.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 pt-4">
               {harvestBatches.map((batch) => (
                 <div
                   key={batch.id}
-                  className="rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs"
+                  className="rounded-2xl bg-white border border-[#D1DDCD] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs shadow-xs hover:border-[#B8D494] transition-all"
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-sm text-emerald-700">
+                      <span className="font-mono font-bold text-sm text-[#005B36]">
                         {batch.batchCode}
                       </span>
-                      <span className="font-semibold text-sm text-[#09251A]">
+                      <span className="font-bold text-sm text-[#09251A]">
                         {batch.cropName} ({batch.variety})
                       </span>
                       <Badge variant="success" size="sm">
@@ -552,7 +564,7 @@ export default function OpsPage() {
                         <span className="text-[#46604D] block text-[10px]">
                           TOTAL MASS
                         </span>
-                        <span className="text-[#09251A] font-semibold">
+                        <span className="text-[#09251A] font-semibold tabular-nums">
                           {(batch.totalQuantityKg / 1000).toFixed(1)} MT
                         </span>
                       </div>
@@ -560,7 +572,7 @@ export default function OpsPage() {
                         <span className="text-[#46604D] block text-[10px]">
                           MOISTURE CONTENT
                         </span>
-                        <span className="text-sky-700 font-semibold">
+                        <span className="text-[#0284C7] font-semibold tabular-nums">
                           {batch.moistureContentPercent}%
                         </span>
                       </div>
@@ -568,7 +580,7 @@ export default function OpsPage() {
                         <span className="text-[#46604D] block text-[10px]">
                           FOREIGN MATTER
                         </span>
-                        <span className="text-emerald-700 font-semibold">
+                        <span className="text-[#005B36] font-semibold tabular-nums">
                           {batch.foreignMatterPercent}%
                         </span>
                       </div>
@@ -576,7 +588,7 @@ export default function OpsPage() {
                         <span className="text-[#46604D] block text-[10px]">
                           STORAGE LOCATION
                         </span>
-                        <span className="text-[#46604D]">
+                        <span className="text-[#09251A] font-semibold">
                           {batch.storageWarehouse}
                         </span>
                       </div>
@@ -588,9 +600,9 @@ export default function OpsPage() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        className="gap-1 text-xs"
+                        className="gap-1.5 text-xs h-8 cursor-pointer"
                       >
-                        <Truck className="h-3.5 w-3.5 text-emerald-700" />
+                        <Truck className="h-3.5 w-3.5 text-[#048547]" />
                         Check Mandi Arbitrage
                       </Button>
                     </Link>
@@ -604,17 +616,22 @@ export default function OpsPage() {
 
       {/* New Task Modal */}
       {isNewTaskModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-xl border border-[#D1DDCD] bg-[#F7FAF2] shadow-sm p-5 space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="new-task-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div className="relative w-full max-w-md rounded-2xl border border-[#D1DDCD] bg-white shadow-xl p-6 space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-[#D1DDCD] pb-3">
-              <h3 className="font-semibold text-base text-[#09251A]">
+              <h3 id="new-task-modal-title" className="font-bold text-base text-[#09251A]">
                 Dispatch New Work Order
               </h3>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsNewTaskModalOpen(false)}
-                className="h-6 w-6 text-[#46604D]"
+                className="h-8 w-8 text-[#46604D] hover:text-[#09251A] cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
@@ -625,7 +642,7 @@ export default function OpsPage() {
               <div className="space-y-1">
                 <label
                   htmlFor="task-title"
-                  className="text-[#46604D] font-semibold block"
+                  className="text-[#09251A] font-semibold block"
                 >
                   Task Title
                 </label>
@@ -634,7 +651,7 @@ export default function OpsPage() {
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="e.g. Bio-stimulant spray run on Sector Alpha"
-                  className="bg-[#F7FAF2]"
+                  className="bg-white border-[#D1DDCD]"
                 />
               </div>
 
@@ -642,7 +659,7 @@ export default function OpsPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="task-category"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Category
                   </label>
@@ -650,7 +667,7 @@ export default function OpsPage() {
                     id="task-category"
                     value={newTaskCategory}
                     onChange={(e) => setNewTaskCategory(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-[#D1DDCD] bg-[#F7FAF2] px-3 text-xs text-[#09251A] focus:outline-none"
+                    className="w-full h-10 rounded-xl border border-[#D1DDCD] bg-white px-3 text-xs text-[#09251A] font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] cursor-pointer"
                   >
                     <option value="irrigation">Irrigation</option>
                     <option value="spraying_pest_control">Spraying</option>
@@ -663,7 +680,7 @@ export default function OpsPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="task-priority"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Priority
                   </label>
@@ -675,7 +692,7 @@ export default function OpsPage() {
                         e.target.value as typeof newTaskPriority,
                       )
                     }
-                    className="w-full h-9 rounded-lg border border-[#D1DDCD] bg-[#F7FAF2] px-3 text-xs text-[#09251A] focus:outline-none"
+                    className="w-full h-10 rounded-xl border border-[#D1DDCD] bg-white px-3 text-xs text-[#09251A] font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] cursor-pointer"
                   >
                     <option value="urgent">Urgent</option>
                     <option value="high">High</option>
@@ -689,7 +706,7 @@ export default function OpsPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="task-due-date"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Due Date
                   </label>
@@ -698,14 +715,14 @@ export default function OpsPage() {
                     type="date"
                     value={newTaskDueDate}
                     onChange={(e) => setNewTaskDueDate(e.target.value)}
-                    className="bg-[#F7FAF2] font-mono"
+                    className="bg-white border-[#D1DDCD] font-mono"
                   />
                 </div>
 
                 <div className="space-y-1">
                   <label
                     htmlFor="task-cost"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Cost Estimate (₹)
                   </label>
@@ -714,17 +731,18 @@ export default function OpsPage() {
                     type="number"
                     value={newTaskCost}
                     onChange={(e) => setNewTaskCost(e.target.value)}
-                    className="bg-[#F7FAF2] font-mono"
+                    className="bg-white border-[#D1DDCD] font-mono tabular-nums"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#D1DDCD]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#D1DDCD]">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => setIsNewTaskModalOpen(false)}
+                className="cursor-pointer"
               >
                 Cancel
               </Button>
@@ -734,6 +752,7 @@ export default function OpsPage() {
                 onClick={() => createTaskMutation.mutate()}
                 disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
                 isLoading={createTaskMutation.isPending}
+                className="bg-[#048547] text-white hover:bg-[#005B36] font-semibold min-h-[40px] cursor-pointer shadow-xs"
               >
                 Dispatch Order
               </Button>
@@ -744,17 +763,22 @@ export default function OpsPage() {
 
       {/* Book Inventory Modal */}
       {isNewTransactionModalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md rounded-xl border border-[#D1DDCD] bg-[#F7FAF2] shadow-sm p-5 space-y-4 text-xs">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="new-tx-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div className="relative w-full max-w-md rounded-2xl border border-[#D1DDCD] bg-white shadow-xl p-6 space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-[#D1DDCD] pb-3">
-              <h3 className="font-semibold text-base text-[#09251A]">
+              <h3 id="new-tx-modal-title" className="font-bold text-base text-[#09251A]">
                 Book Inventory Stock Transaction
               </h3>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsNewTransactionModalOpen(false)}
-                className="h-6 w-6 text-[#46604D]"
+                className="h-8 w-8 text-[#46604D] hover:text-[#09251A] cursor-pointer"
                 aria-label="Close modal"
               >
                 <X className="h-4 w-4" />
@@ -765,7 +789,7 @@ export default function OpsPage() {
               <div className="space-y-1">
                 <label
                   htmlFor="tx-item-name"
-                  className="text-[#46604D] font-semibold block"
+                  className="text-[#09251A] font-semibold block"
                 >
                   Item Name
                 </label>
@@ -773,7 +797,7 @@ export default function OpsPage() {
                   id="tx-item-name"
                   value={newTxItemName}
                   onChange={(e) => setNewTxItemName(e.target.value)}
-                  className="bg-[#F7FAF2]"
+                  className="bg-white border-[#D1DDCD]"
                 />
               </div>
 
@@ -781,7 +805,7 @@ export default function OpsPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="tx-type"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Transaction
                   </label>
@@ -789,7 +813,7 @@ export default function OpsPage() {
                     id="tx-type"
                     value={newTxType}
                     onChange={(e) => setNewTxType(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-[#D1DDCD] bg-[#F7FAF2] px-2 text-xs text-[#09251A] focus:outline-none"
+                    className="w-full h-10 rounded-xl border border-[#D1DDCD] bg-white px-2 text-xs text-[#09251A] font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#048547] cursor-pointer"
                   >
                     <option value="usage">Field Usage</option>
                     <option value="purchase">Purchase</option>
@@ -800,7 +824,7 @@ export default function OpsPage() {
                 <div className="space-y-1">
                   <label
                     htmlFor="tx-quantity"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Quantity
                   </label>
@@ -809,14 +833,14 @@ export default function OpsPage() {
                     type="number"
                     value={newTxQuantity}
                     onChange={(e) => setNewTxQuantity(e.target.value)}
-                    className="bg-[#F7FAF2] font-mono"
+                    className="bg-white border-[#D1DDCD] font-mono tabular-nums"
                   />
                 </div>
 
                 <div className="space-y-1">
                   <label
                     htmlFor="tx-unit-price"
-                    className="text-[#46604D] font-semibold block"
+                    className="text-[#09251A] font-semibold block"
                   >
                     Unit Price (₹)
                   </label>
@@ -825,17 +849,18 @@ export default function OpsPage() {
                     type="number"
                     value={newTxUnitPrice}
                     onChange={(e) => setNewTxUnitPrice(e.target.value)}
-                    className="bg-[#F7FAF2] font-mono"
+                    className="bg-white border-[#D1DDCD] font-mono tabular-nums"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#D1DDCD]">
+            <div className="flex justify-end gap-2 pt-3 border-t border-[#D1DDCD]">
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={() => setIsNewTransactionModalOpen(false)}
+                className="cursor-pointer"
               >
                 Cancel
               </Button>
@@ -843,6 +868,7 @@ export default function OpsPage() {
                 variant="primary"
                 size="sm"
                 onClick={() => setIsNewTransactionModalOpen(false)}
+                className="bg-[#048547] text-white hover:bg-[#005B36] font-semibold min-h-[40px] cursor-pointer shadow-xs"
               >
                 Book Transaction
               </Button>
