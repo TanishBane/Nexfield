@@ -263,12 +263,14 @@ export function ContextualTaskDrawer({
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="Task title (e.g. Inspect drip emitters)"
+                  aria-label="Task title"
                   className="w-full px-3 py-2 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs text-[#09251A] focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
                 <div className="flex items-center justify-between gap-2">
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as any)}
+                    aria-label="Task priority"
                     className="px-2.5 py-1.5 rounded-lg bg-[#F7FAF2] border border-[#D1DDCD] text-xs text-[#09251A]"
                   >
                     <option value="low">Low Priority</option>
