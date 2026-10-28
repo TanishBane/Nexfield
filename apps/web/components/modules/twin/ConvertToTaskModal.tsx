@@ -93,10 +93,11 @@ export function ConvertToTaskModal({
           ) : (
             <>
               <div className="space-y-1.5">
-                <label className="text-[#46604D] font-semibold block">
+                <label htmlFor="task-title" className="text-[#46604D] font-semibold block">
                   Task Work Order Title
                 </label>
                 <Input
+                  id="task-title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="bg-[#F7FAF2]"
@@ -105,10 +106,11 @@ export function ConvertToTaskModal({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[#46604D] font-semibold block">
+                  <label htmlFor="task-due-date" className="text-[#46604D] font-semibold block">
                     Scheduled Due Date
                   </label>
                   <Input
+                    id="task-due-date"
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
@@ -117,10 +119,11 @@ export function ConvertToTaskModal({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[#46604D] font-semibold block">
+                  <label htmlFor="task-priority" className="text-[#46604D] font-semibold block">
                     Priority Level
                   </label>
                   <select
+                    id="task-priority"
                     value={priority}
                     onChange={(e) =>
                       setPriority(e.target.value as typeof priority)
