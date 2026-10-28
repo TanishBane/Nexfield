@@ -386,6 +386,7 @@ This public demo continues in synthetic mode, so the UI is intentionally grounde
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Ask about crop health, spray dosages, irrigation withholding, or Mandi arbitrage..."
+                  aria-label="Message intelligence assistant"
                   className="flex-1 bg-white border-[#D1DDCD]"
                   disabled={chatMutation.isPending}
                 />
