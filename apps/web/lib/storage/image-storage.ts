@@ -68,3 +68,16 @@ export async function getObservationSignedUrl(
   if (!path) return null;
   return path;
 }
+
+/**
+ * Revokes a previously allocated Object URL to prevent browser memory leaks.
+ */
+export function revokeObservationUrl(url: string | null | undefined): void {
+  if (url && typeof window !== 'undefined' && url.startsWith('blob:')) {
+    try {
+      URL.revokeObjectURL(url);
+    } catch {
+      // safe noop
+    }
+  }
+}

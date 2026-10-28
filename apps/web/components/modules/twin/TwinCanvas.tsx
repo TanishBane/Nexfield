@@ -35,6 +35,22 @@ function FarmPlot({
   const overlayMode = useSimulationStore((state) => state.overlayMode);
   const isIrrigationRunning = useSimulationStore((state) => state.isIrrigationRunning);
 
+  const [width, , depth] = size;
+  const selectionGeom = React.useMemo(() => {
+    return new THREE.BoxGeometry(width + 0.2, 0.1, depth + 0.2);
+  }, [width, depth]);
+
+  const edgesGeom = React.useMemo(() => {
+    return new THREE.EdgesGeometry(selectionGeom);
+  }, [selectionGeom]);
+
+  useEffect(() => {
+    return () => {
+      edgesGeom.dispose();
+      selectionGeom.dispose();
+    };
+  }, [edgesGeom, selectionGeom]);
+
   // Dynamic overlay color computation
   let plotColor = color;
   if (overlayMode === "moisture") {
@@ -79,10 +95,7 @@ function FarmPlot({
 
       {/* Selected Boundary Glow Box */}
       {isSelected ? (
-        <lineSegments position={[0, size[1] / 2 + 0.02, 0]}>
-          <edgesGeometry
-            args={[new THREE.BoxGeometry(size[0] + 0.2, 0.1, size[2] + 0.2)]}
-          />
+        <lineSegments position={[0, size[1] / 2 + 0.02, 0]} geometry={edgesGeom}>
           <lineBasicMaterial color="#34D399" linewidth={3} />
         </lineSegments>
       ) : null}
