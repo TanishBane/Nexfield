@@ -32,7 +32,8 @@ function FarmPlot({
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
-  const { overlayMode, isIrrigationRunning } = useSimulationStore();
+  const overlayMode = useSimulationStore((state) => state.overlayMode);
+  const isIrrigationRunning = useSimulationStore((state) => state.isIrrigationRunning);
 
   // Dynamic overlay color computation
   let plotColor = color;
@@ -132,7 +133,7 @@ function FarmPlot({
 
 // Weather Particle Sim (Rain Effect when heavy_rain active)
 function WeatherParticles() {
-  const { weatherSimMode } = useSimulationStore();
+  const weatherSimMode = useSimulationStore((state) => state.weatherSimMode);
   const rainRef = useRef<THREE.Points>(null);
 
   const particleCount = weatherSimMode === "heavy_rain" ? 600 : 0;
@@ -171,8 +172,10 @@ function WeatherParticles() {
 
 // Main 3D Scene Assembly
 function Scene() {
-  const { cameraMode, selectedPlotId, setSelectedPlotId, weatherSimMode } =
-    useSimulationStore();
+  const cameraMode = useSimulationStore((state) => state.cameraMode);
+  const selectedPlotId = useSimulationStore((state) => state.selectedPlotId);
+  const setSelectedPlotId = useSimulationStore((state) => state.setSelectedPlotId);
+  const weatherSimMode = useSimulationStore((state) => state.weatherSimMode);
 
   // Dynamic lighting based on weather simulation mode
   const ambientIntensity =
@@ -305,7 +308,8 @@ class CanvasErrorBoundary extends React.Component<
 }
 
 function TopologicalFallback() {
-  const { selectedPlotId, setSelectedPlotId } = useSimulationStore();
+  const selectedPlotId = useSimulationStore((state) => state.selectedPlotId);
+  const setSelectedPlotId = useSimulationStore((state) => state.setSelectedPlotId);
 
   return (
     <div className="relative w-full h-full min-h-[420px] rounded-xl overflow-hidden bg-[#F7FAF2] border border-[#D1DDCD] flex flex-col items-center justify-center p-6 text-center">
@@ -375,7 +379,8 @@ function TopologicalFallback() {
 }
 
 export function TwinCanvas() {
-  const { cameraMode, weatherSimMode } = useSimulationStore();
+  const cameraMode = useSimulationStore((state) => state.cameraMode);
+  const weatherSimMode = useSimulationStore((state) => state.weatherSimMode);
   const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
