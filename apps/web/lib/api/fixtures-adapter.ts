@@ -402,7 +402,13 @@ export const fixturesAdapter = {
     return envelope(list as unknown as MarketObservation[]);
   },
 
-  async getMarketComparison(): Promise<ApiResponse<MarketComparison>> {
+  async getMarketComparison(commodity?: string): Promise<ApiResponse<MarketComparison>> {
+    if (commodity && commodity !== 'All') {
+      const found = (fixtures.marketComparisons as any[]).find(
+        (m: any) => m.commodity?.toLowerCase() === commodity.toLowerCase()
+      );
+      if (found) return envelope(found as unknown as MarketComparison);
+    }
     return envelope(fixtures.marketComparisons[0] as unknown as MarketComparison);
   },
 };

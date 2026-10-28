@@ -3,6 +3,7 @@
 Runs real computer vision inference using ONNX Runtime with convolutional feature activation.
 Includes strict destination validation (SSRF immunity), streaming size limits, and safe redirect controls.
 """
+import asyncio
 import base64
 from datetime import datetime, timezone
 import io
@@ -182,6 +183,7 @@ def validate_image_payload(data: bytes) -> None:
         raise ApiProblem(422, "IMAGE_TOO_LARGE", f"Image size exceeds {MAX_IMAGE_BYTES // (1024 * 1024)} MB limit")
 
     try:
+        Image.MAX_IMAGE_PIXELS = 10_000_000
         with Image.open(io.BytesIO(data)) as img:
             fmt = (img.format or "").upper()
             if fmt not in ALLOWED_IMAGE_FORMATS:
@@ -312,7 +314,7 @@ async def diagnose(
     # 2. Execute Real ONNX Computer Vision Inference
     try:
         engine = FieldSightInferenceEngine.get_instance()
-        prediction = engine.predict(image_bytes, crop_context=body.crop_species)
+        prediction = await asyncio.to_thread(engine.predict, image_bytes, crop_context=body.crop_species)
     except ValueError as exc:
         raise ApiProblem(422, "INVALID_SPECIMEN_IMAGE", str(exc)) from exc
     except Exception as exc:

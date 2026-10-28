@@ -32,7 +32,7 @@ import {
   ErrorDisplay,
 } from "@nexfield/ui";
 import { apiClient } from "@/lib/api";
-import { uploadObservationImage } from "@/lib/storage/image-storage";
+import { uploadObservationImage, validateObservationFile, revokeObservationUrl } from "@/lib/storage/image-storage";
 import { useFarmStore } from "@/lib/store/useFarmStore";
 import type { CropAssessment } from "@nexfield/contracts";
 import Link from "next/link";
@@ -121,19 +121,22 @@ export default function FieldSightPage() {
   };
 
   const processFile = async (file: File) => {
+    const validation = validateObservationFile(file);
+    if (!validation.valid) {
+      alert(validation.error || "Invalid file");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
       setImagePreviewUrl(dataUrl);
       diagnoseMutation.mutate(dataUrl);
     };
+    reader.onerror = () => {
+      console.error("Failed to read specimen file");
+    };
     reader.readAsDataURL(file);
-
-    try {
-      await uploadObservationImage(file);
-    } catch {
-      // Offline fallback
-    }
   };
 
   if (isLoading) {

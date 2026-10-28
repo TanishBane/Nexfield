@@ -1,4 +1,5 @@
 """Unit tests for NEXFIELD Intelligence Tools & Server-Side Dispatcher."""
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -7,8 +8,11 @@ from services.api.intelligence import (
     simulate_irrigation_intervention,
     tool_get_harvest_quality_risk,
     tool_get_mandi_prices,
+    tool_get_farm_summary,
+    tool_get_soil_telemetry,
 )
 from services.api.main import app
+from services.api.models import Farm, Field
 
 
 def test_simulate_irrigation_intervention_calculation():
@@ -77,3 +81,64 @@ async def test_intelligence_routes_registered():
     paths = app.openapi()["paths"]
     assert "/api/v1/intelligence/chat" in paths
     assert "/api/v1/intelligence/tools/execute" in paths
+
+
+@pytest.mark.asyncio
+async def test_tool_get_farm_summary_with_farm_model():
+    """Verify tool_get_farm_summary extracts latitude, longitude and soil_type without AttributeError."""
+    farm_id = uuid4()
+    user_id = uuid4()
+    farm = Farm(
+        id=farm_id,
+        owner_id=user_id,
+        name="Test Agrohub",
+        location={"latitude": 30.5, "longitude": 75.8, "address": "Punjab"},
+        total_area_hectares=12.5,
+        soil_type="alluvial",
+        primary_irrigation="canal",
+    )
+    session = MagicMock()
+    session.scalar = AsyncMock(side_effect=[farm, 3])
+
+    mock_scalars = MagicMock()
+    mock_scalars.all = MagicMock(return_value=[])
+    session.scalars = AsyncMock(return_value=mock_scalars)
+
+    res = await tool_get_farm_summary(session, farm_id, user_id)
+    assert res["farm_name"] == "Test Agrohub"
+    assert res["latitude"] == 30.5
+    assert res["longitude"] == 75.8
+    assert res["soil_type"] == "alluvial"
+    assert res["active_tasks_count"] == 3
+
+
+@pytest.mark.asyncio
+async def test_tool_get_soil_telemetry_with_field_model():
+    """Verify tool_get_soil_telemetry extracts soil_metrics without AttributeError."""
+    farm_id = uuid4()
+    field_id = uuid4()
+    user_id = uuid4()
+    farm = Farm(
+        id=farm_id,
+        owner_id=user_id,
+        name="Test Agrohub",
+        location={"latitude": 30.5, "longitude": 75.8},
+        total_area_hectares=12.5,
+        soil_type="alluvial",
+        primary_irrigation="canal",
+    )
+    field = Field(
+        id=field_id,
+        farm_id=farm_id,
+        name="Sector Alpha",
+        code="FLD-01",
+        area_hectares=4.2,
+        soil_metrics={"ph": 6.8, "texture": "clay_loam", "field_capacity": 42.0},
+    )
+    session = MagicMock()
+    session.scalar = AsyncMock(side_effect=[farm, field, None])
+
+    res = await tool_get_soil_telemetry(session, farm_id, field_id, user_id)
+    assert res["field_id"] == str(field_id)
+    assert res["field_name"] == "Sector Alpha"
+    assert "clay_loam" in str(res["soil_profile"])

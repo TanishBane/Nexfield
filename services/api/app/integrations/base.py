@@ -41,6 +41,12 @@ class BaseAdapter:
         """Close the underlying HTTP client."""
         await self.client.aclose()
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.close()
+
     async def _get(self, endpoint: str, params: Optional[Dict[str, Any]] = None) -> httpx.Response:
         """
         Wrapper around HTTPX GET to handle common exceptions.

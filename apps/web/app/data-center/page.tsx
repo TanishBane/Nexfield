@@ -307,9 +307,12 @@ export default function DataCenterPage() {
         const out: Record<string, any> = {};
         if (category === "sensors") {
           out.timestamp = row[mapping.timestamp] || new Date().toISOString();
-          out.moisture_percent = Number(row[mapping.moisture]) || 38.0;
-          out.temperature_c = Number(row[mapping.temperature]) || 24.5;
-          out.ndvi = Number(row[mapping.ndvi]) || 0.8;
+          const rawM = Number(row[mapping.moisture]);
+          out.moisture_percent = !isNaN(rawM) ? rawM : 38.0;
+          const rawT = Number(row[mapping.temperature]);
+          out.temperature_c = !isNaN(rawT) ? rawT : 24.5;
+          const rawN = Number(row[mapping.ndvi]);
+          out.ndvi = !isNaN(rawN) ? rawN : 0.8;
           // preserve extra columns in metrics
           Object.keys(row).forEach((k) => {
             if (!out[k] && typeof row[k] === "number") {

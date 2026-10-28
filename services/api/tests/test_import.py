@@ -1,6 +1,10 @@
+from unittest.mock import AsyncMock, MagicMock
+from uuid import uuid4
 import pytest
 from pydantic import ValidationError
-from services.api.import_data import ImportRequest, ImportSummary, parse_date, parse_datetime
+from services.api.auth import Principal
+from services.api.models import Farm, Field
+from services.api.import_data import ImportRequest, ImportSummary, import_data, parse_date, parse_datetime
 from datetime import date, datetime, timezone
 
 def test_import_request_schema():
@@ -46,3 +50,35 @@ def test_parse_date_utility():
     d_str = "2026-10-24"
     parsed = parse_date(d_str)
     assert parsed == date(2026, 10, 24)
+
+
+@pytest.mark.asyncio
+async def test_import_data_executes_insert_statement():
+    farm_id = uuid4()
+    user = Principal(user_id=uuid4())
+    farm = Farm(id=farm_id, owner_id=user.user_id, name="Test Farm", location={}, total_area_hectares=10.0, soil_type="alluvial", primary_irrigation="canal")
+    field = Field(id=uuid4(), farm_id=farm_id, name="Field 1", code="F-1", area_hectares=2.0, soil_metrics={})
+
+    session = MagicMock()
+    begin_mock = MagicMock()
+    begin_mock.__aenter__ = AsyncMock()
+    begin_mock.__aexit__ = AsyncMock()
+    session.begin = MagicMock(return_value=begin_mock)
+
+    session.scalar = AsyncMock(return_value=farm)
+    scalars_mock = MagicMock()
+    scalars_mock.__iter__ = MagicMock(return_value=iter([field]))
+    session.scalars = AsyncMock(return_value=scalars_mock)
+    session.execute = AsyncMock()
+    session.flush = AsyncMock()
+
+    request = MagicMock()
+    request.state = MagicMock(request_id="test-req-id")
+
+    req = ImportRequest(
+        category="sensors",
+        records=[{"timestamp": "2026-10-24 10:00:00", "moisture_percent": 35.5, "temp_c": 26.2}],
+    )
+    res = await import_data(farm_id, req, request, user, session)
+    assert res.data.imported_count == 1
+    assert session.execute.called

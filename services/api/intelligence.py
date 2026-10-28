@@ -80,9 +80,9 @@ async def tool_get_farm_summary(
         "farm_id": str(farm.id),
         "farm_name": farm.name,
         "total_area_ha": farm.total_area_hectares,
-        "latitude": farm.centroid_latitude,
-        "longitude": farm.centroid_longitude,
-        "soil_type": farm.soil_type_code,
+        "latitude": farm.location.get("latitude") if isinstance(farm.location, dict) else getattr(farm, "latitude", None),
+        "longitude": farm.location.get("longitude") if isinstance(farm.location, dict) else getattr(farm, "longitude", None),
+        "soil_type": getattr(farm, "soil_type", getattr(farm, "soil_type_code", "clay_loam")),
         "fields_count": len(fields),
         "active_crop_cycles_count": len(active_cycles),
         "primary_crops": sorted(list(set(c.crop_name for c in active_cycles))),
@@ -155,7 +155,7 @@ async def tool_get_soil_telemetry(
             "field_name": field.name,
             "observed_at": latest_obs.observed_at.isoformat(),
             "metrics": latest_obs.metrics,
-            "soil_profile": field.soil_profile,
+            "soil_profile": getattr(field, "soil_metrics", getattr(field, "soil_profile", {})),
         }
 
     return {
@@ -169,7 +169,7 @@ async def tool_get_soil_telemetry(
             "ph": 7.15,
             "nitrogen_kg_ha": 210.5,
         },
-        "soil_profile": field.soil_profile or {"texture": "clay_loam", "field_capacity": 42.0},
+        "soil_profile": getattr(field, "soil_metrics", getattr(field, "soil_profile", None)) or {"texture": "clay_loam", "field_capacity": 42.0},
         "notice": "Baseline field parameters (no recent IoT observation recorded)",
     }
 

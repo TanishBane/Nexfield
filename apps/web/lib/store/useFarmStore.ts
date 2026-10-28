@@ -26,7 +26,7 @@ export const useFarmStore = create<FarmState>((set) => ({
   selectedFieldId: 'd1a8f93e-2b5c-4d7e-9f0a-1b3c5e7a9b1c', // North Sector Alpha default
   isSidebarOpen: true,
   isFarmProfileOpen: false,
-  lastRefreshedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  lastRefreshedAt: '10:00 AM',
   activeFieldFilter: null,
   activeSeasonFilter: null,
   dismissedAlertIds: [],

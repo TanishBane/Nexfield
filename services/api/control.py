@@ -141,11 +141,11 @@ async def farm_weather(
     lat = farm.location.get("latitude") or 20.0059
     lon = farm.location.get("longitude") or 73.7901
     try:
-        adapter = OpenMeteoAdapter()
-        forecast = await adapter.get_forecast(lat=float(lat), lon=float(lon), days=7)
-        return ApiResponse(
-            data=forecast.model_dump(mode="json"),
-            meta=ApiMeta(request_id=request.state.request_id),
-        )
+        async with OpenMeteoAdapter() as adapter:
+            forecast = await adapter.get_forecast(lat=float(lat), lon=float(lon), days=7)
+            return ApiResponse(
+                data=forecast.model_dump(mode="json"),
+                meta=ApiMeta(request_id=request.state.request_id),
+            )
     except Exception as exc:
         raise ApiProblem(503, "WEATHER_UNAVAILABLE", f"Weather service unavailable: {exc}")

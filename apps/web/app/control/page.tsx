@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Sprout,
@@ -55,17 +55,19 @@ export default function ControlPage() {
 
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["controlOverview", selectedFarmId],
-    queryFn: async () => {
-      const res = await apiClient.getControlOverview(selectedFarmId);
+    queryFn: () => apiClient.getControlOverview(selectedFarmId),
+  });
+
+  useEffect(() => {
+    if (data) {
       setLastRefreshedAt(
         new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
         }),
       );
-      return res;
-    },
-  });
+    }
+  }, [data, setLastRefreshedAt]);
 
   const filteredCycles = useMemo(() => {
     const cycles = data?.data?.activeCycles || [];
@@ -213,7 +215,7 @@ export default function ControlPage() {
               <span className="h-2 w-2 rounded-full bg-[#048547] motion-safe:animate-pulse" />
               <span className="text-[#46604D]">
                 Telemetry Synced:{" "}
-                <strong className="text-[#005B36] font-medium tabular-nums">
+                <strong className="text-[#005B36] font-medium tabular-nums" suppressHydrationWarning>
                   {lastRefreshedAt}
                 </strong>
               </span>

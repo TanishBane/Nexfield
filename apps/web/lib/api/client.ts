@@ -6,8 +6,11 @@ import {
   type DemoCropCycle,
   type DemoObservation,
   type DemoTask,
-} from '@/lib/store/useDemoStore';
+  type DemoExpense,
+} from '../store/useDemoStore';
 import type {
+  Farm,
+  CropCycle,
   FarmControlOverview,
   CropAssessment,
   DiagnoseCropRequest,
@@ -35,6 +38,40 @@ export interface ApiError extends Error {
   code?: string;
   details?: unknown;
 }
+
+export interface FreightCalculationResult {
+  gross_modal_price_inr_per_quintal: number;
+  gross_revenue_inr: number;
+  total_deductions_inr: number;
+  net_revenue_inr: number;
+  net_realization_per_quintal_inr: number;
+  profitability_verdict: string;
+}
+
+export interface WaterRequirementResult {
+  fieldId: string;
+  totalWaterRequiredM3: number;
+  deficitMm: number;
+  etCadmm: number;
+  recommendation: string;
+}
+
+export interface FinancialSummaryData {
+  farmId: string;
+  totalRevenueInr: number;
+  totalExpensesInr: number;
+  netOperatingProfitInr: number;
+  profitMarginPercent: number;
+}
+
+export interface MspBenchmark {
+  commodity: string;
+  marketing_season: string;
+  msp_inr_per_quintal: number;
+  cost_a2_fl: number;
+  return_over_cost_percent: number;
+}
+
 
 /**
  * Standard HTTP fetcher targeting optional stateless NEXFIELD FastAPI backend endpoints.
@@ -64,6 +101,13 @@ async function fetchFromBackend<T>(endpoint: string, options?: RequestInit): Pro
   return (await res.json()) as ApiResponse<T>;
 }
 
+interface BackendControlOverviewRaw {
+  farm: DemoFarm;
+  fields?: DemoField[];
+  activeCropCycles?: DemoCropCycle[];
+  recentObservations?: DemoObservation[];
+}
+
 export const apiClient = {
   isFixtureMode(): boolean {
     return USE_FIXTURES;
@@ -72,7 +116,7 @@ export const apiClient = {
   // ----------------------------------------------------
   // Farm & Field Management
   // ----------------------------------------------------
-  async getFarms(): Promise<ApiResponse<any[]>> {
+  async getFarms(): Promise<ApiResponse<DemoFarm[]>> {
     if (USE_FIXTURES) {
       return {
         success: true,
@@ -81,7 +125,7 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any[]>('/api/v1/farms');
+      return await fetchFromBackend<DemoFarm[]>('/api/v1/farms');
     } catch {
       return {
         success: true,
@@ -91,10 +135,10 @@ export const apiClient = {
     }
   },
 
-  async getFarm(farmId: string): Promise<ApiResponse<any>> {
+  async getFarm(farmId: string): Promise<ApiResponse<DemoFarm>> {
     if (USE_FIXTURES) {
       const farms = useDemoStore.getState().farms;
-      const found = farms.find((f: any) => f.id === farmId) || farms[0];
+      const found = farms.find((f: DemoFarm) => f.id === farmId) || farms[0];
       return {
         success: true,
         data: found,
@@ -102,10 +146,10 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any>(`/api/v1/farms/${farmId}`);
+      return await fetchFromBackend<DemoFarm>(`/api/v1/farms/${farmId}`);
     } catch {
       const farms = useDemoStore.getState().farms;
-      const found = farms.find((f: any) => f.id === farmId) || farms[0];
+      const found = farms.find((f: DemoFarm) => f.id === farmId) || farms[0];
       return {
         success: true,
         data: found,
@@ -128,7 +172,7 @@ export const apiClient = {
     soilType: string;
     primaryIrrigation: string;
     boundaryGeoJson?: Record<string, unknown> | null;
-  }): Promise<ApiResponse<any>> {
+  }): Promise<ApiResponse<DemoFarm>> {
     if (USE_FIXTURES) {
       const newFarm: DemoFarm = {
         id: `demo-farm-${Date.now()}`,
@@ -148,29 +192,40 @@ export const apiClient = {
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>('/api/v1/farms', {
+    return await fetchFromBackend<DemoFarm>('/api/v1/farms', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
-  async updateFarm(farmId: string, data: Partial<any>): Promise<ApiResponse<any>> {
+  async updateFarm(farmId: string, data: Partial<DemoFarm>): Promise<ApiResponse<DemoFarm>> {
     if (USE_FIXTURES) {
       useDemoStore.getState().updateFarm(farmId, data);
-      const updated = useDemoStore.getState().farms.find((f) => f.id === farmId) || { id: farmId, ...data };
+      const existing = useDemoStore.getState().farms.find((f) => f.id === farmId) || useDemoStore.getState().farms[0];
+      const updated: DemoFarm = existing
+        ? { ...existing, ...data }
+        : {
+            id: farmId,
+            name: data.name || 'Demo Farm',
+            location: data.location || { latitude: 20.0, longitude: 74.0, address: 'Demo', state: 'Maharashtra', district: 'Nashik', pinCode: '422001' },
+            totalAreaHectares: data.totalAreaHectares || 10,
+            soilType: data.soilType || 'black_cotton',
+            primaryIrrigation: data.primaryIrrigation || 'canal',
+            createdAt: new Date().toISOString(),
+          };
       return {
         success: true,
         data: updated,
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>(`/api/v1/farms/${farmId}`, {
+    return await fetchFromBackend<DemoFarm>(`/api/v1/farms/${farmId}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
 
-  async getFields(farmId?: string): Promise<ApiResponse<any[]>> {
+  async getFields(farmId?: string): Promise<ApiResponse<DemoField[]>> {
     if (USE_FIXTURES) {
       const allFields = useDemoStore.getState().fields;
       const filtered = farmId ? allFields.filter((f) => f.farmId === farmId) : allFields;
@@ -188,7 +243,7 @@ export const apiClient = {
         }
         farmId = farmsRes.data[0].id;
       }
-      return await fetchFromBackend<any[]>(`/api/v1/farms/${farmId}/fields`);
+      return await fetchFromBackend<DemoField[]>(`/api/v1/farms/${farmId}/fields`);
     } catch {
       const allFields = useDemoStore.getState().fields;
       const filtered = farmId ? allFields.filter((f) => f.farmId === farmId) : allFields;
@@ -218,7 +273,7 @@ export const apiClient = {
       };
       polygonCoordinates?: [number, number][];
     }
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<DemoField>> {
     if (USE_FIXTURES) {
       const newField: DemoField = {
         id: `demo-field-${Date.now()}`,
@@ -236,7 +291,7 @@ export const apiClient = {
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>(`/api/v1/farms/${farmId}/fields`, {
+    return await fetchFromBackend<DemoField>(`/api/v1/farms/${farmId}/fields`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -245,7 +300,7 @@ export const apiClient = {
   // ----------------------------------------------------
   // Crop Cycles & Observations
   // ----------------------------------------------------
-  async getCropCycles(fieldId: string): Promise<ApiResponse<any[]>> {
+  async getCropCycles(fieldId: string): Promise<ApiResponse<DemoCropCycle[]>> {
     if (USE_FIXTURES) {
       const cycles = useDemoStore.getState().cropCycles.filter((c) => c.fieldId === fieldId);
       return {
@@ -269,7 +324,7 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any[]>(`/api/v1/fields/${fieldId}/crop-cycles`);
+      return await fetchFromBackend<DemoCropCycle[]>(`/api/v1/fields/${fieldId}/crop-cycles`);
     } catch {
       return {
         success: true,
@@ -292,7 +347,7 @@ export const apiClient = {
       currentGrowthStage: string;
       healthIndexScore?: number;
     }
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<DemoCropCycle>> {
     if (USE_FIXTURES) {
       const newCycle: DemoCropCycle = {
         id: `cycle-${Date.now()}`,
@@ -314,7 +369,7 @@ export const apiClient = {
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>(`/api/v1/fields/${fieldId}/crop-cycles`, {
+    return await fetchFromBackend<DemoCropCycle>(`/api/v1/fields/${fieldId}/crop-cycles`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -329,7 +384,7 @@ export const apiClient = {
       notes?: string;
       cycleId?: string;
     }
-  ): Promise<ApiResponse<any>> {
+  ): Promise<ApiResponse<DemoObservation>> {
     if (USE_FIXTURES) {
       const newObs: DemoObservation = {
         id: `obs-${Date.now()}`,
@@ -347,7 +402,7 @@ export const apiClient = {
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>(`/api/v1/fields/${fieldId}/observations`, {
+    return await fetchFromBackend<DemoObservation>(`/api/v1/fields/${fieldId}/observations`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -360,7 +415,7 @@ export const apiClient = {
     farmId: string,
     payload: {
       category: 'sensors' | 'expenses' | 'tasks' | 'fields';
-      records: Record<string, any>[];
+      records: Record<string, unknown>[];
     }
   ): Promise<ApiResponse<{
     category: string;
@@ -403,7 +458,7 @@ export const apiClient = {
         targetFarmId = farmsRes.data[0].id;
       }
 
-      const raw = await fetchFromBackend<any>(`/api/v1/control/overview?farmId=${targetFarmId}`);
+      const raw = await fetchFromBackend<BackendControlOverviewRaw>(`/api/v1/control/overview?farmId=${targetFarmId}`);
       const data = raw.data;
 
       const farm = data.farm;
@@ -446,10 +501,52 @@ export const apiClient = {
         avgPh = fields[0].soilMetrics.ph || 6.8;
       }
 
+      const mappedFarm: Farm = {
+        id: farm.id,
+        name: farm.name,
+        ownerId: farm.ownerId || '00000000-0000-0000-0000-000000000000',
+        location: farm.location,
+        totalAreaHectares: farm.totalAreaHectares || 10,
+        soilType: (farm.soilType as Farm['soilType']) || 'black_cotton',
+        primaryIrrigation: (farm.primaryIrrigation as Farm['primaryIrrigation']) || 'canal',
+        activeCropCycleCount: farm.activeCropCycleCount || activeCycles.length,
+        createdAt: farm.createdAt || new Date().toISOString(),
+        updatedAt: farm.updatedAt || new Date().toISOString(),
+      };
+
+      const mappedCycles: CropCycle[] = activeCycles.map((c) => ({
+        id: c.id,
+        fieldId: c.fieldId,
+        cropName: c.cropName,
+        variety: c.variety,
+        season: (c.season as CropCycle['season']) || 'rabi',
+        sowingDate: c.sowingDate,
+        expectedHarvestDate: c.expectedHarvestDate,
+        status: (c.status as CropCycle['status']) || 'active',
+        targetYieldMetricTons: c.targetYieldMetricTons,
+        currentGrowthStage: (
+          [
+            'seedling_germination',
+            'tillering',
+            'vegetative_growth',
+            'flowering_panicle',
+            'grain_filling',
+            'physiological_maturity',
+            'harvest_ready',
+          ].includes(c.currentGrowthStage)
+            ? c.currentGrowthStage
+            : 'vegetative_growth'
+        ) as CropCycle['currentGrowthStage'],
+        healthIndexScore: c.healthIndexScore || 90,
+        stageProgressPercent: 50,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+
       const overview: FarmControlOverview = {
-        farm,
+        farm: mappedFarm,
         activeFieldsCount: fields.length,
-        totalAreaHectares: farm.totalAreaHectares || 0,
+        totalAreaHectares: mappedFarm.totalAreaHectares || 0,
         weatherSummary: {
           temperatureC: 28.2,
           humidityPercent: 58.0,
@@ -481,7 +578,7 @@ export const apiClient = {
             timestamp: new Date().toISOString(),
           }
         ] : [],
-        activeCycles,
+        activeCycles: mappedCycles,
         recentTasks: [],
         activityTimeline: [
           {
@@ -585,7 +682,7 @@ export const apiClient = {
       irrigationScheduleDays: number[];
       irrigationVolumeM3PerHa: number;
     };
-  }): Promise<ApiResponse<any>> {
+  }): Promise<ApiResponse<WaterRequirementResult>> {
     if (USE_FIXTURES) {
       return {
         success: true,
@@ -600,7 +697,7 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any>('/api/v1/twin/water-requirement', {
+      return await fetchFromBackend<WaterRequirementResult>('/api/v1/twin/water-requirement', {
         method: 'POST',
         body: JSON.stringify(req),
       });
@@ -712,7 +809,7 @@ export const apiClient = {
     }
   },
 
-  async getExpenses(farmId: string): Promise<ApiResponse<any[]>> {
+  async getExpenses(farmId: string): Promise<ApiResponse<DemoExpense[]>> {
     if (USE_FIXTURES) {
       const expenses = useDemoStore.getState().expenses;
       return {
@@ -722,7 +819,7 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any[]>(`/api/v1/ops/expenses?farmId=${farmId}`);
+      return await fetchFromBackend<DemoExpense[]>(`/api/v1/ops/expenses?farmId=${farmId}`);
     } catch {
       return {
         success: true,
@@ -732,12 +829,12 @@ export const apiClient = {
     }
   },
 
-  async createExpense(farmId: string, req: any): Promise<ApiResponse<any>> {
+  async createExpense(farmId: string, req: Partial<DemoExpense>): Promise<ApiResponse<DemoExpense & { farmId: string }>> {
     if (USE_FIXTURES) {
       useDemoStore.getState().addExpense({
         category: req.category || 'General Operations',
         description: req.description || 'Farm expense',
-        amountInr: Number(req.amountInr || req.amount || 0),
+        amountInr: Number(req.amountInr || 0),
         date: req.date || new Date().toISOString().split('T')[0],
       });
       const created = useDemoStore.getState().expenses[0];
@@ -747,7 +844,7 @@ export const apiClient = {
         meta: { timestamp: new Date().toISOString(), version: 'v1', isFixture: true },
       };
     }
-    return await fetchFromBackend<any>(`/api/v1/ops/expenses?farmId=${farmId}`, {
+    return await fetchFromBackend<DemoExpense & { farmId: string }>(`/api/v1/ops/expenses?farmId=${farmId}`, {
       method: 'POST',
       body: JSON.stringify(req),
     });
@@ -762,7 +859,7 @@ export const apiClient = {
     }
   },
 
-  async getFinancialSummary(farmId: string): Promise<ApiResponse<any>> {
+  async getFinancialSummary(farmId: string): Promise<ApiResponse<FinancialSummaryData>> {
     if (USE_FIXTURES) {
       return {
         success: true,
@@ -777,7 +874,7 @@ export const apiClient = {
       };
     }
     try {
-      return await fetchFromBackend<any>(`/api/v1/ops/financial-summary?farmId=${farmId}`);
+      return await fetchFromBackend<FinancialSummaryData>(`/api/v1/ops/financial-summary?farmId=${farmId}`);
     } catch {
       return {
         success: true,
@@ -809,12 +906,13 @@ export const apiClient = {
     }
   },
 
-  async getMarketComparison(): Promise<ApiResponse<MarketComparison>> {
-    if (USE_FIXTURES) return fixturesAdapter.getMarketComparison();
+  async getMarketComparison(commodity?: string): Promise<ApiResponse<MarketComparison>> {
+    if (USE_FIXTURES) return fixturesAdapter.getMarketComparison(commodity);
     try {
-      return await fetchFromBackend<MarketComparison>('/api/v1/markets/arbitrage');
+      const q = commodity && commodity !== 'All' ? `?commodity=${encodeURIComponent(commodity)}` : '';
+      return await fetchFromBackend<MarketComparison>(`/api/v1/markets/arbitrage${q}`);
     } catch {
-      return fixturesAdapter.getMarketComparison();
+      return fixturesAdapter.getMarketComparison(commodity);
     }
   },
 
@@ -829,9 +927,9 @@ export const apiClient = {
     loadingUnloadingHamaliPerQuintalInr?: number;
     mandiFeePercent?: number;
     shrinkageLossPercent?: number;
-  }): Promise<ApiResponse<any>> {
+  }): Promise<ApiResponse<FreightCalculationResult>> {
     try {
-      return await fetchFromBackend<any>('/api/v1/markets/calculate-freight', {
+      return await fetchFromBackend<FreightCalculationResult>('/api/v1/markets/calculate-freight', {
         method: 'POST',
         body: JSON.stringify({
           modal_price_inr_per_quintal: req.modalPriceInrPerQuintal,
@@ -867,10 +965,10 @@ export const apiClient = {
     }
   },
 
-  async getMspBenchmarks(commodity?: string): Promise<ApiResponse<any[]>> {
+  async getMspBenchmarks(commodity?: string): Promise<ApiResponse<MspBenchmark[]>> {
     try {
       const q = commodity ? `?commodity=${encodeURIComponent(commodity)}` : '';
-      return await fetchFromBackend<any[]>(`/api/v1/markets/msp-benchmarks${q}`);
+      return await fetchFromBackend<MspBenchmark[]>(`/api/v1/markets/msp-benchmarks${q}`);
     } catch {
       return {
         success: true,

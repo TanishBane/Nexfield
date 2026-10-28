@@ -236,3 +236,50 @@ async def test_valid_image_diagnosis_succeeds(synthetic_leaf_data_uri: str):
         assert data["assessment"]["confidenceScore"] > 0
         assert "gradCamHeatmapUrl" in data
         assert "advisoryDisclaimer" in data
+
+
+@pytest.mark.asyncio
+async def test_ssrf_disallowed_schemes_and_credentials():
+    """Verify that unsupported schemes (ftp, file) and credential embedding are rejected."""
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        # 1. file scheme
+        resp = await client.post(
+            "/api/v1/fieldsight/diagnose",
+            json={"imageUrl": "file:///etc/passwd", "cropSpecies": "Wheat HD-3086"},
+        )
+        assert resp.status_code == 422
+        assert resp.json()["error"]["code"] == "UNSUPPORTED_IMAGE_SCHEME"
+
+        # 2. ftp scheme
+        resp = await client.post(
+            "/api/v1/fieldsight/diagnose",
+            json={"imageUrl": "ftp://example.com/specimen.jpg", "cropSpecies": "Wheat HD-3086"},
+        )
+        assert resp.status_code == 422
+        assert resp.json()["error"]["code"] == "UNSUPPORTED_IMAGE_SCHEME"
+
+        # 3. Credentials in URL
+        resp = await client.post(
+            "/api/v1/fieldsight/diagnose",
+            json={"imageUrl": "http://admin:secret@example.com/specimen.jpg", "cropSpecies": "Wheat HD-3086"},
+        )
+        assert resp.status_code == 422
+        assert resp.json()["error"]["code"] == "CREDENTIALS_IN_URL_DISALLOWED"
+
+
+@pytest.mark.asyncio
+async def test_ssrf_cgnat_and_mapped_ipv6():
+    """Verify that Carrier-Grade NAT (100.64.0.0/10) and IPv4-mapped IPv6 loopbacks are caught."""
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
+        cgnat_urls = [
+            "http://100.64.0.1/leaf.jpg",
+            "http://100.127.255.254/leaf.jpg",
+            "http://[::ffff:100.64.1.1]/leaf.jpg",
+        ]
+        for url in cgnat_urls:
+            resp = await client.post(
+                "/api/v1/fieldsight/diagnose",
+                json={"imageUrl": url, "cropSpecies": "Wheat HD-3086"},
+            )
+            assert resp.status_code == 422
+            assert resp.json()["error"]["code"] == "SSRF_DISALLOWED_DESTINATION"

@@ -57,7 +57,7 @@ export default function MarketsPage() {
 
   const comparisonQuery = useQuery({
     queryKey: ["marketComparison", selectedCommodity],
-    queryFn: () => apiClient.getMarketComparison(),
+    queryFn: () => apiClient.getMarketComparison(selectedCommodity),
   });
 
   if (pricesQuery.isLoading || comparisonQuery.isLoading) {

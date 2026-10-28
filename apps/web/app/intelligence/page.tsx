@@ -144,10 +144,19 @@ export default function IntelligencePage() {
         };
       }
 
+      const serverTool = (res.data as any)?.toolExecution;
+      const finalToolExecution = serverTool && serverTool.toolName
+        ? {
+            toolName: serverTool.toolName,
+            parameters: serverTool.parameters || {},
+            output: serverTool.output || "",
+          }
+        : toolExecution;
+
       const extendedReply: ExtendedMessage = {
         ...res.data,
-        toolExecution,
-        requiresConfirmation,
+        toolExecution: finalToolExecution,
+        requiresConfirmation: (res.data as any)?.requiresConfirmation || requiresConfirmation,
       };
 
       setMessages((prev) => [...prev, extendedReply]);
